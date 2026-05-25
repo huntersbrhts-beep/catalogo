@@ -3,145 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Du Lanche - Cardápio</title>
+    <title>Du Lanche - Catálogo</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .zoom-modal { display: none; }
-        .zoom-modal.active { display: flex; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        
-        /* Fundo Responsivo Blindado */
-        #bg-dinamico {
+        /* Fundo fixo e responsivo que não trava o navegador */
+        .bg-fixed-container {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 0; left: 0; width: 100vw; height: 100vh;
             z-index: -2;
-            background-repeat: no-repeat;
-            background-position: center center;
-            /* Usamos 'cover' para preencher, mas o 'fixed' evita cortes bruscos ao rolar */
+            background-color: #0f172a;
             background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
             background-attachment: fixed;
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans flex flex-col min-h-screen">
+<body class="min-h-screen text-slate-800">
 
-    <div id="bg-dinamico"></div>
-    <div class="fixed inset-0 z-[-1] pointer-events-none bg-slate-950/60"></div>
+    <div id="bg-dinamico" class="bg-fixed-container"></div>
+    <div class="fixed inset-0 z-[-1] bg-slate-950/70 pointer-events-none"></div>
 
-    <header class="bg-slate-900/90 backdrop-blur text-white sticky top-0 z-40 border-b border-slate-800">
-        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center gap-2 cursor-pointer" onclick="mudarAba('catalogo')">
-                <div class="bg-amber-500 p-1.5 rounded-lg text-slate-950"><i class="fas fa-hamburger"></i></div>
-                <h1 class="font-black text-amber-500">Du<span class="text-white font-light">LANCHE</span></h1>
-            </div>
-            <button onclick="toggleCarrinho()" class="p-2 bg-amber-500 rounded-lg text-slate-950 relative">
-                <i class="fas fa-shopping-bag"></i>
-                <span id="cart-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-black hidden">0</span>
-            </button>
-        </div>
-    </header>
-
-    <main id="aba-catalogo" class="tab-content active container mx-auto p-4 flex-grow">
+    <main class="container mx-auto p-4">
+        <h1 class="text-amber-500 font-black text-3xl mb-6">Du LANCHE</h1>
+        
         <div id="grid-produtos" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="col-span-full text-center py-10 text-white">Carregando cardápio...</div>
-        </div>
-    </main>
-
-    <main id="aba-admin" class="tab-content container mx-auto p-4 flex-grow">
-        <div class="max-w-sm mx-auto bg-white p-6 rounded-2xl shadow-xl">
-            <div id="secao-login" class="space-y-3">
-                <h2 class="font-bold">Login Admin</h2>
-                <input type="email" id="login-email" placeholder="E-mail" class="w-full p-2 border rounded-lg text-sm">
-                <input type="password" id="login-senha" placeholder="Senha" class="w-full p-2 border rounded-lg text-sm">
-                <button onclick="fazerLogin()" class="w-full bg-amber-500 py-2 rounded-lg font-bold text-sm">Entrar</button>
-            </div>
-            <div id="secao-admin-painel" class="hidden space-y-4">
-                <h2 class="font-bold text-sm">Painel Administrativo</h2>
-                <button onclick="fazerLogout()" class="text-[10px] text-red-500 underline">Sair</button>
-                <div class="border-t pt-3">
-                    <p class="text-[10px] font-bold uppercase mb-2">Trocar Fundo</p>
-                    <input type="file" id="fundo-imagem-input" class="text-[10px] w-full mb-2">
-                    <button onclick="salvarImagemFundo()" id="btn-fundo" class="w-full bg-slate-900 text-white py-2 rounded-lg text-xs font-bold">Salvar Fundo</button>
-                </div>
-            </div>
+            <p class="text-white">Carregando cardápio...</p>
         </div>
     </main>
 
     <script>
-        const _supabase = supabase.createClient("https://yawousokoaqeyvktjosj.supabase.co", "sb_publishable__TXuxjZ8PObBZxsM-PjF1Q_fAvPsDa3");
-        let listaProdutos = [];
-        let carrinhoCompras = [];
+        const _supabase = supabase.createClient(
+            "https://yawousokoaqeyvktjosj.supabase.co", 
+            "sb_publishable__TXuxjZ8PObBZxsM-PjF1Q_fAvPsDa3"
+        );
 
-        document.addEventListener("DOMContentLoaded", () => {
-            carregarProdutosDoBanco();
-            carregarImagemFundo();
-            verificarEstadoLogin();
-        });
-
-        function mudarAba(aba) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.getElementById('aba-' + aba).classList.add('active');
-        }
-
-        function carregarImagemFundo() {
-            const bg = document.getElementById('bg-dinamico');
-            const { data } = _supabase.storage.from('imagens-produtos').getPublicUrl('fundo_catalogo.jpg');
-            if (data) bg.style.backgroundImage = `url('${data.publicUrl}?v=${new Date().getTime()}')`;
-        }
-
-        async function carregarProdutosDoBanco() {
-            const { data } = await _supabase.from('produtos').select('*').order('criado_em', { ascending: false });
-            listaProdutos = data || [];
-            renderizarProdutosNoHtml();
-        }
-
-        function renderizarProdutosNoHtml() {
-            const grid = document.getElementById('grid-produtos');
-            grid.innerHTML = listaProdutos.map(prod => `
-                <div class="bg-white rounded-xl shadow border border-slate-100 overflow-hidden flex flex-col">
-                    <div class="h-28 overflow-hidden cursor-pointer" onclick="alert('Zoom')">
-                        <img src="${prod.imagem_url}" class="w-full h-full object-cover">
-                    </div>
-                    <div class="p-2 flex-grow">
-                        <h3 class="font-bold text-xs truncate">${prod.nome}</h3>
-                        <p class="text-[10px] text-slate-500 line-clamp-1">${prod.descricao}</p>
-                    </div>
-                    <div class="p-2 border-t flex justify-between items-center">
-                        <span class="font-black text-xs">R$ ${parseFloat(prod.preco).toFixed(2).replace('.', ',')}</span>
-                        <button class="bg-slate-900 text-white px-2 py-1 rounded text-[9px] font-bold">+ Pedir</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        async function salvarImagemFundo() {
-            const input = document.getElementById('fundo-imagem-input');
-            const arquivo = input.files[0];
-            if (!arquivo) return;
-            const { error } = await _supabase.storage.from('imagens-produtos').upload('fundo_catalogo.jpg', arquivo, { upsert: true });
-            if (error) alert("Erro: " + error.message);
-            else { alert("Fundo salvo!"); carregarImagemFundo(); }
-        }
-
-        function verificarEstadoLogin() {
-            _supabase.auth.onAuthStateChange((event, session) => {
-                if (session) {
-                    document.getElementById('secao-login').classList.add('hidden');
-                    document.getElementById('secao-admin-painel').classList.remove('hidden');
+        async function carregarTudo() {
+            // 1. Tentar carregar imagem de fundo sem travar
+            try {
+                const { data } = _supabase.storage.from('imagens-produtos').getPublicUrl('fundo_catalogo.jpg');
+                if (data && data.publicUrl) {
+                    const img = new Image();
+                    img.src = data.publicUrl + "?t=" + new Date().getTime();
+                    img.onload = () => {
+                        document.getElementById('bg-dinamico').style.backgroundImage = `url('${img.src}')`;
+                    };
                 }
-            });
+            } catch (err) { console.warn("Fundo não encontrado ou erro de rede"); }
+
+            // 2. Carregar produtos
+            try {
+                const { data } = await _supabase.from('produtos').select('*').order('criado_em', { ascending: false });
+                const grid = document.getElementById('grid-produtos');
+                if (data && data.length > 0) {
+                    grid.innerHTML = data.map(p => `
+                        <div class="bg-white/95 p-3 rounded-xl shadow-lg border border-slate-200">
+                            <img src="${p.imagem_url}" class="w-full h-24 object-cover rounded-lg mb-2">
+                            <h2 class="font-bold text-sm truncate">${p.nome}</h2>
+                            <p class="text-xs text-slate-600 mb-2">R$ ${parseFloat(p.preco).toFixed(2).replace('.', ',')}</p>
+                            <button class="w-full bg-slate-900 text-white py-1 rounded text-xs font-bold">+ Pedir</button>
+                        </div>
+                    `).join('');
+                } else {
+                    grid.innerHTML = '<p class="text-white">Nenhum produto cadastrado.</p>';
+                }
+            } catch (err) {
+                console.error("Erro ao carregar produtos", err);
+            }
         }
 
-        async function fazerLogin() {
-            const email = document.getElementById('login-email').value;
-            const senha = document.getElementById('login-senha').value;
-            await _supabase.auth.signInWithPassword({ email, password: senha });
-        }
-
-        async function fazerLogout() { await _supabase.auth.signOut(); location.reload(); }
+        window.onload = carregarTudo;
     </script>
 </body>
 </html>
