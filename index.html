@@ -46,7 +46,14 @@
             <div id="secao-admin-painel" class="hidden space-y-3">
                 <input type="file" id="fundo-input" class="w-full text-xs">
                 <button onclick="salvarImagemFundo()" class="w-full bg-slate-900 text-white py-2 rounded-lg text-sm font-bold">Salvar Fundo</button>
-                <button onclick="fazerLogout()" class="w-full text-red-500 text-xs underline">Sair</button>
+                <div class="border-t pt-4 mt-2">
+                    <h3 class="font-bold text-xs mb-2">Cadastrar Cupom</h3>
+                    <input type="text" id="cupom-codigo" placeholder="Código" class="w-full p-2 mb-1 rounded border text-xs">
+                    <input type="number" id="cupom-valor" placeholder="Desconto (R$)" class="w-full p-2 mb-1 rounded border text-xs">
+                    <input type="number" id="cupom-limite" placeholder="Limite de usos" class="w-full p-2 mb-2 rounded border text-xs">
+                    <button onclick="cadastrarCupom()" class="w-full bg-emerald-600 text-white py-2 rounded-lg text-xs font-bold">Salvar Cupom</button>
+                </div>
+                <button onclick="fazerLogout()" class="w-full text-red-500 text-xs underline mt-4">Sair</button>
             </div>
         </div>
     </main>
@@ -62,7 +69,7 @@
             <input type="text" id="cliente-endereco" placeholder="Endereço de entrega" class="w-full p-2 text-xs rounded border">
             <input type="text" id="cliente-cupom" placeholder="Cupom" class="w-full p-2 text-xs rounded border">
             <div class="flex justify-between font-bold text-sm"><span>Total:</span> <span id="total-carrinho">R$ 0,00</span></div>
-            <button onclick="enviarWhatsApp()" class="w-full bg-emerald-500 text-white py-3 rounded-xl font-bold">Finalizar Pedido</button>
+            <button onclick="finalizarPedido()" class="w-full bg-emerald-500 text-white py-3 rounded-xl font-bold">Finalizar Pedido</button>
         </div>
     </div>
 
@@ -117,22 +124,32 @@
             badge.classList.toggle('hidden', carrinho.length === 0);
         }
 
-        async function validarCupom(codigo) {
-            const { data } = await _supabase.from('cupons').select('valor_desconto').eq('codigo', codigo).eq('ativo', true).single();
-            return data ? data.valor_desconto : 0;
-        }
-
-        async function enviarWhatsApp() {
+        async function finalizarPedido() {
             const nome = document.getElementById('cliente-nome').value;
             const end = document.getElementById('cliente-endereco').value;
             const codigo = document.getElementById('cliente-cupom').value;
             if(!nome || !end) return alert("Preencha nome e endereço!");
             
-            const desconto = codigo ? await validarCupom(codigo) : 0;
-            const total = parseFloat(document.getElementById('total-carrinho').innerText.replace('R$ ', '')) - desconto;
-            
-            let msg = `*Pedido Du Lanche*\nCliente: ${nome}\nEndereço: ${end}\nDesconto: R$${desconto}\nTotal: R$${total.toFixed(2)}\nItens: ${carrinho.map(c => `\n${c.qtd}x ${c.nome}`).join('')}`;
-            window.open(`https://wa.me/5531984656166?text=${encodeURIComponent(msg)}`);
+            const { data: desconto } = await _supabase.rpc('usar_cupom', { codigo_cupom: codigo });
+            const totalOriginal = parseFloat(document.getElementById('total-carrinho').innerText.replace('R$ ', ''));
+            const totalFinal = totalOriginal - (desconto || 0);
+            const numPedido = Math.floor(1000 + Math.random() * 9000);
+
+            const div = document.createElement('div');
+            div.className = "fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-4";
+            div.innerHTML = `<div class="bg-white p-6 rounded-3xl max-w-sm w-full shadow-2xl text-center"><h2 class="font-black text-2xl text-emerald-600">PEDIDO #${numPedido}</h2><p class="my-4">Total: R$ ${totalFinal.toFixed(2)}</p><button onclick="confirmarEnvio('${nome}', '${end}', ${totalFinal}, ${numPedido})" class="w-full bg-emerald-500 text-white py-3 rounded-xl font-bold">Confirmar Envio</button></div>`;
+            document.body.appendChild(div);
+        }
+
+        function confirmarEnvio(nome, end, total, num) {
+            let msg = `*PEDIDO #${num}*\n*Cliente:* ${nome}\n*Endereço:* ${end}\n*Total:* R$ ${total.toFixed(2)}\n*Itens:* ${carrinho.map(c => `\n${c.qtd}x ${c.nome}`).join('')}`;
+            window.open(`https://wa.me/5531999999999?text=${encodeURIComponent(msg)}`);
+            location.reload();
+        }
+
+        async function cadastrarCupom() {
+            const { error } = await _supabase.from('cupons').insert([{ codigo: document.getElementById('cupom-codigo').value, valor_desconto: document.getElementById('cupom-valor').value, usos_restantes: document.getElementById('cupom-limite').value, ativo: true }]);
+            error ? alert("Erro: " + error.message) : alert("Cupom salvo!");
         }
 
         function toggleCarrinho() { document.getElementById('sidebar-carrinho').classList.toggle('translate-x-full'); }
@@ -141,7 +158,7 @@
         async function carregarFundo() { const { data } = _supabase.storage.from('imagens-produtos').getPublicUrl('fundo_catalogo.jpg'); if (data?.publicUrl) document.getElementById('bg-dinamico').style.backgroundImage = `url('${data.publicUrl}?t=${Date.now()}')`; }
         async function fazerLogin() { await _supabase.auth.signInWithPassword({ email: document.getElementById('login-email').value, password: document.getElementById('login-senha').value }); location.reload(); }
         async function fazerLogout() { await _supabase.auth.signOut(); location.reload(); }
-        async function salvarImagemFundo() { const f = document.getElementById('fundo-input').files[0]; await _supabase.storage.from('imagens-produtos').upload('fundo_catalogo.jpg', f, { upsert: true }); alert("Fundo atualizado!"); location.reload(); }
+        async function salvarImagemFundo() { const f = document.getElementById('fundo-input').files[0]; await _supabase.storage.from('imagens-produtos').upload('fundo_catalogo.jpg', f, { upsert: true }); alert("Fundo salvo!"); location.reload(); }
     </script>
 </body>
 </html>
