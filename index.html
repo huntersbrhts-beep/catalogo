@@ -15,128 +15,129 @@
         .transition-all { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans flex flex-col min-h-screen antialiased relative">
+<body class="bg-slate-950 text-slate-100 font-sans flex flex-col min-h-screen antialiased relative selection:bg-amber-500 selection:text-slate-950">
 
     <div id="bg-dinamico" class="fixed inset-0 bg-cover bg-center bg-no-repeat z-[-2] hidden"></div>
-   <div class="fixed inset-0 bg-slate-950/20 z-[-1]"></div>
+    <div class="fixed inset-0 bg-slate-950/45 backdrop-blur-[1px] z-[-1]"></div>
 
-    <header class="bg-slate-900/90 backdrop-blur text-white shadow-lg sticky top-0 z-40 border-b border-slate-800">
-        <div class="container mx-auto px-4 py-3.5 flex justify-between items-center">
+    <header class="bg-slate-900/90 backdrop-blur text-white shadow-lg sticky top-0 z-40 border-b border-slate-800/80">
+        <div class="container mx-auto px-3 py-2.5 md:py-3.5 flex justify-between items-center">
             <div class="flex items-center gap-2 cursor-pointer" onclick="mudarAba('catalogo')">
                 <div class="bg-amber-500 p-1.5 rounded-lg text-slate-950">
-                    <i class="fas fa-hamburger text-xl"></i>
+                    <i class="fas fa-hamburger text-base md:text-xl"></i>
                 </div>
-                <h1 class="text-xl font-black tracking-tight text-amber-500">DU<span class="text-white font-light">LANCHES</span></h1>
+                <h1 class="text-lg md:text-xl font-black tracking-tight text-amber-500">DU<span class="text-white font-light">LANCHES</span></h1>
             </div>
             
-            <div class="flex items-center gap-3">
-                <button onclick="mudarAba('admin')" class="text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-2 rounded-xl font-medium transition-all flex items-center gap-1.5">
-                    <i class="fas fa-shield-alt text-amber-500"></i> Painel Admin
+            <div class="flex items-center gap-2 md:gap-3">
+                <button onclick="mudarAba('admin')" class="text-[11px] md:text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700 px-2.5 py-1.5 md:px-3 md:py-2 rounded-xl font-medium transition-all flex items-center gap-1">
+                    <i class="fas fa-shield-alt text-amber-500"></i> <span class="hidden xs:inline">Admin</span>
                 </button>
                 
-                <button onclick="toggleCarrinho()" class="relative p-2.5 bg-amber-500 rounded-xl hover:bg-amber-600 text-slate-950 transition-all shadow-md shadow-amber-500/10">
-                    <i class="fas fa-shopping-bag text-lg"></i>
-                    <span id="cart-count" class="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-black ring-2 ring-slate-900 hidden">0</span>
+                <button onclick="toggleCarrinho()" class="relative p-2 md:p-2.5 bg-amber-500 rounded-xl hover:bg-amber-600 text-slate-950 transition-all shadow-md shadow-amber-500/10">
+                    <i class="fas fa-shopping-bag text-base md:text-lg"></i>
+                    <span id="cart-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] md:text-[10px] w-4.5 h-4.5 md:w-5 md:h-5 rounded-full flex items-center justify-center font-black ring-2 ring-slate-900 hidden">0</span>
                 </button>
             </div>
         </div>
     </header>
 
-    <main id="aba-catalogo" class="tab-content active container mx-auto p-4 md:p-6 flex-grow">
-        <div class="bg-gradient-to-r from-amber-500 to-orange-600 text-slate-950 p-5 mb-8 rounded-2xl shadow-xl shadow-orange-500/5 relative overflow-hidden">
-            <div class="relative z-10">
-                <h2 class="font-black text-lg md:text-xl mb-0.5">Bateu aquela fome? 😋</h2>
-                <p class="text-sm opacity-90 font-medium">Monte seu carrinho adicionando os seus favoritos e envie direto para o nosso WhatsApp!</p>
+    <main id="aba-catalogo" class="tab-content active container mx-auto p-3 md:p-6 flex-grow">
+        <div class="bg-gradient-to-r from-amber-500 to-orange-600 text-slate-950 p-4 md:p-5 mb-5 md:mb-8 rounded-xl md:text-xl shadow-xl shadow-orange-500/5 relative overflow-hidden">
+            <div class="relative z-10 max-w-[85%]">
+                <h2 class="font-black text-base md:text-lg mb-0.5">Bateu aquela fome? 😋</h2>
+                <p class="text-xs opacity-90 font-medium leading-tight">Monte seu carrinho com seus favoritos e envie direto para o nosso WhatsApp!</p>
             </div>
-            <i class="fas fa-fire text-8xl absolute -right-4 -bottom-6 opacity-10 pointer-events-none transform -rotate-12"></i>
+            <i class="fas fa-fire text-6xl md:text-8xl absolute -right-3 -bottom-4 opacity-15 pointer-events-none transform -rotate-12"></i>
         </div>
 
-        <div class="flex items-center gap-3 mb-6">
-            <div class="h-6 w-1.5 bg-amber-500 rounded-full"></div>
-            <h3 class="text-lg font-bold text-white tracking-tight">Nosso Cardápio</h3>
+        <div class="flex items-center gap-2 mb-4 md:mb-6">
+            <div class="h-5 w-1 bg-amber-500 rounded-full"></div>
+            <h3 class="text-base md:text-lg font-bold text-white tracking-tight">Nosso Cardápio</h3>
         </div>
 
-        <div id="grid-produtos" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div id="grid-produtos" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3.5 md:gap-6">
             <div class="col-span-full text-center py-20 text-slate-400">
-                <i class="fas fa-circle-notch fa-spin text-4xl text-amber-500 mb-3"></i>
-                <p class="font-medium text-sm text-slate-500">Carregando as delícias do cardápio...</p>
+                <i class="fas fa-circle-notch fa-spin text-3xl text-amber-500 mb-2"></i>
+                <p class="font-medium text-xs text-slate-500">Carregando as delícias do cardápio...</p>
             </div>
         </div>
     </main>
 
-    <main id="aba-admin" class="tab-content container mx-auto p-4 md:p-6 flex-grow">
-        <div class="max-w-xl mx-auto mt-4">
-            <button onclick="mudarAba('catalogo')" class="mb-5 text-sm text-slate-400 hover:text-white font-medium transition-all flex items-center gap-1.5">
-                <i class="fas fa-arrow-left text-xs"></i> Voltar para o Cardápio
+    <main id="aba-admin" class="tab-content container mx-auto p-3 md:p-6 flex-grow">
+        <div class="max-w-xl mx-auto mt-2">
+            <button onclick="mudarAba('catalogo')" class="mb-4 text-xs md:text-sm text-slate-400 hover:text-white font-medium transition-all flex items-center gap-1.5">
+                <i class="fas fa-arrow-left text-[10px]"></i> Voltar para o Cardápio
             </button>
 
-            <div id="secao-login" class="bg-slate-900 p-6 rounded-2xl shadow-xl border border-slate-800">
-                <div class="text-center mb-6">
-                    <div class="w-12 h-12 bg-amber-500/10 text-amber-500 rounded-xl flex items-center justify-center mx-auto mb-3">
-                        <i class="fas fa-lock text-xl"></i>
+            <div id="secao-login" class="bg-slate-900 p-5 md:p-6 rounded-xl shadow-xl border border-slate-800">
+                <div class="text-center mb-5">
+                    <div class="w-10 h-10 bg-amber-500/10 text-amber-500 rounded-xl flex items-center justify-center mx-auto mb-2">
+                        <i class="fas fa-lock text-lg"></i>
                     </div>
-                    <h2 class="text-xl font-bold text-white">Login Administrativo</h2>
-                    <p class="text-xs text-slate-400 mt-1">Acesso restrito para gerenciamento do estabelecimento.</p>
+                    <h2 class="text-lg font-bold text-white">Login Administrativo</h2>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Acesso restrito para gerenciamento do estabelecimento.</p>
                 </div>
-                <div class="space-y-4">
+                <div class="space-y-3.5">
                     <div>
-                        <input type="email" id="login-email" placeholder="E-mail do administrador" class="w-full p-3 border border-slate-700 rounded-xl bg-slate-800 text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all">
+                        <input type="email" id="login-email" placeholder="E-mail do administrador" class="w-full p-2.5 md:p-3 border border-slate-700 rounded-xl bg-slate-800 text-xs md:text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all">
                     </div>
                     <div>
-                        <input type="password" id="login-senha" placeholder="Senha de acesso" class="w-full p-3 border border-slate-700 rounded-xl bg-slate-800 text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all">
+                        <input type="password" id="login-senha" placeholder="Senha de acesso" class="w-full p-2.5 md:p-3 border border-slate-700 rounded-xl bg-slate-800 text-xs md:text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all">
                     </div>
-                    <button onclick="fazerLogin()" class="w-full bg-amber-500 text-slate-950 p-3 rounded-xl font-bold text-sm hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/10">
+                    <button onclick="fazerLogin()" class="w-full bg-amber-500 text-slate-950 p-2.5 md:p-3 rounded-xl font-bold text-xs md:text-sm hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/10">
                         Entrar no Painel
                     </button>
                 </div>
             </div>
 
-            <div id="secao-admin-painel" class="space-y-6 hidden">
-                <div class="bg-slate-900 p-6 rounded-2xl shadow-xl border border-slate-800">
-                    <div class="flex justify-between items-center mb-6 border-b border-slate-800 pb-4">
+            <div id="secao-admin-painel" class="space-y-4 md:space-y-6 hidden">
+                
+                <div class="bg-slate-900 p-5 md:p-6 rounded-xl shadow-xl border border-slate-800">
+                    <div class="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
                         <div>
-                            <h2 class="text-xl font-bold text-white">Novo Produto</h2>
-                            <span class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-bold mt-1 inline-flex items-center gap-1">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Painel Conectado
+                            <h2 class="text-lg font-bold text-white">Novo Produto</h2>
+                            <span class="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-bold mt-0.5 inline-flex items-center gap-1">
+                                <span class="w-1 h-1 rounded-full bg-emerald-400 animate-pulse"></span> Painel Conectado
                             </span>
                         </div>
-                        <button onclick="fazerLogout()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all">
-                            Sair (Logout)
+                        <button onclick="fazerLogout()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1.5 rounded-xl text-[11px] font-semibold transition-all">
+                            Sair
                         </button>
                     </div>
 
-                    <form id="form-produto" onsubmit="salvarProduto(event)" class="space-y-4">
+                    <form id="form-produto" onsubmit="salvarProduto(event)" class="space-y-3.5">
                         <div>
-                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Nome do Lanche / Produto</label>
-                            <input type="text" id="prod-nome" required placeholder="Ex: X-Tudo Supremo" class="w-full p-3 border border-slate-700 rounded-xl bg-slate-800 text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all">
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Nome do Lanche / Produto</label>
+                            <input type="text" id="prod-nome" required placeholder="Ex: X-Tudo Supremo" class="w-full p-2.5 border border-slate-700 rounded-xl bg-slate-800 text-xs md:text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Descrição / Ingredientes</label>
-                            <textarea id="prod-descricao" placeholder="Ex: Hambúrguer 150g, muito bacon, queijo derretido..." class="w-full p-3 border border-slate-700 rounded-xl bg-slate-800 text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all" rows="3"></textarea>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Descrição / Ingredientes</label>
+                            <textarea id="prod-descricao" placeholder="Ex: Hambúrguer 150g, muito bacon, queijo derretido..." class="w-full p-2.5 border border-slate-700 rounded-xl bg-slate-800 text-xs md:text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all" rows="3"></textarea>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Preço de Venda (R$)</label>
-                            <input type="number" step="0.01" id="prod-preco" required placeholder="0.00" class="w-full p-3 border border-slate-700 rounded-xl bg-slate-800 text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all">
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Preço de Venda (R$)</label>
+                            <input type="number" step="0.01" id="prod-preco" required placeholder="0.00" class="w-full p-2.5 border border-slate-700 rounded-xl bg-slate-800 text-xs md:text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Foto do Lanche</label>
-                            <input type="file" id="prod-imagem" accept="image/*" required class="w-full p-2.5 border border-slate-700 rounded-xl bg-slate-800 text-xs text-slate-400 file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-amber-500/10 file:text-amber-400 hover:file:bg-amber-500/20 file:cursor-pointer">
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Foto do Lanche</label>
+                            <input type="file" id="prod-imagem" accept="image/*" required class="w-full p-2 border border-slate-700 rounded-xl bg-slate-800 text-xs text-slate-400 file:mr-3 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[11px] file:font-bold file:bg-amber-500/10 file:text-amber-400 hover:file:bg-amber-500/20 file:cursor-pointer">
                         </div>
-                        <button type="submit" id="btn-cadastrar" class="w-full bg-amber-500 text-slate-950 p-3.5 rounded-xl font-black text-sm hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/10 flex items-center justify-center gap-2">
+                        <button type="submit" id="btn-cadastrar" class="w-full bg-amber-500 text-slate-950 p-3 rounded-xl font-black text-xs md:text-sm hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/10 flex items-center justify-center gap-2">
                             <i class="fas fa-cloud-upload-alt"></i> Publicar no Cardápio
                         </button>
                     </form>
                 </div>
 
-                <div class="bg-slate-900 p-6 rounded-2xl shadow-xl border border-slate-800">
-                    <h3 class="text-sm font-bold text-amber-500 uppercase tracking-wider mb-2 flex items-center gap-2">
+                <div class="bg-slate-900 p-5 md:p-6 rounded-xl shadow-xl border border-slate-800">
+                    <h3 class="text-xs md:text-sm font-bold text-amber-500 uppercase tracking-wider mb-1.5 flex items-center gap-2">
                         <i class="fas fa-palette"></i> Design do Catálogo (Imagem de Fundo)
                     </h3>
-                    <p class="text-xs text-slate-400 mb-4 leading-relaxed">Envie uma imagem marcante para ficar de fundo do seu site. O sistema aplicará automaticamente a transparência e o desfoque para ficar perfeito.</p>
+                    <p class="text-[11px] text-slate-400 mb-3 leading-normal">Envie uma imagem marcante para ficar de fundo do seu site. O tamanho e os cortes são calculados automaticamente para celulares e computadores.</p>
                     
-                    <div class="space-y-3">
-                        <input type="file" id="design-fundo-img" accept="image/*" class="w-full p-2.5 border border-slate-700 rounded-xl bg-slate-800 text-xs text-slate-400 file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-amber-500/10 file:text-amber-400 hover:file:bg-amber-500/20 file:cursor-pointer">
-                        <button onclick="salvarImagemFundo()" id="btn-fundo" class="w-full bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 p-2.5 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-1.5">
+                    <div class="space-y-2.5">
+                        <input type="file" id="design-fundo-img" accept="image/*" class="w-full p-2 border border-slate-700 rounded-xl bg-slate-800 text-xs text-slate-400 file:mr-3 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[11px] file:font-bold file:bg-amber-500/10 file:text-amber-400 hover:file:bg-amber-500/20 file:cursor-pointer">
+                        <button onclick="salvarImagemFundo()" id="btn-fundo" class="w-full bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 p-2 rounded-xl font-bold text-[11px] md:text-xs transition-all flex items-center justify-center gap-1.5">
                             <i class="fas fa-sync-alt"></i> Atualizar Imagem de Fundo
                         </button>
                     </div>
@@ -145,61 +146,61 @@
         </div>
     </main>
 
-    <div id="sidebar-carrinho" class="fixed inset-y-0 right-0 w-full max-w-md bg-slate-900 shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col border-l border-slate-800">
-        <div class="p-4 bg-slate-950 text-white flex justify-between items-center shadow-md border-b border-slate-800">
-            <h3 class="font-bold flex items-center gap-2 text-sm uppercase tracking-wider text-amber-500"><i class="fas fa-shopping-bag"></i> Seu Carrinho</h3>
-            <button onclick="toggleCarrinho()" class="text-slate-400 hover:text-white text-2xl font-light transition-all">&times;</button>
+    <div id="sidebar-carrinho" class="fixed inset-y-0 right-0 w-full sm:max-w-sm bg-slate-900 shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col border-l border-slate-800">
+        <div class="p-3.5 bg-slate-950 text-white flex justify-between items-center shadow-md border-b border-slate-800">
+            <h3 class="font-bold flex items-center gap-2 text-xs uppercase tracking-wider text-amber-500"><i class="fas fa-shopping-bag"></i> Seu Carrinho</h3>
+            <button onclick="toggleCarrinho()" class="text-slate-400 hover:text-white text-2xl font-light transition-all leading-none">&times;</button>
         </div>
         
-        <div id="itens-carrinho" class="p-4 flex-grow overflow-y-auto space-y-3 bg-slate-900/50">
-            <p class="text-center text-slate-400 my-8 text-sm">Seu carrinho está vazio.</p>
+        <div id="itens-carrinho" class="p-3 flex-grow overflow-y-auto space-y-2.5 bg-slate-900/50">
+            <p class="text-center text-slate-400 my-6 text-xs">Seu carrinho está vazio.</p>
         </div>
         
-        <div class="p-4 border-t border-slate-800 bg-slate-950 space-y-4 shadow-[0_-8px_24px_rgba(0,0,0,0.2)]">
+        <div class="p-3.5 border-t border-slate-800 bg-slate-950 space-y-3 shadow-[0_-8px_24px_rgba(0,0,0,0.2)]">
             <div class="flex justify-between items-baseline">
-                <span class="font-medium text-slate-400 text-sm">Total do pedido:</span>
-                <span id="total-carrinho" class="font-black text-2xl text-amber-500">R$ 0,00</span>
+                <span class="font-medium text-slate-400 text-xs">Total do pedido:</span>
+                <span id="total-carrinho" class="font-black text-xl text-amber-500">R$ 0,00</span>
             </div>
-            <div class="space-y-2 border-t border-slate-900 pt-3">
+            <div class="space-y-2 border-t border-slate-900 pt-2.5">
                 <div>
-                    <input type="text" id="cliente-nome" placeholder="Qual o seu nome?" class="w-full p-2.5 border border-slate-700 text-sm rounded-xl focus:outline-none focus:border-amber-500 bg-slate-800 text-white">
+                    <input type="text" id="cliente-nome" placeholder="Qual o seu nome?" class="w-full p-2.5 border border-slate-700 text-xs rounded-xl focus:outline-none focus:border-amber-500 bg-slate-800 text-white">
                 </div>
                 <div>
-                    <input type="text" id="cliente-endereco" placeholder="Endereço completo (Rua, Número, Bairro)" class="w-full p-2.5 border border-slate-700 text-sm rounded-xl focus:outline-none focus:border-amber-500 bg-slate-800 text-white">
+                    <input type="text" id="cliente-endereco" placeholder="Endereço de entrega completo" class="w-full p-2.5 border border-slate-700 text-xs rounded-xl focus:outline-none focus:border-amber-500 bg-slate-800 text-white">
                 </div>
             </div>
-            <button onclick="enviarWhatsApp()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3.5 rounded-xl font-bold transition-all flex items-center justify-center gap-2 text-sm shadow-xl shadow-emerald-500/10">
-                <i class="fab fa-whatsapp text-lg"></i> Concluir via WhatsApp
+            <button onclick="enviarWhatsApp()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 text-xs shadow-xl shadow-emerald-500/10">
+                <i class="fab fa-whatsapp text-base"></i> Concluir via WhatsApp
             </button>
         </div>
     </div>
 
-    <div id="zoom-modal" class="zoom-modal fixed inset-0 bg-slate-950/90 z-50 items-center justify-center p-4 transition-all" onclick="fecharZoom()">
-        <span class="absolute top-4 right-4 text-slate-400 text-3xl cursor-pointer font-light hover:text-white">&times;</span>
-        <img id="img-zoom" class="max-w-full max-h-[85vh] rounded-2xl shadow-2xl object-contain" src="" alt="Zoom">
+    <div id="zoom-modal" class="zoom-modal fixed inset-0 bg-slate-950/90 z-50 items-center justify-center p-3 transition-all" onclick="fecharZoom()">
+        <span class="absolute top-3 right-4 text-slate-400 text-3xl cursor-pointer font-light hover:text-white z-50">&times;</span>
+        <img id="img-zoom" class="max-w-full max-h-[80vh] rounded-xl shadow-2xl object-contain" src="" alt="Zoom">
     </div>
 
-    <footer class="bg-slate-900/90 backdrop-blur text-slate-400 pt-10 pb-4 border-t border-slate-800 mt-auto">
-        <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+    <footer class="bg-slate-900/90 backdrop-blur text-slate-400 pt-8 pb-3 border-t border-slate-800 mt-auto">
+        <div class="container mx-auto px-4 grid grid-cols-1 sm:grid-cols-3 gap-6 text-center sm:text-left">
             <div>
-                <h4 class="text-white font-black text-base tracking-wide uppercase mb-3 text-amber-500">DU LANCHES</h4>
-                <p class="text-xs text-slate-400 leading-relaxed">Produzindo os lanches mais saborosos e brutais da região com a máxima velocidade de entrega.</p>
+                <h4 class="text-white font-black text-sm tracking-wide uppercase mb-2 text-amber-500">DU LANCHES</h4>
+                <p class="text-[11px] text-slate-400 leading-relaxed">Produzindo os lanches mais saborosos da região com a máxima velocidade de entrega.</p>
             </div>
             <div>
-                <h4 class="text-white font-bold text-sm uppercase tracking-wider mb-3"><i class="far fa-clock text-amber-500 mr-1"></i> Atendimento</h4>
-                <p class="text-xs text-slate-400">Terça a Domingo: 18h às 23h30</p>
-                <span class="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md font-bold mt-2 inline-block">● Aceitando Pedidos</span>
+                <h4 class="text-white font-bold text-xs uppercase tracking-wider mb-2"><i class="far fa-clock text-amber-500 mr-1"></i> Atendimento</h4>
+                <p class="text-[11px] text-slate-400">Terça a Domingo: 18h às 23h30</p>
+                <span class="text-[9px] text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded font-bold mt-1 inline-block">● Aceitando Pedidos</span>
             </div>
             <div>
-                <h4 class="text-white font-bold text-sm uppercase tracking-wider mb-3">Redes Sociais</h4>
-                <div class="flex justify-center md:justify-start gap-3 text-xl">
-                    <a href="#" target="_blank" class="w-9 h-9 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-300 rounded-xl flex items-center justify-center transition-all"><i class="fab fa-instagram"></i></a>
-                    <a href="#" target="_blank" class="w-9 h-9 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-300 rounded-xl flex items-center justify-center transition-all"><i class="fab fa-facebook-f text-base"></i></a>
-                    <a href="#" target="_blank" class="w-9 h-9 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-300 rounded-xl flex items-center justify-center transition-all"><i class="fab fa-whatsapp"></i></a>
+                <h4 class="text-white font-bold text-xs uppercase tracking-wider mb-2">Redes Sociais</h4>
+                <div class="flex justify-center sm:justify-start gap-2 text-base">
+                    <a href="#" target="_blank" class="w-8 h-8 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-300 rounded-xl flex items-center justify-center transition-all"><i class="fab fa-instagram"></i></a>
+                    <a href="#" target="_blank" class="w-8 h-8 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-300 rounded-xl flex items-center justify-center transition-all"><i class="fab fa-facebook-f text-xs"></i></a>
+                    <a href="#" target="_blank" class="w-8 h-8 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-300 rounded-xl flex items-center justify-center transition-all"><i class="fab fa-whatsapp"></i></a>
                 </div>
             </div>
         </div>
-        <div class="text-center text-[11px] text-slate-600 mt-10 border-t border-slate-800/60 pt-4">
+        <div class="text-center text-[10px] text-slate-600 mt-6 border-t border-slate-800/60 pt-3">
             &copy; 2026 Du Lanches. Todos os direitos reservados.
         </div>
     </footer>
@@ -229,7 +230,6 @@
             }
         }
 
-        // Carrega a imagem salva de forma segura via LocalStorage
         function carregarImagemFundo() {
             const bgContainer = document.getElementById('bg-dinamico');
             const urlSalva = localStorage.getItem('du_lanches_bg_url');
@@ -253,9 +253,9 @@
             } catch (err) {
                 console.error("Erro ao ler dados do Supabase:", err.message);
                 document.getElementById('grid-produtos').innerHTML = `
-                    <div class="col-span-full text-center py-12 text-red-400 bg-red-950/20 rounded-2xl border border-red-900/50 p-6">
-                        <i class="fas fa-exclamation-circle text-3xl mb-2"></i>
-                        <p class="text-sm font-semibold">Falha de conexão com a base de dados. Verifique os dados de configuração.</p>
+                    <div class="col-span-full text-center py-10 text-red-400 bg-red-950/20 rounded-xl border border-red-900/50 p-4">
+                        <i class="fas fa-exclamation-circle text-2xl mb-1.5"></i>
+                        <p class="text-xs font-semibold">Falha de conexão com a base de dados.</p>
                     </div>`;
             }
         }
@@ -264,33 +264,33 @@
             const grid = document.getElementById('grid-produtos');
             if (listaProdutos.length === 0) {
                 grid.innerHTML = `
-                    <div class="col-span-full text-center py-16 text-slate-400 bg-slate-900/40 rounded-2xl border border-slate-800 p-6 shadow-sm">
-                        <i class="fas fa-hamburger text-4xl mb-2 text-slate-600"></i>
-                        <p class="text-sm font-medium">Nenhum produto cadastrado no momento.</p>
+                    <div class="col-span-full text-center py-12 text-slate-400 bg-slate-900/40 rounded-xl border border-slate-800 p-4 shadow-sm">
+                        <i class="fas fa-hamburger text-3xl mb-1.5 text-slate-600"></i>
+                        <p class="text-xs font-medium">Nenhum produto cadastrado no momento.</p>
                     </div>`;
                 return;
             }
 
             grid.innerHTML = listaProdutos.map(prod => `
-                <div class="bg-slate-900/80 backdrop-blur-md rounded-2xl shadow-md border border-slate-800 overflow-hidden hover:shadow-xl hover:border-slate-700 transition-all flex flex-col group">
-                    <div class="overflow-hidden bg-slate-800 h-48 cursor-pointer relative" onclick="abrirZoom('${prod.imagem_url}')">
-                        <img src="${prod.imagem_url || 'https://via.placeholder.com/300'}" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500">
+                <div class="bg-slate-900/80 backdrop-blur-md rounded-xl shadow-md border border-slate-800/80 overflow-hidden hover:border-slate-700 transition-all flex flex-col group">
+                    <div class="overflow-hidden bg-slate-800 h-36 sm:h-40 md:h-44 cursor-pointer relative" onclick="abrirZoom('${prod.imagem_url}')">
+                        <img src="${prod.imagem_url || 'https://via.placeholder.com/300'}" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500" loading="lazy">
                         <div class="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
-                            <span class="bg-white text-slate-900 text-[11px] px-2.5 py-1.5 rounded-xl shadow-sm font-bold flex items-center gap-1 transform translate-y-2 group-hover:translate-y-0 transition-all"><i class="fas fa-expand-alt text-amber-500"></i> Ampliar Imagem</span>
+                            <span class="bg-white text-slate-900 text-[10px] px-2 py-1 rounded-lg shadow-sm font-bold flex items-center gap-1 transform translate-y-1 group-hover:translate-y-0 transition-all"><i class="fas fa-expand-alt text-amber-500"></i> Ampliar</span>
                         </div>
                     </div>
-                    <div class="p-4 flex-grow flex flex-col justify-between">
+                    <div class="p-3 flex-grow flex flex-col justify-between">
                         <div>
-                            <h3 class="font-bold text-white text-sm md:text-base mb-1 group-hover:text-amber-500 transition-all">${prod.nome}</h3>
-                            <p class="text-slate-400 text-xs mb-4 line-clamp-2 leading-relaxed font-medium">${prod.descricao || 'Nenhuma descrição fornecida.'}</p>
+                            <h3 class="font-bold text-white text-xs md:text-sm mb-0.5 group-hover:text-amber-500 transition-all">${prod.nome}</h3>
+                            <p class="text-slate-400 text-[11px] mb-3 line-clamp-2 leading-relaxed font-medium">${prod.descricao || 'Nenhuma descrição.'}</p>
                         </div>
-                        <div class="flex justify-between items-center mt-auto pt-3 border-t border-slate-800">
+                        <div class="flex justify-between items-center mt-auto pt-2 border-t border-slate-800/60">
                             <div class="flex flex-col">
-                                <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Preço</span>
-                                <span class="text-amber-500 font-black text-base md:text-lg">R$ ${parseFloat(prod.preco).toFixed(2).replace('.', ',')}</span>
+                                <span class="text-[9px] text-slate-500 font-bold uppercase tracking-wider">Preço</span>
+                                <span class="text-amber-500 font-black text-sm md:text-base">R$ ${parseFloat(prod.preco).toFixed(2).replace('.', ',')}</span>
                             </div>
-                            <button onclick="adicionarNoCarrinho('${prod.id}')" class="bg-amber-500 text-slate-950 hover:bg-amber-600 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-md">
-                                <i class="fas fa-plus text-[10px]"></i> Adicionar
+                            <button onclick="adicionarNoCarrinho('${prod.id}')" class="bg-amber-500 text-slate-950 hover:bg-amber-600 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all flex items-center gap-1 shadow-sm">
+                                <i class="fas fa-plus text-[9px]"></i> Adicionar
                             </button>
                         </div>
                     </div>
@@ -321,7 +321,7 @@
             if (itemExistente) {
                 itemExistente.quantidade++;
             } else {
-                carrinhoCompras.push({ ...produto, quantidade: 1 });
+                carrinhoCompras.push({ ...produto, grandmother: 1, quantidade: 1 });
             }
             atualizarInterfaceCarrinho();
             document.getElementById('sidebar-carrinho').classList.remove('translate-x-full');
@@ -344,7 +344,7 @@
             const totalTexto = document.getElementById('total-carrinho');
             
             if(carrinhoCompras.length === 0) {
-                container.innerHTML = `<p class="text-center text-slate-500 my-8 text-sm">Seu carrinho está vazio.</p>`;
+                container.innerHTML = `<p class="text-center text-slate-500 my-6 text-xs">Seu carrinho está vazio.</p>`;
                 contadorBadget.classList.add('hidden');
                 totalTexto.textContent = "R$ 0,00";
                 return;
@@ -357,18 +357,18 @@
                 totalItens += item.quantidade;
                 somaValores += (item.preco * item.quantidade);
                 return `
-                    <div class="flex items-center justify-between border-b pb-3 border-slate-800 bg-slate-900 p-3 rounded-xl shadow-sm">
-                        <div class="flex items-center gap-2.5">
-                            <img src="${item.imagem_url}" class="w-11 h-11 object-cover rounded-lg shadow-sm">
+                    <div class="flex items-center justify-between border-b pb-2 border-slate-800 bg-slate-900 p-2.5 rounded-xl shadow-sm">
+                        <div class="flex items-center gap-2">
+                            <img src="${item.imagem_url}" class="w-9 h-9 object-cover rounded-lg shadow-sm">
                             <div>
-                                <h4 class="font-bold text-white text-xs">${item.nome}</h4>
-                                <span class="text-amber-500 text-xs font-black">R$ ${parseFloat(item.preco).toFixed(2).replace('.',',')}</span>
+                                <h4 class="font-bold text-white text-[11px] max-w-[140px] truncate">${item.nome}</h4>
+                                <span class="text-amber-500 text-[11px] font-black">R$ ${parseFloat(item.preco).toFixed(2).replace('.',',')}</span>
                             </div>
                         </div>
-                        <div class="flex items-center gap-2 bg-slate-800 p-1 rounded-lg border border-slate-700">
-                            <button onclick="modificarQtdItem('${item.id}', -1)" class="w-5 h-5 rounded-md hover:bg-slate-700 text-slate-300 text-xs font-bold flex items-center justify-center transition-all">-</button>
-                            <span class="text-xs font-black text-white min-w-[14px] text-center">${item.quantidade}</span>
-                            <button onclick="modificarQtdItem('${item.id}', 1)" class="w-5 h-5 rounded-md hover:bg-slate-700 text-slate-300 text-xs font-bold flex items-center justify-center transition-all">+</button>
+                        <div class="flex items-center gap-1.5 bg-slate-800 p-1 rounded-lg border border-slate-700">
+                            <button onclick="modificarQtdItem('${item.id}', -1)" class="w-4.5 h-4.5 rounded hover:bg-slate-700 text-slate-300 text-xs font-bold flex items-center justify-center transition-all">-</button>
+                            <span class="text-[11px] font-black text-white min-w-[12px] text-center">${item.quantidade}</span>
+                            <button onclick="modificarQtdItem('${item.id}', 1)" class="w-4.5 h-4.5 rounded hover:bg-slate-700 text-slate-300 text-xs font-bold flex items-center justify-center transition-all">+</button>
                         </div>
                     </div>
                 `;
@@ -386,7 +386,7 @@
             const enderecoCliente = document.getElementById('cliente-endereco').value.trim();
 
             if (!nomeCliente || !enderecoCliente) {
-                alert("Por favor, informe seu Nome e o Endereço completo para entrega!");
+                alert("Por favor, preencha seu Nome e Endereço de entrega!");
                 return;
             }
             
@@ -424,7 +424,7 @@
             const email = document.getElementById('login-email').value.trim();
             const senha = document.getElementById('login-senha').value.trim();
 
-            if(!email || !senha) return alert("Preencha todos os campos obrigatórios!");
+            if(!email || !senha) return alert("Preencha todos os campos!");
 
             const { error } = await _supabase.auth.signInWithPassword({ email, password: senha });
             if (error) alert("Erro de autenticação: " + error.message);
@@ -434,16 +434,15 @@
             await _supabase.auth.signOut();
         }
 
-        // Nova função corrigida usando geração de arquivo único aceita pelas políticas do Storage
         async function salvarImagemFundo() {
             const campoFundo = document.getElementById('design-fundo-img');
             const btn = document.getElementById('btn-fundo');
             const arquivo = campoFundo.files[0];
 
-            if(!arquivo) return alert("Selecione uma imagem de fundo primeiro!");
+            if(!arquivo) return alert("Selecione uma imagem primeiro!");
 
             btn.disabled = true;
-            btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> Atualizando imagem de fundo...`;
+            btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> Salvando fundo...`;
 
             try {
                 const ext = arquivo.name.split('.').pop();
@@ -464,7 +463,6 @@
                 
                 const imagem_url = urlData.publicUrl;
 
-                // Salva o link de forma persistente e instantânea
                 localStorage.setItem('du_lanches_bg_url', imagem_url);
 
                 alert("Imagem de fundo atualizada com sucesso!");
@@ -492,7 +490,7 @@
             if (!arquivo) return alert("Por favor, envie uma foto do produto!");
 
             btn.disabled = true;
-            btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> Enviando arquivos...`;
+            btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> Enviando...`;
 
             try {
                 const ext = arquivo.name.split('.').pop();
@@ -519,7 +517,7 @@
 
                 if (dbError) throw dbError;
 
-                alert("Produto publicado e disponível no catálogo!");
+                alert("Produto publicado com sucesso!");
                 document.getElementById('form-produto').reset();
                 await carregarProdutosDoBanco();
                 mudarAba('catalogo');
