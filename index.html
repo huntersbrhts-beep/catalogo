@@ -3,73 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Du Lanche - Cardápio</title>
+    <title>Du Lanche - Delivery</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .bg-fundo { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -2; background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed; background-color: #0f172a; }
+        .bg-fundo { position: fixed; inset: 0; z-index: -2; background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed; background-color: #0f172a; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        .zoom-modal { position: fixed; inset: 0; z-index: 50; display: none; background: rgba(0,0,0,0.9); align-items: center; justify-content: center; }
+        .zoom-modal { position: fixed; inset: 0; z-index: 100; display: none; background: rgba(0,0,0,0.95); align-items: center; justify-content: center; }
         .zoom-modal.active { display: flex; }
     </style>
 </head>
 <body class="min-h-screen text-slate-800 flex flex-col">
 
     <div id="bg-dinamico" class="bg-fundo"></div>
-    <div class="fixed inset-0 z-[-1] bg-slate-950/50 pointer-events-none"></div>
+    <div class="fixed inset-0 z-[-1] bg-slate-950/60 pointer-events-none"></div>
 
-    <header class="bg-slate-900/80 backdrop-blur-md text-white p-4 sticky top-0 z-40 border-b border-white/10 flex justify-between items-center">
+    <header class="bg-slate-900/90 backdrop-blur-md text-white p-4 sticky top-0 z-40 border-b border-white/10 flex justify-between items-center">
         <h1 class="font-black text-amber-500 cursor-pointer" onclick="mudarAba('catalogo')">Du LANCHE</h1>
         <div class="flex gap-4">
-            <button onclick="mudarAba('admin')" class="text-xs font-bold"><i class="fas fa-cog"></i></button>
-            <button onclick="toggleCarrinho()" class="relative"><i class="fas fa-shopping-bag"></i></button>
+            <button onclick="mudarAba('admin')" class="text-sm hover:text-amber-500"><i class="fas fa-cog"></i></button>
+            <button onclick="toggleCarrinho()" class="relative text-xl hover:text-amber-500">
+                <i class="fas fa-shopping-bag"></i>
+                <span id="cart-badge" class="absolute -top-2 -right-2 bg-red-500 text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold hidden">0</span>
+            </button>
         </div>
     </header>
 
     <main class="flex-grow container mx-auto p-4 z-10 relative">
         <div id="aba-catalogo" class="tab-content active">
-            <div id="grid-produtos" class="grid grid-cols-2 md:grid-cols-4 gap-3"></div>
+            <div id="grid-produtos" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
         </div>
         
-        <div id="aba-admin" class="tab-content max-w-sm mx-auto bg-white/50 backdrop-blur p-6 rounded-2xl">
-            <h2 class="font-bold mb-4">Painel Admin</h2>
-            <div id="secao-login">
-                <input type="email" id="login-email" placeholder="Email" class="w-full p-2 mb-2 rounded border">
-                <input type="password" id="login-senha" placeholder="Senha" class="w-full p-2 mb-2 rounded border">
-                <button onclick="fazerLogin()" class="w-full bg-amber-500 py-2 rounded">Entrar</button>
+        <div id="aba-admin" class="tab-content max-w-sm mx-auto bg-white/60 backdrop-blur-md p-6 rounded-2xl border border-white/20">
+            <h2 class="font-bold text-lg mb-4">Painel Admin</h2>
+            <div id="secao-login" class="space-y-3">
+                <input type="email" id="login-email" placeholder="Email" class="w-full p-2 rounded-lg border">
+                <input type="password" id="login-senha" placeholder="Senha" class="w-full p-2 rounded-lg border">
+                <button onclick="fazerLogin()" class="w-full bg-amber-500 py-2 rounded-lg font-bold">Entrar</button>
             </div>
-            <div id="secao-admin-painel" class="hidden">
-                <input type="file" id="fundo-input" class="text-xs mb-2">
-                <button onclick="salvarImagemFundo()" class="w-full bg-slate-900 text-white py-2 rounded text-xs font-bold">Atualizar Fundo</button>
-                <button onclick="fazerLogout()" class="text-xs text-red-500 mt-4 underline">Sair</button>
+            <div id="secao-admin-painel" class="hidden space-y-3">
+                <input type="file" id="fundo-input" class="w-full text-xs">
+                <button onclick="salvarImagemFundo()" class="w-full bg-slate-900 text-white py-2 rounded-lg text-sm font-bold">Salvar Fundo</button>
+                <button onclick="fazerLogout()" class="w-full text-red-500 text-xs underline">Sair</button>
             </div>
         </div>
     </main>
 
-    <footer class="p-4 text-center text-white/50 text-[10px]">© 2026 Du Lanche - Todos os direitos.</footer>
-
-    <div id="sidebar-carrinho" class="fixed inset-y-0 right-0 w-64 bg-white p-4 shadow-2xl z-50 transform translate-x-full transition-transform">
-        <h2 class="font-bold mb-4">Seu Pedido</h2>
-        <div id="itens-carrinho" class="text-xs mb-4">Vazio.</div>
-        <button onclick="enviarWhatsApp()" class="w-full bg-emerald-500 text-white py-2 rounded">Enviar WhatsApp</button>
-        <button onclick="toggleCarrinho()" class="mt-4 text-xs underline">Fechar</button>
+    <div id="sidebar-carrinho" class="fixed inset-y-0 right-0 w-full md:w-80 bg-white shadow-2xl z-50 transform translate-x-full transition-transform flex flex-col">
+        <div class="p-4 bg-slate-900 text-white flex justify-between">
+            <h2 class="font-bold">Carrinho</h2>
+            <button onclick="toggleCarrinho()"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="itens-carrinho" class="flex-grow p-4 overflow-y-auto space-y-3"></div>
+        <div class="p-4 border-t bg-slate-100">
+            <div class="flex justify-between font-bold mb-4"><span>Total:</span> <span id="total-carrinho">R$ 0,00</span></div>
+            <button onclick="enviarWhatsApp()" class="w-full bg-emerald-500 text-white py-3 rounded-xl font-bold">Finalizar Pedido</button>
+        </div>
     </div>
 
-    <div id="zoom-modal" class="zoom-modal" onclick="fecharZoom()"><img id="img-zoom" class="max-w-[90%] rounded-lg" src=""></div>
+    <div id="zoom-modal" class="zoom-modal" onclick="fecharZoom()"><img id="img-zoom" class="max-w-[90%] rounded-xl" src=""></div>
 
     <script>
         const _supabase = supabase.createClient("https://yawousokoaqeyvktjosj.supabase.co", "sb_publishable__TXuxjZ8PObBZxsM-PjF1Q_fAvPsDa3");
         let listaProdutos = [], carrinho = [];
 
-        window.onload = async () => {
-            carregarFundo();
-            carregarProdutos();
-            _supabase.auth.onAuthStateChange((e, s) => {
-                if(s) { document.getElementById('secao-login').classList.add('hidden'); document.getElementById('secao-admin-painel').classList.remove('hidden'); }
-            });
-        };
+        window.onload = () => { carregarProdutos(); carregarFundo(); };
 
         function mudarAba(aba) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -79,41 +79,62 @@
         async function carregarProdutos() {
             const { data } = await _supabase.from('produtos').select('*');
             listaProdutos = data || [];
-            const grid = document.getElementById('grid-produtos');
-            grid.innerHTML = listaProdutos.map(p => `
-                <div class="bg-white/40 backdrop-blur-sm p-2 rounded-xl border border-white/20">
-                    <img src="${p.imagem_url}" class="h-20 w-full object-cover rounded-lg mb-1 cursor-pointer" onclick="abrirZoom('${p.imagem_url}')">
+            document.getElementById('grid-produtos').innerHTML = listaProdutos.map(p => `
+                <div class="bg-white/50 backdrop-blur-sm p-3 rounded-2xl border border-white/20 shadow-lg">
+                    <img src="${p.imagem_url}" class="h-24 w-full object-cover rounded-xl mb-2 cursor-pointer" onclick="abrirZoom('${p.imagem_url}')">
                     <h2 class="font-bold text-xs truncate">${p.nome}</h2>
-                    <p class="text-[9px] truncate">${p.descricao || ''}</p>
-                    <button onclick="adicionarCarrinho('${p.id}')" class="w-full bg-slate-900 text-white py-1 mt-2 text-[9px] uppercase font-bold rounded">+ Pedir</button>
+                    <p class="font-black text-sm my-1">R$ ${parseFloat(p.preco).toFixed(2)}</p>
+                    <button onclick="adicionarCarrinho('${p.id}')" class="w-full bg-slate-900 text-white py-2 rounded-lg text-xs font-bold transition hover:bg-amber-500">+ Pedir</button>
                 </div>
             `).join('');
         }
 
-        async function carregarFundo() {
-            const { data } = _supabase.storage.from('imagens-produtos').getPublicUrl('fundo_catalogo.jpg');
-            if (data?.publicUrl) document.getElementById('bg-dinamico').style.backgroundImage = `url('${data.publicUrl}?t=${Date.now()}')`;
-        }
-
         function adicionarCarrinho(id) {
             const p = listaProdutos.find(x => x.id === id);
-            carrinho.push(p);
-            document.getElementById('itens-carrinho').innerHTML = carrinho.map(c => `<div>${c.nome} - R$${c.preco}</div>`).join('');
+            const existe = carrinho.find(item => item.id === id);
+            if (existe) existe.qtd++; else carrinho.push({ ...p, qtd: 1 });
+            renderizarCarrinho();
+        }
+
+        function removerItem(id) {
+            carrinho = carrinho.filter(i => i.id !== id);
+            renderizarCarrinho();
+        }
+
+        function renderizarCarrinho() {
+            const container = document.getElementById('itens-carrinho');
+            let total = 0;
+            container.innerHTML = carrinho.map(c => {
+                total += c.preco * c.qtd;
+                return `
+                    <div class="flex justify-between items-center bg-white p-2 rounded-lg shadow-sm">
+                        <div class="text-xs"><b>${c.nome}</b><br>${c.qtd} x R$${c.preco}</div>
+                        <button onclick="removerItem('${c.id}')" class="text-red-500"><i class="fas fa-trash"></i></button>
+                    </div>`;
+            }).join('');
+            document.getElementById('total-carrinho').innerText = `R$ ${total.toFixed(2)}`;
+            const badge = document.getElementById('cart-badge');
+            badge.innerText = carrinho.length;
+            badge.classList.toggle('hidden', carrinho.length === 0);
         }
 
         function toggleCarrinho() { document.getElementById('sidebar-carrinho').classList.toggle('translate-x-full'); }
         function abrirZoom(url) { document.getElementById('img-zoom').src = url; document.getElementById('zoom-modal').classList.add('active'); }
         function fecharZoom() { document.getElementById('zoom-modal').classList.remove('active'); }
-        async function fazerLogin() { await _supabase.auth.signInWithPassword({ email: document.getElementById('login-email').value, password: document.getElementById('login-senha').value }); }
+        function enviarWhatsApp() {
+            let txt = "Olá! Gostaria de pedir: " + carrinho.map(c => `${c.qtd}x ${c.nome}`).join(', ');
+            window.open(`https://wa.me/5531999999999?text=${encodeURIComponent(txt)}`);
+        }
+        async function carregarFundo() {
+            const { data } = _supabase.storage.from('imagens-produtos').getPublicUrl('fundo_catalogo.jpg');
+            if (data?.publicUrl) document.getElementById('bg-dinamico').style.backgroundImage = `url('${data.publicUrl}?t=${Date.now()}')`;
+        }
+        async function fazerLogin() { await _supabase.auth.signInWithPassword({ email: document.getElementById('login-email').value, password: document.getElementById('login-senha').value }); location.reload(); }
         async function fazerLogout() { await _supabase.auth.signOut(); location.reload(); }
         async function salvarImagemFundo() { 
-            const file = document.getElementById('fundo-input').files[0];
-            await _supabase.storage.from('imagens-produtos').upload('fundo_catalogo.jpg', file, { upsert: true });
-            carregarFundo(); alert("Fundo atualizado!");
-        }
-        function enviarWhatsApp() {
-            let msg = "Pedido: " + carrinho.map(c => c.nome).join(', ');
-            window.open(`https://wa.me/5531999999999?text=${encodeURIComponent(msg)}`);
+            const f = document.getElementById('fundo-input').files[0];
+            await _supabase.storage.from('imagens-produtos').upload('fundo_catalogo.jpg', f, { upsert: true });
+            alert("Fundo atualizado!"); location.reload();
         }
     </script>
 </body>
