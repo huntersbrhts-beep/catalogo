@@ -43,136 +43,104 @@
                 <input type="password" id="login-senha" placeholder="Senha" class="w-full p-2 rounded-lg border">
                 <button onclick="fazerLogin()" class="w-full bg-amber-500 py-2 rounded-lg font-bold">Entrar</button>
             </div>
-            <div id="secao-admin-painel" class="hidden space-y-3">
-                <input type="file" id="fundo-input" class="w-full text-xs">
-                <button onclick="salvarImagemFundo()" class="w-full bg-slate-900 text-white py-2 rounded-lg text-sm font-bold">Salvar Fundo</button>
-                <div class="border-t pt-4 mt-2">
+            <div id="secao-admin-painel" class="hidden space-y-4">
+                <div class="border-b pb-4">
+                    <h3 class="font-bold text-xs mb-2">Novo Produto</h3>
+                    <input type="file" id="prod-img" class="w-full text-[10px] mb-1">
+                    <input type="text" id="prod-nome" placeholder="Nome" class="w-full p-2 mb-1 rounded text-xs">
+                    <input type="number" id="prod-preco" placeholder="Preço" class="w-full p-2 mb-1 rounded text-xs">
+                    <button onclick="adicionarProduto()" class="w-full bg-blue-600 text-white py-2 rounded-lg text-xs font-bold">Cadastrar</button>
+                </div>
+                <div class="border-b pb-4">
                     <h3 class="font-bold text-xs mb-2">Cadastrar Cupom</h3>
-                    <input type="text" id="cupom-codigo" placeholder="Código" class="w-full p-2 mb-1 rounded border text-xs">
-                    <input type="number" id="cupom-valor" placeholder="Desconto (R$)" class="w-full p-2 mb-1 rounded border text-xs">
-                    <input type="number" id="cupom-limite" placeholder="Limite de usos" class="w-full p-2 mb-2 rounded border text-xs">
+                    <input type="text" id="cupom-codigo" placeholder="Código" class="w-full p-2 mb-1 rounded text-xs">
+                    <input type="number" id="cupom-valor" placeholder="Desconto (R$)" class="w-full p-2 mb-1 rounded text-xs">
+                    <input type="number" id="cupom-limite" placeholder="Limite" class="w-full p-2 mb-2 rounded text-xs">
                     <button onclick="cadastrarCupom()" class="w-full bg-emerald-600 text-white py-2 rounded-lg text-xs font-bold">Salvar Cupom</button>
                 </div>
-                <button onclick="fazerLogout()" class="w-full text-red-500 text-xs underline mt-4">Sair</button>
+                <button onclick="fazerLogout()" class="w-full text-red-500 text-xs underline">Sair</button>
             </div>
         </div>
     </main>
 
     <div id="sidebar-carrinho" class="fixed inset-y-0 right-0 w-full md:w-80 bg-white shadow-2xl z-50 transform translate-x-full transition-transform flex flex-col">
-        <div class="p-4 bg-slate-900 text-white flex justify-between">
-            <h2 class="font-bold">Carrinho</h2>
-            <button onclick="toggleCarrinho()"><i class="fas fa-times"></i></button>
-        </div>
+        <div class="p-4 bg-slate-900 text-white flex justify-between"><h2 class="font-bold">Carrinho</h2><button onclick="toggleCarrinho()"><i class="fas fa-times"></i></button></div>
         <div id="itens-carrinho" class="flex-grow p-4 overflow-y-auto space-y-3"></div>
         <div class="p-4 border-t bg-slate-100 space-y-2">
             <input type="text" id="cliente-nome" placeholder="Seu nome" class="w-full p-2 text-xs rounded border">
-            <input type="text" id="cliente-endereco" placeholder="Endereço de entrega" class="w-full p-2 text-xs rounded border">
+            <input type="text" id="cliente-endereco" placeholder="Endereço" class="w-full p-2 text-xs rounded border">
             <input type="text" id="cliente-cupom" placeholder="Cupom" class="w-full p-2 text-xs rounded border">
             <div class="flex justify-between font-bold text-sm"><span>Total:</span> <span id="total-carrinho">R$ 0,00</span></div>
             <button onclick="finalizarPedido()" class="w-full bg-emerald-500 text-white py-3 rounded-xl font-bold">Finalizar Pedido</button>
         </div>
     </div>
 
-    <div id="zoom-modal" class="zoom-modal" onclick="fecharZoom()"><img id="img-zoom" class="max-w-[90%] rounded-xl" src=""></div>
-
     <script>
         const _supabase = supabase.createClient("https://yawousokoaqeyvktjosj.supabase.co", "sb_publishable__TXuxjZ8PObBZxsM-PjF1Q_fAvPsDa3");
         let listaProdutos = [], carrinho = [];
 
+        _supabase.channel('public:produtos').on('postgres_changes', { event: '*', schema: 'public', table: 'produtos' }, () => carregarProdutos()).subscribe();
+
         window.onload = async () => {
             carregarProdutos();
-            carregarFundo();
             const { data: { session } } = await _supabase.auth.getSession();
             if (session) mostrarPainelAdmin();
         };
 
-        function mostrarPainelAdmin() {
-            document.getElementById('secao-login').classList.add('hidden');
-            document.getElementById('secao-admin-painel').classList.remove('hidden');
-        }
-
-        function mudarAba(aba) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.getElementById('aba-' + aba).classList.add('active');
-        }
+        function mostrarPainelAdmin() { document.getElementById('secao-login').classList.add('hidden'); document.getElementById('secao-admin-painel').classList.remove('hidden'); }
+        function mudarAba(aba) { document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active')); document.getElementById('aba-' + aba).classList.add('active'); }
 
         async function carregarProdutos() {
             const { data } = await _supabase.from('produtos').select('*');
             listaProdutos = data || [];
             document.getElementById('grid-produtos').innerHTML = listaProdutos.map(p => `
-                <div class="bg-white/50 backdrop-blur-sm p-3 rounded-2xl border border-white/20 shadow-lg">
-                    <img src="${p.imagem_url}" class="h-24 w-full object-cover rounded-xl mb-2 cursor-pointer" onclick="abrirZoom('${p.imagem_url}')">
-                    <h2 class="font-bold text-xs truncate">${p.nome}</h2>
-                    <p class="font-black text-sm my-1">R$ ${parseFloat(p.preco).toFixed(2)}</p>
-                    <button onclick="adicionarCarrinho('${p.id}')" class="w-full bg-slate-900 text-white py-2 rounded-lg text-xs font-bold transition hover:bg-amber-500">+ Pedir</button>
+                <div class="bg-white/50 backdrop-blur-sm p-3 rounded-2xl border border-white/20">
+                    <img src="${p.imagem_url}" class="h-24 w-full object-cover rounded-xl mb-2">
+                    <h2 class="font-bold text-xs">${p.nome}</h2>
+                    <p class="font-black text-sm">R$ ${parseFloat(p.preco).toFixed(2)}</p>
+                    <button onclick="adicionarCarrinho('${p.id}')" class="w-full bg-slate-900 text-white py-2 rounded-lg text-xs font-bold mt-2">+ Pedir</button>
                 </div>
             `).join('');
         }
 
-        function adicionarCarrinho(id) {
-            const p = listaProdutos.find(x => x.id === id);
-            const existe = carrinho.find(item => item.id === id);
-            if (existe) existe.qtd++; else carrinho.push({ ...p, qtd: 1 });
-            renderizarCarrinho();
-        }
-
-        function removerItem(id) {
-            carrinho = carrinho.filter(i => i.id !== id);
-            renderizarCarrinho();
-        }
-
+        function adicionarCarrinho(id) { const p = listaProdutos.find(x => x.id === id); const existe = carrinho.find(item => item.id === id); if (existe) existe.qtd++; else carrinho.push({ ...p, qtd: 1 }); renderizarCarrinho(); }
         function renderizarCarrinho() {
-            const container = document.getElementById('itens-carrinho');
-            let total = 0;
-            container.innerHTML = carrinho.map(c => {
-                total += c.preco * c.qtd;
-                return `<div class="flex justify-between items-center bg-white p-2 rounded-lg shadow-sm text-xs"><b>${c.nome} (${c.qtd}x)</b><button onclick="removerItem('${c.id}')" class="text-red-500"><i class="fas fa-trash"></i></button></div>`;
-            }).join('');
+            const container = document.getElementById('itens-carrinho'); let total = 0;
+            container.innerHTML = carrinho.map(c => { total += c.preco * c.qtd; return `<div class="flex justify-between items-center bg-white p-2 rounded-lg text-xs"><b>${c.nome} (${c.qtd}x)</b><button onclick="removerItem('${c.id}')" class="text-red-500"><i class="fas fa-trash"></i></button></div>`; }).join('');
             document.getElementById('total-carrinho').innerText = `R$ ${total.toFixed(2)}`;
-            const badge = document.getElementById('cart-badge');
-            badge.innerText = carrinho.length;
-            badge.classList.toggle('hidden', carrinho.length === 0);
+            const badge = document.getElementById('cart-badge'); badge.innerText = carrinho.length; badge.classList.toggle('hidden', carrinho.length === 0);
         }
+        function removerItem(id) { carrinho = carrinho.filter(i => i.id !== id); renderizarCarrinho(); }
 
         async function finalizarPedido() {
-            const nome = document.getElementById('cliente-nome').value;
-            const end = document.getElementById('cliente-endereco').value;
-            const codigo = document.getElementById('cliente-cupom').value;
+            const nome = document.getElementById('cliente-nome').value; const end = document.getElementById('cliente-endereco').value; const codigo = document.getElementById('cliente-cupom').value;
             if(!nome || !end) return alert("Preencha nome e endereço!");
-            
             const { data: desconto } = await _supabase.rpc('usar_cupom', { codigo_cupom: codigo });
             const totalOriginal = parseFloat(document.getElementById('total-carrinho').innerText.replace('R$ ', ''));
             const totalFinal = totalOriginal - (desconto || 0);
             const numPedido = Math.floor(1000 + Math.random() * 9000);
-
-            const div = document.createElement('div');
-            div.className = "fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-4";
-            div.innerHTML = `<div class="bg-white p-6 rounded-3xl max-w-sm w-full shadow-2xl text-center"><h2 class="font-black text-2xl text-emerald-600">PEDIDO #${numPedido}</h2><p class="my-4">Total: R$ ${totalFinal.toFixed(2)}</p><button onclick="confirmarEnvio('${nome}', '${end}', ${totalFinal}, ${numPedido})" class="w-full bg-emerald-500 text-white py-3 rounded-xl font-bold">Confirmar Envio</button></div>`;
+            const div = document.createElement('div'); div.className = "fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-4";
+            div.innerHTML = `<div class="bg-white p-6 rounded-3xl max-w-sm w-full text-center"><h2 class="font-black text-2xl text-emerald-600">PEDIDO #${numPedido}</h2><p class="my-4">Total: R$ ${totalFinal.toFixed(2)}</p><button onclick="confirmarEnvio('${nome}', '${end}', ${totalFinal}, ${numPedido})" class="w-full bg-emerald-500 text-white py-3 rounded-xl font-bold">Enviar Pedido</button></div>`;
             document.body.appendChild(div);
         }
 
         function confirmarEnvio(nome, end, total, num) {
             let msg = `*PEDIDO #${num}*\n*Cliente:* ${nome}\n*Endereço:* ${end}\n*Total:* R$ ${total.toFixed(2)}\n*Itens:* ${carrinho.map(c => `\n${c.qtd}x ${c.nome}`).join('')}`;
-            window.open(`https://wa.me/5531999999999?text=${encodeURIComponent(msg)}`);
+            window.open(`https://wa.me/5531984656166?text=${encodeURIComponent(msg)}`);
             location.reload();
         }
 
-        async function cadastrarCupom() {
-            const { error } = await _supabase.from('cupons').insert([{ codigo: document.getElementById('cupom-codigo').value, valor_desconto: document.getElementById('cupom-valor').value, usos_restantes: document.getElementById('cupom-limite').value, ativo: true }]);
-            error ? alert("Erro: " + error.message) : alert("Cupom salvo!");
+        async function adicionarProduto() {
+            const file = document.getElementById('prod-img').files[0]; const nome = document.getElementById('prod-nome').value; const preco = document.getElementById('prod-preco').value;
+            const fileName = `${Date.now()}.jpg`; await _supabase.storage.from('imagens-produtos').upload(fileName, file);
+            const { data: { publicUrl } } = _supabase.storage.from('imagens-produtos').getPublicUrl(fileName);
+            await _supabase.from('produtos').insert([{ nome, preco, imagem_url: publicUrl }]); alert("Produto cadastrado!"); location.reload();
         }
 
-        async function fazerLogin() {
-            const { error } = await _supabase.auth.signInWithPassword({ email: document.getElementById('login-email').value, password: document.getElementById('login-senha').value });
-            if (!error) mostrarPainelAdmin(); else alert("Erro login");
-        }
-
-        function toggleCarrinho() { document.getElementById('sidebar-carrinho').classList.toggle('translate-x-full'); }
-        function abrirZoom(url) { document.getElementById('img-zoom').src = url; document.getElementById('zoom-modal').classList.add('active'); }
-        function fecharZoom() { document.getElementById('zoom-modal').classList.remove('active'); }
-        async function carregarFundo() { const { data } = _supabase.storage.from('imagens-produtos').getPublicUrl('fundo_catalogo.jpg'); if (data?.publicUrl) document.getElementById('bg-dinamico').style.backgroundImage = `url('${data.publicUrl}?t=${Date.now()}')`; }
+        async function cadastrarCupom() { await _supabase.from('cupons').insert([{ codigo: document.getElementById('cupom-codigo').value, valor_desconto: document.getElementById('cupom-valor').value, usos_restantes: document.getElementById('cupom-limite').value, ativo: true }]); alert("Cupom salvo!"); }
+        async function fazerLogin() { const { error } = await _supabase.auth.signInWithPassword({ email: document.getElementById('login-email').value, password: document.getElementById('login-senha').value }); if (!error) mostrarPainelAdmin(); else alert("Erro login"); }
         async function fazerLogout() { await _supabase.auth.signOut(); location.reload(); }
-        async function salvarImagemFundo() { const f = document.getElementById('fundo-input').files[0]; await _supabase.storage.from('imagens-produtos').upload('fundo_catalogo.jpg', f, { upsert: true }); alert("Fundo salvo!"); location.reload(); }
+        function toggleCarrinho() { document.getElementById('sidebar-carrinho').classList.toggle('translate-x-full'); }
     </script>
 </body>
 </html>
