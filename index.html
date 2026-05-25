@@ -79,7 +79,17 @@
         const _supabase = supabase.createClient("https://yawousokoaqeyvktjosj.supabase.co", "sb_publishable__TXuxjZ8PObBZxsM-PjF1Q_fAvPsDa3");
         let listaProdutos = [], carrinho = [];
 
-        window.onload = () => { carregarProdutos(); carregarFundo(); };
+        window.onload = async () => {
+            carregarProdutos();
+            carregarFundo();
+            const { data: { session } } = await _supabase.auth.getSession();
+            if (session) mostrarPainelAdmin();
+        };
+
+        function mostrarPainelAdmin() {
+            document.getElementById('secao-login').classList.add('hidden');
+            document.getElementById('secao-admin-painel').classList.remove('hidden');
+        }
 
         function mudarAba(aba) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -152,11 +162,15 @@
             error ? alert("Erro: " + error.message) : alert("Cupom salvo!");
         }
 
+        async function fazerLogin() {
+            const { error } = await _supabase.auth.signInWithPassword({ email: document.getElementById('login-email').value, password: document.getElementById('login-senha').value });
+            if (!error) mostrarPainelAdmin(); else alert("Erro login");
+        }
+
         function toggleCarrinho() { document.getElementById('sidebar-carrinho').classList.toggle('translate-x-full'); }
         function abrirZoom(url) { document.getElementById('img-zoom').src = url; document.getElementById('zoom-modal').classList.add('active'); }
         function fecharZoom() { document.getElementById('zoom-modal').classList.remove('active'); }
         async function carregarFundo() { const { data } = _supabase.storage.from('imagens-produtos').getPublicUrl('fundo_catalogo.jpg'); if (data?.publicUrl) document.getElementById('bg-dinamico').style.backgroundImage = `url('${data.publicUrl}?t=${Date.now()}')`; }
-        async function fazerLogin() { await _supabase.auth.signInWithPassword({ email: document.getElementById('login-email').value, password: document.getElementById('login-senha').value }); location.reload(); }
         async function fazerLogout() { await _supabase.auth.signOut(); location.reload(); }
         async function salvarImagemFundo() { const f = document.getElementById('fundo-input').files[0]; await _supabase.storage.from('imagens-produtos').upload('fundo_catalogo.jpg', f, { upsert: true }); alert("Fundo salvo!"); location.reload(); }
     </script>
