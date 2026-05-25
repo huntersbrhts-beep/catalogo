@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Big Lanche - Catálogo & Admin Premium</title>
+    <title>Du Lanche - Catálogo & Admin Premium</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -26,7 +26,7 @@
                 <div class="bg-amber-500 p-1.5 rounded-lg text-slate-950">
                     <i class="fas fa-hamburger text-base md:text-xl"></i>
                 </div>
-                <h1 class="text-base md:text-xl font-black tracking-tight text-amber-500">BIG<span class="text-white font-light">LANCHE</span></h1>
+                <h1 class="text-base md:text-xl font-black tracking-tight text-amber-500">Du<span class="text-white font-light">LANCHE</span></h1>
             </div>
             
             <div class="flex items-center gap-2 md:gap-3">
@@ -79,23 +79,26 @@
                 </div>
                 <div class="space-y-3.5">
                     <div>
-                        <input type="email" id="login-email" placeholder="E-mail" class="w-full p-2.5 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500">
+                        <input type="email" id="login-email" placeholder="E-mail" class="w-full p-2.5 border border-slate-700 rounded-xl bg-slate-800 text-xs text-white focus:outline-none focus:border-amber-500 transition-all">
                     </div>
                     <div>
-                        <input type="password" id="login-senha" placeholder="Senha" class="w-full p-2.5 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500">
+                        <input type="password" id="login-senha" placeholder="Senha" class="w-full p-2.5 border border-slate-700 rounded-xl bg-slate-800 text-xs text-white focus:outline-none focus:border-amber-500 transition-all">
                     </div>
-                    <button onclick="fazerLogin()" class="w-full bg-amber-500 text-slate-950 p-2.5 rounded-xl font-bold text-xs hover:bg-amber-600 transition-all">
+                    <button onclick="fazerLogin()" class="w-full bg-amber-500 text-slate-950 p-2.5 rounded-xl font-bold text-xs hover:bg-amber-600 transition-all shadow-lg">
                         Entrar no Painel
                     </button>
                 </div>
             </div>
 
             <div id="secao-admin-painel" class="space-y-4 hidden">
+                
                 <div class="bg-slate-900 p-5 md:p-6 rounded-xl shadow-xl border border-slate-800">
                     <div class="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
                         <div>
-                            <h2 class="text-base font-bold text-white">Painel Big Lanche</h2>
-                            <span class="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-bold inline-block mt-1">● Conectado</span>
+                            <h2 class="text-base font-bold text-white">Painel Du Lanche</h2>
+                            <span class="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-bold mt-1 inline-block">
+                                ● Painel Conectado
+                            </span>
                         </div>
                         <button onclick="fazerLogout()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1.5 rounded-xl text-[10px] font-semibold transition-all">
                             Sair
@@ -104,20 +107,20 @@
 
                     <form id="form-produto" onsubmit="salvarProduto(event)" class="space-y-3">
                         <div>
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nome do Lanche</label>
-                            <input type="text" id="prod-nome" required class="w-full p-2.5 border border-slate-700 rounded-xl bg-slate-800 text-xs text-white focus:outline-none focus:border-amber-500">
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nome</label>
+                            <input type="text" id="prod-nome" required class="w-full p-2.5 border border-slate-700 rounded-xl bg-slate-800 text-xs text-white focus:outline-none focus:border-amber-500 transition-all">
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Descrição</label>
-                            <textarea id="prod-descricao" placeholder="Opcional..." class="w-full p-2.5 border border-slate-700 rounded-xl bg-slate-800 text-xs text-white focus:outline-none focus:border-amber-500" rows="2"></textarea>
+                            <textarea id="prod-descricao" placeholder="Opcional..." class="w-full p-2.5 border border-slate-700 rounded-xl bg-slate-800 text-xs text-white focus:outline-none focus:border-amber-500 transition-all" rows="2"></textarea>
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Preço (R$)</label>
-                            <input type="number" step="0.01" id="prod-preco" required class="w-full p-2.5 border border-slate-700 rounded-xl bg-slate-800 text-xs text-white focus:outline-none focus:border-amber-500">
+                            <input type="number" step="0.01" id="prod-preco" required placeholder="0.00" class="w-full p-2.5 border border-slate-700 rounded-xl bg-slate-800 text-xs text-white focus:outline-none focus:border-amber-500 transition-all">
                         </div>
                         <div>
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Foto do Produto</label>
-                            <input type="file" id="prod-imagem" accept="image/*" required class="w-full p-2 border border-slate-700 rounded-xl bg-slate-800 text-xs text-slate-400 file:bg-amber-500/10 file:text-amber-400 file:border-0 file:rounded-lg file:px-2 file:py-1 file:mr-2">
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Foto</label>
+                            <input type="file" id="prod-imagem" accept="image/*" required class="w-full p-2 border border-slate-700 rounded-xl bg-slate-800 text-xs text-slate-400 file:mr-2 file:bg-amber-500/10 file:text-amber-400 file:border-0 file:rounded-lg file:px-2 file:py-1">
                         </div>
                         <button type="submit" id="btn-cadastrar" class="w-full bg-amber-500 text-slate-950 p-3 rounded-xl font-black text-xs hover:bg-amber-600 transition-all flex items-center justify-center gap-2">
                             <i class="fas fa-cloud-upload-alt"></i> Publicar no Cardápio
@@ -127,12 +130,13 @@
 
                 <div class="bg-slate-900 p-5 md:p-6 rounded-xl shadow-xl border border-slate-800">
                     <h3 class="text-xs font-bold text-amber-500 uppercase mb-1 flex items-center gap-2">
-                        <i class="fas fa-palette"></i> Alterar Imagem de Fundo
+                        <i class="fas fa-palette"></i> Design do Catálogo (Fundo)
                     </h3>
-                    <p class="text-[10px] text-slate-400 mb-3">Escolha uma imagem para alterar o fundo do catálogo em tempo real.</p>
-                    <div class="space-y-2">
-                        <input type="file" id="design-fundo-img" accept="image/*" class="w-full p-2 border border-slate-700 rounded-xl bg-slate-800 text-xs text-slate-400 file:bg-amber-500/10 file:text-amber-400 file:border-0 file:rounded-lg file:px-2 file:py-1 file:mr-2">
-                        <button type="button" onclick="salvarImagemFundo()" id="btn-fundo" class="w-full bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 p-2 rounded-xl font-bold text-[10px] flex items-center justify-center gap-1.5">
+                    <p class="text-[10px] text-slate-400 mb-3 leading-tight">Escolha uma nova foto para alterar o fundo do catálogo em tempo real no telemóvel.</p>
+                    
+                    <div class="space-y-2.5">
+                        <input type="file" id="design-fundo-img" accept="image/*" class="w-full p-2 border border-slate-700 rounded-xl bg-slate-800 text-xs text-slate-400 file:mr-2 file:bg-amber-500/10 file:text-amber-400 file:border-0 file:rounded-lg file:px-2 file:py-1">
+                        <button type="button" onclick="salvarImagemFundo()" id="btn-fundo" class="w-full bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 p-2 rounded-xl font-bold text-[10px] transition-all flex items-center justify-center gap-1.5">
                             <i class="fas fa-sync-alt"></i> Atualizar Imagem de Fundo
                         </button>
                     </div>
@@ -146,9 +150,11 @@
             <h3 class="font-bold flex items-center gap-2 text-xs uppercase tracking-wider text-amber-500"><i class="fas fa-shopping-bag"></i> Carrinho</h3>
             <button onclick="toggleCarrinho()" class="text-slate-400 hover:text-white text-2xl font-light leading-none">&times;</button>
         </div>
+        
         <div id="itens-carrinho" class="p-3 flex-grow overflow-y-auto space-y-2 bg-slate-900/50">
             <p class="text-center text-slate-400 my-6 text-xs">Vazio.</p>
         </div>
+        
         <div class="p-3.5 border-t border-slate-800 bg-slate-950 space-y-3">
             <div class="flex justify-between items-baseline">
                 <span class="font-medium text-slate-400 text-xs">Total:</span>
@@ -158,7 +164,7 @@
                 <input type="text" id="cliente-nome" placeholder="Qual o seu nome?" class="w-full p-2.5 border border-slate-700 text-xs rounded-xl bg-slate-800 text-white focus:outline-none">
                 <input type="text" id="cliente-endereco" placeholder="Endereço de entrega completo" class="w-full p-2.5 border border-slate-700 text-xs rounded-xl bg-slate-800 text-white focus:outline-none">
             </div>
-            <button onclick="enviarWhatsApp()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 text-xs shadow-xl">
+            <button onclick="enviarWhatsApp()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 text-xs shadow-xl">
                 <i class="fab fa-whatsapp text-base"></i> Concluir via WhatsApp
             </button>
         </div>
@@ -172,8 +178,8 @@
     <footer class="bg-slate-900/90 backdrop-blur-sm text-slate-400 pt-6 pb-3 border-t border-slate-800 mt-auto">
         <div class="container mx-auto px-4 grid grid-cols-1 sm:grid-cols-3 gap-5 text-center sm:text-left text-[11px]">
             <div>
-                <h4 class="text-amber-500 font-black text-xs uppercase mb-1">BIG LANCHE</h4>
-                <p class="text-slate-400 leading-relaxed">Os melhores e maiores lanches entregues com rapidez extrema.</p>
+                <h4 class="text-white font-black text-xs tracking-wide uppercase mb-1 text-amber-500">Du LANCHE</h4>
+                <p class="text-slate-400 leading-relaxed">Os melhores e maiores lanches da região entregues com rapidez extrema.</p>
             </div>
             <div>
                 <h4 class="text-white font-bold mb-1"><i class="far fa-clock text-amber-500 mr-1"></i> Funcionamento</h4>
@@ -188,8 +194,8 @@
                 </div>
             </div>
         </div>
-        <div class="text-center text-[10px] text-slate-600 mt-4 pt-2 border-t border-slate-800/60">
-            &copy; 2026 Big Lanche. Todos os direitos reservados.
+        <div class="text-center text-[10px] text-slate-600 mt-4 border-t border-slate-800/60 pt-2">
+            &copy; 2026 Du Lanche. Todos os direitos reservados.
         </div>
     </footer>
 
@@ -218,11 +224,13 @@
             }
         }
 
+        // CARREGA O FUNDO LIMPINHO DO CACHE AGRESSIVO
         function carregarImagemFundo() {
             const bgContainer = document.getElementById('bg-dinamico');
-            const urlSalva = localStorage.getItem('big_lanches_bg_url');
+            const urlSalva = localStorage.getItem('du_lanches_bg_url');
+            
             if (urlSalva) {
-                // Quebra o cache agressivo incluindo o carimbo de tempo na requisição
+                // Força a atualização no telemóvel injetando a data/hora na URL
                 bgContainer.style.backgroundImage = `url('${urlSalva}?v=${new Date().getTime()}')`;
             }
         }
@@ -239,7 +247,10 @@
                 renderizarProdutosNoHtml();
             } catch (err) {
                 console.error("Erro ao ler dados:", err.message);
-                document.getElementById('grid-produtos').innerHTML = `<div class="col-span-full text-center py-10 text-red-400 text-xs font-semibold">Falha ao carregar o cardápio.</div>`;
+                document.getElementById('grid-produtos').innerHTML = `
+                    <div class="col-span-full text-center py-10 text-red-400 text-xs font-semibold">
+                        Falha ao carregar cardápio no momento.
+                    </div>`;
             }
         }
 
@@ -355,9 +366,9 @@
             const nomeCliente = document.getElementById('cliente-nome').value.trim();
             const enderecoCliente = document.getElementById('cliente-endereco').value.trim();
 
-            if (!nomeCliente || !enderecoCliente) return alert("Preencha o Nome e Endereço!");
+            if (!nomeCliente || !enderecoCliente) return alert("Preencha Nome e Endereço!");
             
-            let msg = `*🍔 NOVO PEDIDO - BIG LANCHE* 🍔\n\n`;
+            let msg = `*🍔 NOVO PEDIDO - Du LANCHE* 🍔\n\n`;
             msg += `👤 *Cliente:* ${nomeCliente}\n📍 *Entrega:* ${enderecoCliente}\n\n`;
             
             let total = 0;
@@ -367,7 +378,7 @@
                 total += subtotal;
             });
 
-            msg += `\n💰 *TOTAL:* R$ ${total.toFixed(2).replace('.', ',')}`;
+            msg += `\n💰 *TOTAL DO PEDIDO:* R$ ${total.toFixed(2).replace('.', ',')}`;
             window.open(`https://api.whatsapp.com/send?phone=${WHATSAPP_NUMERO}&text=${encodeURIComponent(msg)}`, '_blank');
         }
 
@@ -386,6 +397,7 @@
         async function fazerLogin() {
             const email = document.getElementById('login-email').value.trim();
             const senha = document.getElementById('login-senha').value.trim();
+
             if(!email || !senha) return alert("Preencha todos os campos!");
 
             const { error } = await _supabase.auth.signInWithPassword({ email, password: senha });
@@ -396,7 +408,7 @@
             await _supabase.auth.signOut();
         }
 
-        // ALTERAÇÃO DO FUNDO CORRIGIDA CONTRA ERRO 400
+        // SALVA O FUNDO E FAZ MUDAR VISUALMENTE NO CELULAR NA HORA
         async function salvarImagemFundo() {
             const campoFundo = document.getElementById('design-fundo-img');
             const btn = document.getElementById('btn-fundo');
@@ -408,7 +420,7 @@
             btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> Atualizando...`;
 
             try {
-                // Envia explicitamente o cabeçalho contentType correto para impedir o Erro 400
+                // O cabeçalho contentType força o tipo exato da imagem evitando Erros no Storage
                 const { error: upError } = await _supabase.storage
                     .from('imagens-produtos')
                     .upload('fundo_catalogo.jpg', arquivo, {
@@ -424,25 +436,24 @@
                 
                 const imagem_url = urlData.publicUrl;
 
-                localStorage.setItem('big_lanches_bg_url', imagem_url);
+                localStorage.setItem('du_lanches_bg_url', imagem_url);
 
-                // Força a atualização visual imediata aplicando o timestamp na url do elemento
+                // Força a troca na tela mudando o background-image com o timestamp ativo
                 const bgContainer = document.getElementById('bg-dinamico');
                 bgContainer.style.backgroundImage = `url('${imagem_url}?v=${new Date().getTime()}')`;
 
-                alert("Fundo atualizado com sucesso!");
+                alert("Imagem de fundo atualizada com sucesso!");
                 campoFundo.value = "";
                 mudarAba('catalogo');
 
             } catch (err) {
                 alert("Falha ao salvar fundo: " + err.message);
-            } finally {
+            } {
                 btn.disabled = false;
                 btn.innerHTML = `<i class="fas fa-sync-alt"></i> Atualizar Imagem de Fundo`;
             }
         }
 
-        // CADASTRO DE PRODUTO CORRIGIDO CONTRA ERRO 400
         async function salvarProduto(e) {
             e.preventDefault();
             const btn = document.getElementById('btn-cadastrar');
@@ -460,7 +471,6 @@
                 const ext = arquivo.name.split('.').pop();
                 const nomeArquivo = `${Date.now()}_lanche.${ext}`;
                 
-                // Envia explicitamente o cabeçalho contentType correto para impedir o Erro 400
                 const { error: upError } = await _supabase.storage
                     .from('imagens-produtos')
                     .upload(nomeArquivo, arquivo, {
@@ -486,7 +496,7 @@
                 mudarAba('catalogo');
 
             } catch (err) {
-                alert("Falha ao salvar: " + err.message);
+                alert("Falha ao salvar produto: " + err.message);
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = `<i class="fas fa-cloud-upload-alt"></i> Publicar no Cardápio`;
