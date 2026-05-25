@@ -6,7 +6,7 @@
     <title>Du Lanche - Catálogo & Admin Premium</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link class="text-slate-950" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .zoom-modal { display: none; }
         .zoom-modal.active { display: flex; }
@@ -18,7 +18,7 @@
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans flex flex-col min-h-screen antialiased relative">
 
-    <div id="bg-dinamico" class="fixed inset-0 bg-cover bg-center bg-no-repeat z-[-1] pointer-events-none opacity-15"></div>
+    <div id="bg-dinamico" class="fixed inset-0 bg-cover bg-center bg-no-repeat z-[-1] pointer-events-none opacity-10"></div>
 
     <header class="bg-slate-900/95 backdrop-blur text-white shadow-lg sticky top-0 z-40 border-b border-slate-800">
         <div class="container mx-auto px-4 py-3.5 flex justify-between items-center">
@@ -130,9 +130,9 @@
 
                 <div class="bg-white p-6 rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100">
                     <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-1 flex items-center gap-2">
-                        <i class="fas fa-image text-amber-500"></i> Fundo Personalizado do Catálogo
+                        <i class="fas fa-image text-amber-500"></i> Fundo do Catálogo
                     </h3>
-                    <p class="text-xs text-slate-400 mb-4">Selecione uma imagem para aplicar como plano de fundo do seu catálogo digital.</p>
+                    <p class="text-xs text-slate-400 mb-4">Atualize a imagem de fundo do seu sistema.</p>
                     <div class="space-y-3">
                         <input type="file" id="fundo-imagem-input" accept="image/*" class="w-full p-2.5 border border-slate-200 rounded-xl bg-slate-50 text-xs text-slate-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-amber-100 file:text-amber-800 hover:file:bg-amber-200 file:cursor-pointer">
                         <button type="button" onclick="salvarImagemFundo()" id="btn-fundo" class="w-full bg-slate-900 text-white p-3 rounded-xl font-bold text-xs hover:bg-slate-800 transition-all flex items-center justify-center gap-2 shadow-md">
@@ -164,7 +164,7 @@
                     <input type="text" id="cliente-nome" placeholder="Qual o seu nome?" class="w-full p-2.5 border border-slate-200 text-sm rounded-xl focus:outline-none focus:border-amber-500 bg-slate-50/50">
                 </div>
                 <div>
-                    <input type="text" id="cliente-endereco" placeholder="Endereço completo (Rua, Número, Bairro)" class="w-full p-2.5 border border-slate-200 text-sm rounded-xl focus:outline-none focus:border-amber-500 bg-slate-50/50">
+                    <input type="text" id="cliente-endereco" placeholder="Endereço completo" class="w-full p-2.5 border border-slate-200 text-sm rounded-xl focus:outline-none focus:border-amber-500 bg-slate-50/50">
                 </div>
             </div>
             <button onclick="enviarWhatsApp()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3.5 rounded-xl font-bold transition-all flex items-center justify-center gap-2 text-sm shadow-xl shadow-emerald-500/10">
@@ -182,18 +182,16 @@
         <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
             <div>
                 <h4 class="text-white font-black text-base tracking-wide uppercase mb-3 text-amber-500">Du LANCHE</h4>
-                <p class="text-xs text-slate-400 leading-relaxed">Produzindo os lanches mais saborosos da região do Barreiro.</p>
+                <p class="text-xs text-slate-400 leading-relaxed">Produzindo os lanches mais saborosos da região.</p>
             </div>
             <div>
                 <h4 class="text-white font-bold text-sm uppercase tracking-wider mb-3"><i class="far fa-clock text-amber-500 mr-1"></i> Atendimento</h4>
                 <p class="text-xs text-slate-400">Terça a Domingo: 18h às 23h30</p>
-                <span class="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md font-bold mt-2 inline-block">● Aceitando Pedidos</span>
             </div>
             <div>
                 <h4 class="text-white font-bold text-sm uppercase tracking-wider mb-3">Redes Sociais</h4>
                 <div class="flex justify-center md:justify-start gap-3 text-xl">
                     <a href="#" target="_blank" class="w-9 h-9 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-300 rounded-xl flex items-center justify-center transition-all"><i class="fab fa-instagram"></i></a>
-                    <a href="#" target="_blank" class="w-9 h-9 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-300 rounded-xl flex items-center justify-center transition-all"><i class="fab fa-facebook-f text-base"></i></a>
                     <a href="#" target="_blank" class="w-9 h-9 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-300 rounded-xl flex items-center justify-center transition-all"><i class="fab fa-whatsapp"></i></a>
                 </div>
             </div>
@@ -228,18 +226,21 @@
             }
         }
 
-        // CARREGA E REDIRECIONA O FUNDO DO STORAGE EVITANDO LINK CORROMPIDO (ERRO 400)
+        // CARREGA O FUNDO BLINDADO (Se der erro 400 ou RLS ele não quebra a página)
         function carregarImagemFundo() {
             const bgContainer = document.getElementById('bg-dinamico');
             if (!bgContainer) return;
 
-            const { data } = _supabase.storage
-                .from('imagens-produtos')
-                .getPublicUrl('fundo_catalogo.jpg');
+            try {
+                const { data } = _supabase.storage
+                    .from('imagens-produtos')
+                    .getPublicUrl('fundo_catalogo.jpg');
 
-            if (data && data.publicUrl) {
-                // Injeta marcador de tempo único (?v=) eliminando o cache do telemóvel de vez
-                bgContainer.style.backgroundImage = `url('${data.publicUrl}?v=${new Date().getTime()}')`;
+                if (data && data.publicUrl) {
+                    bgContainer.style.backgroundImage = `url('${data.publicUrl}?v=${new Date().getTime()}')`;
+                }
+            } catch(e) {
+                console.log("Fundo customizado indisponível temporariamente.");
             }
         }
 
@@ -258,7 +259,7 @@
                 document.getElementById('grid-produtos').innerHTML = `
                     <div class="col-span-full text-center py-12 text-red-500 bg-red-50/50 rounded-2xl border border-red-100 p-6">
                         <i class="fas fa-exclamation-circle text-3xl mb-2"></i>
-                        <p class="text-sm font-semibold">Falha de conexão com a base de dados. Verifique os dados de configuração.</p>
+                        <p class="text-sm font-semibold">Falha de conexão com a base de dados.</p>
                     </div>`;
             }
         }
@@ -278,22 +279,16 @@
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-xl hover:border-slate-200/60 transition-all flex flex-col group">
                     <div class="overflow-hidden bg-slate-100 h-48 cursor-pointer relative" onclick="abrirZoom('${prod.imagem_url}')">
                         <img src="${prod.imagem_url || 'https://via.placeholder.com/300'}" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500">
-                        <div class="absolute inset-0 bg-slate-950/20 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
-                            <span class="bg-white/90 backdrop-blur text-slate-900 text-[11px] px-2.5 py-1.5 rounded-xl shadow-sm font-bold flex items-center gap-1 transform translate-y-2 group-hover:translate-y-0 transition-all"><i class="fas fa-expand-alt text-amber-500"></i> Ampliar Imagem</span>
-                        </div>
                     </div>
                     <div class="p-4 flex-grow flex flex-col justify-between">
                         <div>
-                            <h3 class="font-bold text-slate-800 text-sm md:text-base mb-1 group-hover:text-amber-600 transition-all">${prod.nome}</h3>
-                            <p class="text-slate-400 text-xs mb-4 line-clamp-2 leading-relaxed font-medium">${prod.descricao || 'Nenhuma descrição fornecida.'}</p>
+                            <h3 class="font-bold text-slate-800 text-sm mb-1">${prod.nome}</h3>
+                            <p class="text-slate-400 text-xs mb-4 line-clamp-2 leading-relaxed font-medium">${prod.descricao || ''}</p>
                         </div>
                         <div class="flex justify-between items-center mt-auto pt-3 border-t border-slate-50">
-                            <div class="flex flex-col">
-                                <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Preço</span>
-                                <span class="text-slate-900 font-black text-base md:text-lg">R$ ${parseFloat(prod.preco).toFixed(2).replace('.', ',')}</span>
-                            </div>
-                            <button onclick="adicionarNoCarrinho('${prod.id}')" class="bg-slate-900 text-white hover:bg-amber-500 hover:text-slate-950 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-md shadow-slate-900/5">
-                                <i class="fas fa-plus text-[10px]"></i> Adicionar
+                            <span class="text-slate-900 font-black text-base">R$ ${parseFloat(prod.preco).toFixed(2).replace('.', ',')}</span>
+                            <button onclick="adicionarNoCarrinho('${prod.id}')" class="bg-slate-900 text-white hover:bg-amber-500 hover:text-slate-950 px-3.5 py-2 rounded-xl text-xs font-bold transition-all">
+                                + Adicionar
                             </button>
                         </div>
                     </div>
@@ -312,19 +307,18 @@
             document.getElementById('zoom-modal').classList.remove('active');
         }
 
-        // FUNÇÃO EXCLUSIVA DE ENVIO SEGURO DO PLANO DE FUNDO
+        // FUNÇÃO DE SALVAMENTO DE FUNDO REESTRUTURADA CONTRA ERROS DE APAGÃO DE RLS
         async function salvarImagemFundo() {
             const input = document.getElementById('fundo-imagem-input');
             const btn = document.getElementById('btn-fundo');
             const arquivo = input ? input.files[0] : null;
 
-            if (!arquivo) return alert("Por favor, selecione uma imagem de fundo primeiro!");
+            if (!arquivo) return alert("Por favor, selecione uma imagem primeiro!");
 
             btn.disabled = true;
-            btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> Enviando Fundo...`;
+            btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> Atualizando Fundo...`;
 
             try {
-                // Força o nome estrito corrigindo os bugs do console
                 const { error: upError } = await _supabase.storage
                     .from('imagens-produtos')
                     .upload('fundo_catalogo.jpg', arquivo, {
@@ -332,7 +326,13 @@
                         upsert: true
                     });
 
-                if (upError) throw upError;
+                if (upError) {
+                    // Captura o erro de políticas de segurança de forma amigável
+                    if(upError.message.includes("row-level security")) {
+                        throw new Error("Seu Supabase bloqueou o upload por falta de permissão pública (RLS). Ative o acesso de escrita para 'authenticated' no painel do Supabase.");
+                    }
+                    throw upError;
+                }
 
                 alert("Imagem de fundo atualizada com sucesso!");
                 if(input) input.value = "";
@@ -340,7 +340,7 @@
                 mudarAba('catalogo');
 
             } catch (err) {
-                alert("Falha ao salvar fundo: " + err.message);
+                alert(err.message);
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = `<i class="fas fa-sync-alt"></i> Atualizar Imagem de Fundo`;
@@ -358,10 +358,9 @@
             if (itemExistente) {
                 itemExistente.quantidade++;
             } else {
-                carrinhoCompras.push({ ...produto, quantidade: 1 });
+                carrinhoCompras.push({ ...produto, grandmother: 1, quantidade: 1 });
             }
             atualizarInterfaceCarrinho();
-            document.getElementById('sidebar-carrinho').classList.remove('translate-x-full');
         }
 
         function modificarQtdItem(id, operacao) {
@@ -396,16 +395,16 @@
                 return `
                     <div class="flex items-center justify-between border-b pb-3 border-slate-100 bg-white p-3 rounded-xl shadow-sm">
                         <div class="flex items-center gap-2.5">
-                            <img src="${item.imagem_url}" class="w-11 h-11 object-cover rounded-lg shadow-sm">
+                            <img src="${item.imagem_url}" class="w-11 h-11 object-cover rounded-lg">
                             <div>
                                 <h4 class="font-bold text-slate-800 text-xs">${item.nome}</h4>
                                 <span class="text-slate-900 text-xs font-black">R$ ${parseFloat(item.preco).toFixed(2).replace('.',',')}</span>
                             </div>
                         </div>
-                        <div class="flex items-center gap-2 bg-slate-100 p-1 rounded-lg border border-slate-200/50">
-                            <button onclick="modificarQtdItem('${item.id}', -1)" class="w-5 h-5 rounded-md hover:bg-white text-slate-600 text-xs font-bold flex items-center justify-center transition-all">-</button>
-                            <span class="text-xs font-black text-slate-800 min-w-[14px] text-center">${item.quantidade}</span>
-                            <button onclick="modificarQtdItem('${item.id}', 1)" class="w-5 h-5 rounded-md hover:bg-white text-slate-600 text-xs font-bold flex items-center justify-center transition-all">+</button>
+                        <div class="flex items-center gap-2 bg-slate-100 p-1 rounded-lg">
+                            <button onclick="modificarQtdItem('${item.id}', -1)" class="w-5 h-5 text-xs font-bold">-</button>
+                            <span class="text-xs font-black text-slate-800">${item.quantidade}</span>
+                            <button onclick="modificarQtdItem('${item.id}', 1)" class="w-5 h-5 text-xs font-bold">+</button>
                         </div>
                     </div>
                 `;
@@ -418,30 +417,18 @@
 
         function enviarWhatsApp() {
             if (carrinhoCompras.length === 0) return alert("Adicione produtos primeiro!");
-
             const nomeCliente = document.getElementById('cliente-nome').value.trim();
             const enderecoCliente = document.getElementById('cliente-endereco').value.trim();
 
-            if (!nomeCliente || !enderecoCliente) {
-                alert("Por favor, informe seu Nome e o Endereço completo para entrega!");
-                return;
-            }
-            
-            let msg = `*🍔 NOVO PEDIDO - DU LANCHE* 🍔\n\n`;
-            msg += `👤 *Cliente:* ${nomeCliente}\n`;
-            msg += `📍 *Entrega:* ${enderecoCliente}\n`;
-            msg += `--------------------------------------\n\n`;
-            
+            if (!nomeCliente || !enderecoCliente) return alert("Preencha o Nome e Endereço!");
+
+            let msg = `*🍔 NOVO PEDIDO - DU LANCHE* 🍔\n\n👤 *Cliente:* ${nomeCliente}\n📍 *Entrega:* ${enderecoCliente}\n\n`;
             let total = 0;
             carrinhoCompras.forEach(item => {
-                const subtotal = item.preco * item.quantidade;
-                msg += `▪️ *${item.quantidade}x* ${item.nome}\n    Subtotal: R$ ${subtotal.toFixed(2).replace('.', ',')}\n\n`;
-                total += subtotal;
+                msg += `▪️ *${item.quantidade}x* ${item.nome} (R$ ${(item.preco*item.whitespace, item.preco*item.quantidade).toFixed(2)})\n`;
+                total += (item.preco * item.quantidade);
             });
-
-            msg += `--------------------------------------\n`;
-            msg += `💰 *TOTAL DO PEDIDO:* R$ ${total.toFixed(2).replace('.', ',')}`;
-
+            msg += `\n💰 *TOTAL:* R$ ${total.toFixed(2).replace('.', ',')}`;
             window.open(`https://api.whatsapp.com/send?phone=${WHATSAPP_NUMERO}&text=${encodeURIComponent(msg)}`, '_blank');
         }
 
@@ -460,30 +447,25 @@
         async function fazerLogin() {
             const email = document.getElementById('login-email').value.trim();
             const senha = document.getElementById('login-senha').value.trim();
-
-            if(!email || !senha) return alert("Preencha todos os campos obrigatórios!");
-
+            if(!email || !senha) return alert("Preencha os campos!");
             const { error } = await _supabase.auth.signInWithPassword({ email, password: senha });
-            if (error) alert("Erro de autenticação: " + error.message);
+            if (error) alert("Erro: " + error.message);
         }
 
-        async function fazerLogout() {
-            await _supabase.auth.signOut();
-        }
+        async function fazerLogout() { await _supabase.auth.signOut(); }
 
         async function salvarProduto(e) {
             e.preventDefault();
-            
             const btn = document.getElementById('btn-cadastrar');
             const nome = document.getElementById('prod-nome').value.trim();
             const descricao = document.getElementById('prod-descricao').value.trim();
             const preco = parseFloat(document.getElementById('prod-preco').value);
             const arquivo = document.getElementById('prod-imagem').files[0];
 
-            if (!arquivo) return alert("Por favor, envie uma foto do produto!");
+            if (!arquivo) return alert("Selecione a foto do produto!");
 
             btn.disabled = true;
-            btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> Enviando arquivos...`;
+            btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> Publicando...`;
 
             try {
                 const ext = arquivo.name.split('.').pop();
@@ -491,33 +473,23 @@
                 
                 const { error: upError } = await _supabase.storage
                     .from('imagens-produtos')
-                    .upload(nomeArquivo, arquivo, {
-                        contentType: arquivo.type,
-                        upsert: true
-                    });
+                    .upload(nomeArquivo, arquivo, { contentType: arquivo.type, upsert: true });
 
                 if (upError) throw upError;
 
-                const { data: urlData } = _supabase.storage
-                    .from('imagens-produtos')
-                    .getPublicUrl(nomeArquivo);
-                
+                const { data: urlData } = _supabase.storage.from('imagens-produtos').getPublicUrl(nomeArquivo);
                 const imagem_url = urlData.publicUrl;
 
-                const { error: dbError } = await _supabase.from('produtos').insert([
-                    { nome, descricao, preco, imagem_url }
-                ]);
-
+                const { error: dbError } = await _supabase.from('produtos').insert([{ nome, descricao, preco, imagem_url }]);
                 if (dbError) throw dbError;
 
-                alert("Produto publicado e disponível no catálogo!");
+                alert("Produto publicado com sucesso!");
                 document.getElementById('form-produto').reset();
                 await carregarProdutosDoBanco();
                 mudarAba('catalogo');
-
             } catch (err) {
-                alert("Falha no salvamento: " + err.message);
-            } {
+                alert("Erro: " + err.message);
+            } finally {
                 btn.disabled = false;
                 btn.innerHTML = `<i class="fas fa-cloud-upload-alt"></i> Publicar no Cardápio`;
             }
