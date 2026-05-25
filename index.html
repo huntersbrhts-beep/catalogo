@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Big Lanche - Catálogo & Admin Unificado</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .zoom-modal { display: none; }
+        .zoom-modal.active { display: flex; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans flex flex-col min-h-screen">
+
+    <header class="bg-amber-500 text-white shadow-md sticky top-0 z-40">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <h1 class="text-2xl font-bold tracking-wider cursor-pointer" onclick="mudarAba('catalogo')">BIG LANCHE</h1>
+            
+            <div class="flex items-center gap-4">
+                <button onclick="mudarAba('admin')" class="text-sm bg-amber-600 hover:bg-amber-700 px-3 py-2 rounded-lg font-semibold transition flex items-center gap-2">
+                    <i class="fas fa-lock"></i> Painel Admin
+                </button>
+                
+                <button onclick="toggleCarrinho()" class="relative p-2 bg-amber-600 rounded-full hover:bg-amber-700 transition">
+                    <i class="fas fa-shopping-cart text-xl"></i>
+                    <span id="cart-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold hidden">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main id="aba-catalogo" class="tab-content active container mx-auto p-4 flex-grow">
+        <div class="bg-orange-100 border-l-4 border-orange-500 text-orange-700 p-4 mb-6 rounded shadow-sm">
+            <p class="font-bold">Bem-vindo ao Big Lanche!</p>
+            <p class="text-sm">Monte seu carrinho clicando nos produtos e envie o pedido direto pelo nosso WhatsApp.</p>
+        </div>
+
+        <div id="grid-produtos" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div class="col-span-full text-center py-12 text-gray-500">
+                <i class="fas fa-spinner fa-spin text-3xl mb-2"></i>
+                <p>Carregando cardápio...</p>
+            </div>
+        </div>
+    </main>
+
+    <main id="aba-admin" class="tab-content container mx-auto p-4 flex-grow">
+        <div class="max-w-2xl mx-auto mt-6">
+            <button onclick="mudarAba('catalogo')" class="mb-4 text-amber-600 hover:text-amber-700 font-semibold flex items-center gap-1">
+                <i class="fas fa-arrow-left"></i> Voltar para o Catálogo
+            </button>
+
+            <div id="secao-login" class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                <h2 class="text-xl font-bold mb-4 text-center text-gray-800">Login do Administrador</h2>
+                <p class="text-sm text-gray-500 mb-4 text-center">Apenas usuários autorizados no Supabase podem cadastrar produtos.</p>
+                <div class="space-y-3">
+                    <input type="email" id="login-email" placeholder="Seu e-mail cadastrado" class="w-full p-2 border rounded focus:outline-amber-500">
+                    <input type="password" id="login-senha" placeholder="Sua senha" class="w-full p-2 border rounded focus:outline-amber-500">
+                    <button onclick="fazerLogin()" class="w-full bg-amber-500 text-white p-2 rounded font-bold hover:bg-amber-600 transition">
+                        Entrar no Painel
+                    </button>
+                </div>
+            </div>
+
+            <div id="secao-admin-painel" class="bg-white p-6 rounded-xl shadow-md border border-gray-200 hidden">
+                <div class="flex justify-between items-center mb-6 border-b pb-3">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">Novo Produto</h2>
+                        <p class="text-xs text-green-600 font-semibold"><i class="fas fa-check-circle"></i> Autenticado via Supabase</p>
+                    </div>
+                    <button onclick="fazerLogout()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded text-sm font-semibold transition">
+                        Sair (Logout)
+                    </button>
+                </div>
+
+                <form id="form-produto" onsubmit="salvarProduto(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Nome do Lanche / Produto</label>
+                        <input type="text" id="prod-nome" required placeholder="Ex: X-Tudo Supremo" class="w-full p-2 border rounded focus:outline-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Descrição / Ingredientes</label>
+                        <textarea id="prod-descricao" placeholder="Ex: Hambúrguer 150g, queijo cheddar, bacon, alface, tomate e molho especial." class="w-full p-2 border rounded focus:outline-amber-500" rows="3"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Preço de Venda (R$)</label>
+                        <input type="number" step="0.01" id="prod-preco" required placeholder="0.00" class="w-full p-2 border rounded focus:outline-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Foto do Lanche</label>
+                        <input type="file" id="prod-imagem" accept="image/*" required class="w-full p-2 border rounded bg-gray-50 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100">
+                    </div>
+                    <button type="submit" id="btn-cadastrar" class="w-full bg-green-500 text-white p-3 rounded-lg font-bold hover:bg-green-600 transition flex items-center justify-center gap-2">
+                        <i class="fas fa-cloud-upload-alt"></i> Publicar no Catálogo
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <div id="sidebar-carrinho" class="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col">
+        <div class="p-4 bg-gray-100 flex justify-between items-center border-b">
+            <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i class="fas fa-shopping-basket text-amber-500"></i> Seu Pedido</h3>
+            <button onclick="toggleCarrinho()" class="text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
+        </div>
+        
+        <div id="itens-carrinho" class="p-4 flex-grow overflow-y-auto space-y-4">
+            <p class="text-center text-gray-400 my-8">Seu carrinho está vazio.</p>
+        </div>
+        
+        <div class="p-4 border-t bg-gray-50 space-y-3">
+            <div class="flex justify-between font-bold text-lg text-gray-800">
+                <span>Total dos Itens:</span>
+                <span id="total-carrinho">R$ 0,00</span>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Seu Nome:</label>
+                <input type="text" id="cliente-nome" placeholder="Digite seu nome para o pedido" class="w-full p-2 border text-sm rounded mb-2">
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Endereço de Entrega:</label>
+                <input type="text" id="cliente-endereco" placeholder="Rua, Número, Bairro" class="w-full p-2 border text-sm rounded">
+            </div>
+            <button onclick="enviarWhatsApp()" class="w-full bg-green-500 text-white py-3 rounded-lg font-bold hover:bg-green-600 transition flex items-center justify-center gap-2 text-base shadow-md">
+                <i class="fab fa-whatsapp text-xl"></i> Enviar Pedido via WhatsApp
+            </button>
+        </div>
+    </div>
+
+    <div id="zoom-modal" class="zoom-modal fixed inset-0 bg-black bg-opacity-90 z-50 items-center justify-center p-4" onclick="fecharZoom()">
+        <span class="absolute top-4 right-4 text-white text-4xl cursor-pointer font-bold transition hover:text-amber-500">&times;</span>
+        <img id="img-zoom" class="max-w-full max-h-full rounded-lg shadow-2xl transform scale-100 transition-transform duration-300" src="" alt="Zoom Imagem">
+    </div>
+
+    <footer class="bg-gray-900 text-gray-300 pt-8 pb-4 border-t-4 border-amber-500 mt-auto">
+        <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+            <div>
+                <h4 class="text-white font-bold text-lg mb-3">Big Lanche</h4>
+                <p class="text-sm text-gray-400">O melhor sabor no conforto da sua casa. Peça já!</p>
+            </div>
+            <div>
+                <h4 class="text-white font-bold text-lg mb-3"><i class="far fa-clock text-amber-500"></i> Funcionamento</h4>
+                <p class="text-sm text-gray-400">Terça a Domingo: 18h às 23h30</p>
+                <p class="text-xs text-amber-500 mt-1">Status: Atendendo agora</p>
+            </div>
+            <div>
+                <h4 class="text-white font-bold text-lg mb-3">Nossas Redes Sociais</h4>
+                <div class="flex justify-center md:justify-start gap-4 text-2xl">
+                    <a href="https://instagram.com" target="_blank" class="hover:text-amber-500 text-pink-500 transition"><i class="fab fa-instagram"></i></a>
+                    <a href="https://facebook.com" target="_blank" class="hover:text-amber-500 text-blue-600 transition"><i class="fab fa-facebook"></i></a>
+                    <a href="https://whatsapp.com" target="_blank" class="hover:text-amber-500 text-green-500 transition"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="text-center text-xs text-gray-500 mt-8 border-t border-gray-800 pt-4">
+            &copy; 2026 Big Lanche. Todos os direitos reservados.
+        </div>
+    </footer>
+
+    <script>
+        // =================================================================
+        // SUBSTUIA ESTES TRÊS CAMPOS COM OS SEUS DADOS DO SUPABASE E WHATSAPP
+        // =================================================================
+        const SUPABASE_URL = "https://yawousokoaqeyvktjosj.supabase.co"; 
+        const SUPABASE_KEY = "sb_publishable__TXuxjZ8PObBZxsM-PjF1Q_fAvPsDa3"; 
+        const WHATSAPP_NUMERO = "5531999999999"; // O seu número com DDD (sem traços ou espaços)
+
+        // Inicializa o cliente Supabase
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let listaProdutos = [];
+        let carrinhoCompras = [];
+
+        // Executado ao abrir a página
+        document.addEventListener("DOMContentLoaded", () => {
+            if (SUPABASE_URL === "COLE_AQUI_A_SUA_PROJECT_URL") {
+                alert("Aviso: Lembra-te de colocar as tuas chaves do Supabase no código para as fotos e lanches carregarem!");
+            }
+            carregarProdutosDoBanco();
+            verificarEstadoLogin();
+        });
+
+        // Alternar abas entre Catálogo e Administração
+        function mudarAba(nomeAba) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            if (nomeAba === 'catalogo') {
+                document.getElementById('aba-catalogo').classList.add('active');
+            } else {
+                document.getElementById('aba-admin').classList.add('active');
+            }
+        }
+
+        // Puxar produtos da tabela "produtos" do Supabase
+        async function carregarProdutosDoBanco() {
+            try {
+                const { data, error } = await _supabase
+                    .from('produtos')
+                    .select('*')
+                    .order('criado_em', { ascending: false });
+
+                if (error) throw error;
+                listaProdutos = data || [];
+                renderizarProdutosNoHtml();
+            } catch (err) {
+                console.error("Erro ao ler dados do Supabase:", err.message);
+                document.getElementById('grid-produtos').innerHTML = `
+                    <div class="col-span-full text-center py-12 text-red-500">
+                        <i class="fas fa-exclamation-triangle text-3xl mb-2"></i>
+                        <p>Erro de ligação com o banco de dados. Verifica as tuas chaves de configuração.</p>
+                    </div>`;
+            }
+        }
+
+        // Criar os blocos visuais dos produtos no catálogo
+        function renderizarProdutosNoHtml() {
+            const grid = document.getElementById('grid-produtos');
+            if (listaProdutos.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-12 text-gray-400">
+                        <i class="fas fa-hamburger text-4xl mb-2"></i>
+                        <p>Nenhum produto cadastrado no momento.</p>
+                    </div>`;
+                return;
+            }
+
+            grid.innerHTML = listaProdutos.map(prod => `
+                <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl border border-gray-100 transition flex flex-col">
+                    <div class="overflow-hidden bg-gray-50 h-48 cursor-pointer relative group" onclick="abrirZoom('${prod.imagem_url}')">
+                        <img src="${prod.imagem_url || 'https://via.placeholder.com/300'}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                        <div class="absolute inset-0 bg-black bg-opacity-20 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
+                            <span class="bg-white text-gray-800 text-xs px-2 py-1 rounded shadow-sm font-bold"><i class="fas fa-search-plus"></i> Ampliar</span>
+                        </div>
+                    </div>
+                    <div class="p-4 flex-grow flex flex-col justify-between">
+                        <div>
+                            <h3 class="font-bold text-gray-800 text-base mb-1">${prod.nome}</h3>
+                            <p class="text-gray-500 text-xs mb-3 line-clamp-2">${prod.descricao || 'Sem descrição.'}</p>
+                        </div>
+                        <div class="flex justify-between items-center mt-auto pt-2 border-t border-gray-50">
+                            <span class="text-amber-600 font-extrabold text-lg">R$ ${parseFloat(prod.preco).toFixed(2).replace('.', ',')}</span>
+                            <button onclick="adicionarNoCarrinho('${prod.id}')" class="bg-amber-50 text-amber-600 border border-amber-200 hover:bg-amber-500 hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                                <i class="fas fa-cart-plus"></i> Adicionar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Modal de Zoom
+        function abrirZoom(url) {
+            if(!url) return;
+            const modal = document.getElementById('zoom-modal');
+            const img = document.getElementById('img-zoom');
+            img.src = url;
+            modal.classList.add('active');
+        }
+        function fecharZoom() {
+            document.getElementById('zoom-modal').classList.remove('active');
+        }
+
+        // Abrir/Fechar Carrinho Lateral
+        function toggleCarrinho() {
+            document.getElementById('sidebar-carrinho').classList.toggle('translate-x-full');
+        }
+
+        // Lógica interna do Carrinho
+        function adicionarNoCarrinho(id) {
+            const produto = listaProdutos.find(p => p.id === id);
+            const itemExistente = carrinhoCompras.find(item => item.id === id);
+
+            if (itemExistente) {
+                itemExistente.quantidade++;
+            } else {
+                carrinhoCompras.push({ ...produto, quantidade: 1 });
+            }
+            atualizarInterfaceCarrinho();
+            document.getElementById('sidebar-carrinho').classList.remove('translate-x-full');
+        }
+
+        function modificarQtdItem(id, operacao) {
+            const item = carrinhoCompras.find(i => i.id === id);
+            if (!item) return;
+
+            item.quantidade += operacao;
+            if (item.quantidade <= 0) {
+                carrinhoCompras = carrinhoCompras.filter(i => i.id !== id);
+            }
+            atualizarInterfaceCarrinho();
+        }
+
+        function atualizarInterfaceCarrinho() {
+            const container = document.getElementById('itens-carrinho');
+            const contadorBadget = document.getElementById('cart-count');
+            const totalTexto = document.getElementById('total-carrinho');
+            
+            if(carrinhoCompras.length === 0) {
+                container.innerHTML = `<p class="text-center text-gray-400 my-8">Seu carrinho está vazio.</p>`;
+                contadorBadget.classList.add('hidden');
+                totalTexto.textContent = "R$ 0,00";
+                return;
+            }
+
+            let totalItens = 0;
+            let somaValores = 0;
+
+            container.innerHTML = carrinhoCompras.map(item => {
+                totalItens += item.quantidade;
+                somaValores += (item.preco * item.quantidade);
+                return `
+                    <div class="flex items-center justify-between border-b pb-3 border-gray-100">
+                        <div class="flex items-center gap-2">
+                            <img src="${item.imagem_url}" class="w-10 h-10 object-cover rounded shadow-sm">
+                            <div>
+                                <h4 class="font-bold text-gray-800 text-xs">${item.nome}</h4>
+                                <span class="text-amber-600 text-xs font-semibold">R$ ${parseFloat(item.preco).toFixed(2).replace('.',',')}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1.5 bg-gray-100 px-2 py-1 rounded">
+                            <button onclick="modificarQtdItem('${item.id}', -1)" class="text-gray-500 hover:text-black text-xs font-bold px-1">-</button>
+                            <span class="text-xs font-bold text-gray-800 min-w-[14px] text-center">${item.quantidade}</span>
+                            <button onclick="modificarQtdItem('${item.id}', 1)" class="text-gray-500 hover:text-black text-xs font-bold px-1">+</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            contadorBadget.textContent = totalItens;
+            contadorBadget.classList.remove('hidden');
+            totalTexto.textContent = `R$ ${somaValores.toFixed(2).replace('.', ',')}`;
+        }
+
+        // Formatar e Enviar Mensagem para API do WhatsApp
+        function enviarWhatsApp() {
+            if (carrinhoCompras.length === 0) return alert("Adicione produtos primeiro!");
+
+            const nomeCliente = document.getElementById('cliente-nome').value.trim();
+            const enderecoCliente = document.getElementById('cliente-endereco').value.trim();
+
+            if (!nomeCliente || !enderecoCliente) {
+                alert("Por favor, preencha o seu Nome e Endereço para a entrega!");
+                return;
+            }
+            
+            let msg = `*🍔 NOVO PEDIDO - BIG LANCHE* 🍔\n\n`;
+            msg += `*Cliente:* ${nomeCliente}\n`;
+            msg += `*Entrega:* ${enderecoCliente}\n`;
+            msg += `-----------------------------\n\n`;
+            
+            let total = 0;
+            carrinhoCompras.forEach(item => {
+                const subtotal = item.preco * item.quantidade;
+                msg += `▪️ *${item.quantidade}x* ${item.nome}\n   Subtotal: R$ ${subtotal.toFixed(2).replace('.', ',')}\n\n`;
+                total += subtotal;
+            });
+
+            msg += `-----------------------------\n`;
+            msg += `💰 *TOTAL DO PEDIDO:* R$ ${total.toFixed(2).replace('.', ',')}`;
+
+            window.open(`https://api.whatsapp.com/send?phone=${WHATSAPP_NUMERO}&text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
+        // ==========================================
+        // SISTEMA ADMINISTRATIVO (SUPABASE AUTH)
+        // ==========================================
+        function verificarEstadoLogin() {
+            _supabase.auth.onAuthStateChange((event, session) => {
+                if (session) {
+                    document.getElementById('secao-login').classList.add('hidden');
+                    document.getElementById('secao-admin-painel').classList.remove('hidden');
+                } else {
+                    document.getElementById('secao-login').classList.remove('hidden');
+                    document.getElementById('secao-admin-painel').classList.add('hidden');
+                }
+            });
+        }
+
+        async function fazerLogin() {
+            const email = document.getElementById('login-email').value.trim();
+            const senha = document.getElementById('login-senha').value.trim();
+
+            if(!email || !senha) return alert("Preencha todos os campos!");
+
+            const { error } = await _supabase.auth.signInWithPassword({ email, password: senha });
+            if (error) alert("Erro: " + error.message);
+        }
+
+        async function fazerLogout() {
+            await _supabase.auth.signOut();
+        }
+
+        // Cadastrar produto, fazer Upload no Storage bucket "imagens-produtos" e gravar no Banco
+        async function salvarProduto(e) {
+            e.preventDefault();
+            
+            const btn = document.getElementById('btn-cadastrar');
+            const nome = document.getElementById('prod-nome').value.trim();
+            const descricao = document.getElementById('prod-descricao').value.trim();
+            const preco = parseFloat(document.getElementById('prod-preco').value);
+            const arquivo = document.getElementById('prod-imagem').files[0];
+
+            if (!arquivo) return alert("Selecione uma imagem!");
+
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Enviando...`;
+
+            try {
+                // 1. Enviar arquivo para a pasta pública "imagens-produtos"
+                const ext = arquivo.name.split('.').pop();
+                const nomeArquivo = `${Date.now()}_lanche.${ext}`;
+                
+                const { error: upError } = await _supabase.storage
+                    .from('imagens-produtos')
+                    .upload(nomeArquivo, arquivo);
+
+                if (upError) throw upError;
+
+                // 2. Buscar a URL pública do arquivo enviado
+                const { data: urlData } = _supabase.storage
+                    .from('imagens-produtos')
+                    .getPublicUrl(nomeArquivo);
+                
+                const imagem_url = urlData.publicUrl;
+
+                // 3. Inserir a linha na tabela do Postgres
+                const { error: dbError } = await _supabase.from('produtos').insert([
+                    { nome, descricao, preco, imagem_url }
+                ]);
+
+                if (dbError) throw dbError;
+
+                alert("Produto cadastrado com sucesso!");
+                document.getElementById('form-produto').reset();
+                await carregarProdutosDoBanco();
+                mudarAba('catalogo');
+
+            } catch (err) {
+                alert("Erro ao salvar: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fas fa-cloud-upload-alt"></i> Publicar no Catálogo`;
+            }
+        }
+    </script>
+</body>
+</html>
