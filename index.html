@@ -57,8 +57,11 @@
             <button onclick="toggleCarrinho()"><i class="fas fa-times"></i></button>
         </div>
         <div id="itens-carrinho" class="flex-grow p-4 overflow-y-auto space-y-3"></div>
-        <div class="p-4 border-t bg-slate-100">
-            <div class="flex justify-between font-bold mb-4"><span>Total:</span> <span id="total-carrinho">R$ 0,00</span></div>
+        <div class="p-4 border-t bg-slate-100 space-y-2">
+            <input type="text" id="cliente-nome" placeholder="Seu nome" class="w-full p-2 text-xs rounded border">
+            <input type="text" id="cliente-endereco" placeholder="Endereço de entrega" class="w-full p-2 text-xs rounded border">
+            <input type="text" id="cliente-cupom" placeholder="Cupom" class="w-full p-2 text-xs rounded border">
+            <div class="flex justify-between font-bold text-sm"><span>Total:</span> <span id="total-carrinho">R$ 0,00</span></div>
             <button onclick="enviarWhatsApp()" class="w-full bg-emerald-500 text-white py-3 rounded-xl font-bold">Finalizar Pedido</button>
         </div>
     </div>
@@ -106,11 +109,7 @@
             let total = 0;
             container.innerHTML = carrinho.map(c => {
                 total += c.preco * c.qtd;
-                return `
-                    <div class="flex justify-between items-center bg-white p-2 rounded-lg shadow-sm">
-                        <div class="text-xs"><b>${c.nome}</b><br>${c.qtd} x R$${c.preco}</div>
-                        <button onclick="removerItem('${c.id}')" class="text-red-500"><i class="fas fa-trash"></i></button>
-                    </div>`;
+                return `<div class="flex justify-between items-center bg-white p-2 rounded-lg shadow-sm text-xs"><b>${c.nome} (${c.qtd}x)</b><button onclick="removerItem('${c.id}')" class="text-red-500"><i class="fas fa-trash"></i></button></div>`;
             }).join('');
             document.getElementById('total-carrinho').innerText = `R$ ${total.toFixed(2)}`;
             const badge = document.getElementById('cart-badge');
@@ -118,24 +117,31 @@
             badge.classList.toggle('hidden', carrinho.length === 0);
         }
 
+        async function validarCupom(codigo) {
+            const { data } = await _supabase.from('cupons').select('valor_desconto').eq('codigo', codigo).eq('ativo', true).single();
+            return data ? data.valor_desconto : 0;
+        }
+
+        async function enviarWhatsApp() {
+            const nome = document.getElementById('cliente-nome').value;
+            const end = document.getElementById('cliente-endereco').value;
+            const codigo = document.getElementById('cliente-cupom').value;
+            if(!nome || !end) return alert("Preencha nome e endereço!");
+            
+            const desconto = codigo ? await validarCupom(codigo) : 0;
+            const total = parseFloat(document.getElementById('total-carrinho').innerText.replace('R$ ', '')) - desconto;
+            
+            let msg = `*Pedido Du Lanche*\nCliente: ${nome}\nEndereço: ${end}\nDesconto: R$${desconto}\nTotal: R$${total.toFixed(2)}\nItens: ${carrinho.map(c => `\n${c.qtd}x ${c.nome}`).join('')}`;
+            window.open(`https://wa.me/5531984656166?text=${encodeURIComponent(msg)}`);
+        }
+
         function toggleCarrinho() { document.getElementById('sidebar-carrinho').classList.toggle('translate-x-full'); }
         function abrirZoom(url) { document.getElementById('img-zoom').src = url; document.getElementById('zoom-modal').classList.add('active'); }
         function fecharZoom() { document.getElementById('zoom-modal').classList.remove('active'); }
-        function enviarWhatsApp() {
-            let txt = "Olá! Gostaria de pedir: " + carrinho.map(c => `${c.qtd}x ${c.nome}`).join(', ');
-            window.open(`https://wa.me/5531999999999?text=${encodeURIComponent(txt)}`);
-        }
-        async function carregarFundo() {
-            const { data } = _supabase.storage.from('imagens-produtos').getPublicUrl('fundo_catalogo.jpg');
-            if (data?.publicUrl) document.getElementById('bg-dinamico').style.backgroundImage = `url('${data.publicUrl}?t=${Date.now()}')`;
-        }
+        async function carregarFundo() { const { data } = _supabase.storage.from('imagens-produtos').getPublicUrl('fundo_catalogo.jpg'); if (data?.publicUrl) document.getElementById('bg-dinamico').style.backgroundImage = `url('${data.publicUrl}?t=${Date.now()}')`; }
         async function fazerLogin() { await _supabase.auth.signInWithPassword({ email: document.getElementById('login-email').value, password: document.getElementById('login-senha').value }); location.reload(); }
         async function fazerLogout() { await _supabase.auth.signOut(); location.reload(); }
-        async function salvarImagemFundo() { 
-            const f = document.getElementById('fundo-input').files[0];
-            await _supabase.storage.from('imagens-produtos').upload('fundo_catalogo.jpg', f, { upsert: true });
-            alert("Fundo atualizado!"); location.reload();
-        }
+        async function salvarImagemFundo() { const f = document.getElementById('fundo-input').files[0]; await _supabase.storage.from('imagens-produtos').upload('fundo_catalogo.jpg', f, { upsert: true }); alert("Fundo atualizado!"); location.reload(); }
     </script>
 </body>
 </html>
