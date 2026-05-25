@@ -12,7 +12,6 @@
         .zoom-modal.active { display: flex; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        /* Suavizar transições */
         .transition-all { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
     </style>
 </head>
@@ -93,7 +92,6 @@
             </div>
 
             <div id="secao-admin-painel" class="space-y-6 hidden">
-                
                 <div class="bg-slate-900 p-6 rounded-2xl shadow-xl border border-slate-800">
                     <div class="flex justify-between items-center mb-6 border-b border-slate-800 pb-4">
                         <div>
@@ -143,7 +141,6 @@
                         </button>
                     </div>
                 </div>
-
             </div>
         </div>
     </main>
@@ -232,21 +229,15 @@
             }
         }
 
-        // Função para carregar a imagem de fundo do Storage do Supabase
+        // Carrega a imagem salva de forma segura via LocalStorage
         function carregarImagemFundo() {
             const bgContainer = document.getElementById('bg-dinamico');
-            // Como usamos upsert e nome fixo, forçamos o timestamp no final contra o cache do navegador
-            const urlPublicaFundo = `${SUPABASE_URL}/storage/v1/object/public/imagens-produtos/fundo_catalogo.jpg?t=${Date.now()}`;
+            const urlSalva = localStorage.getItem('du_lanches_bg_url');
             
-            const imgTeste = new Image();
-            imgTeste.src = urlPublicaFundo;
-            imgTeste.onload = () => {
-                bgContainer.style.backgroundImage = `url('${urlPublicaFundo}')`;
+            if (urlSalva) {
+                bgContainer.style.backgroundImage = `url('${urlSalva}')`;
                 bgContainer.classList.remove('hidden');
-            };
-            imgTeste.onerror = () => {
-                console.log("Fundo customizado não configurado ou indisponível. Usando cor padrão.");
-            };
+            }
         }
 
         async function carregarProdutosDoBanco() {
@@ -314,6 +305,7 @@
             img.src = url;
             modal.classList.add('active');
         }
+        
         function fecharZoom() {
             document.getElementById('zoom-modal').classList.remove('active');
         }
@@ -442,7 +434,7 @@
             await _supabase.auth.signOut();
         }
 
-        // Nova função para fazer upload do fundo customizado
+        // Nova função corrigida usando geração de arquivo único aceita pelas políticas do Storage
         async function salvarImagemFundo() {
             const campoFundo = document.getElementById('design-fundo-img');
             const btn = document.getElementById('btn-fundo');
@@ -454,17 +446,28 @@
             btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> Atualizando imagem de fundo...`;
 
             try {
-                // Sobe com nome fixo substituindo o antigo (upsert: true)
+                const ext = arquivo.name.split('.').pop();
+                const nomeArquivoFundo = `layout_fundo_${Date.now()}.${ext}`;
+
                 const { error: upError } = await _supabase.storage
                     .from('imagens-produtos')
-                    .upload('fundo_catalogo.jpg', arquivo, {
+                    .upload(nomeArquivoFundo, arquivo, {
                         contentType: arquivo.type,
                         upsert: true
                     });
 
                 if (upError) throw upError;
 
-                alert("Imagem de fundo atualizada com sucesso! Atualizando o catálogo...");
+                const { data: urlData } = _supabase.storage
+                    .from('imagens-produtos')
+                    .getPublicUrl(nomeArquivoFundo);
+                
+                const imagem_url = urlData.publicUrl;
+
+                // Salva o link de forma persistente e instantânea
+                localStorage.setItem('du_lanches_bg_url', imagem_url);
+
+                alert("Imagem de fundo atualizada com sucesso!");
                 campoFundo.value = "";
                 carregarImagemFundo();
                 mudarAba('catalogo');
