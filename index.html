@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Du Lanches - Catálogo & Admin Premium</title>
+    <title>Big Lanche - Catálogo & Admin Premium</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -17,7 +17,7 @@
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans flex flex-col min-h-screen antialiased relative selection:bg-amber-500 selection:text-slate-950">
 
-    <div id="bg-dinamico" class="fixed inset-0 bg-cover bg-center bg-no-repeat z-[-2] hidden"></div>
+    <div id="bg-dinamico" class="fixed inset-0 bg-cover bg-center bg-no-repeat z-[-2]" style="background-image: url('https://images.unsplash.com/photo-1550547660-d9450f859349?q=80&w=1920');"></div>
     <div class="fixed inset-0 bg-slate-950/45 backdrop-blur-[0.5px] z-[-1]"></div>
 
     <header class="bg-slate-900/90 backdrop-blur-sm text-white shadow-lg sticky top-0 z-40 border-b border-slate-800/80">
@@ -26,7 +26,7 @@
                 <div class="bg-amber-500 p-1.5 rounded-lg text-slate-950">
                     <i class="fas fa-hamburger text-base md:text-xl"></i>
                 </div>
-                <h1 class="text-base md:text-xl font-black tracking-tight text-amber-500">DU<span class="text-white font-light">LANCHES</span></h1>
+                <h1 class="text-base md:text-xl font-black tracking-tight text-amber-500">BIG<span class="text-white font-light">LANCHE</span></h1>
             </div>
             
             <div class="flex items-center gap-2 md:gap-3">
@@ -132,7 +132,7 @@
                     <h3 class="text-xs md:text-sm font-bold text-amber-500 uppercase tracking-wider mb-1 flex items-center gap-2">
                         <i class="fas fa-palette"></i> Design do Catálogo (Fundo)
                     </h3>
-                    <p class="text-[10px] text-slate-400 mb-2 leading-tight">Atualize a foto de fundo do seu site. O sistema gera os cortes e o tom automaticamente para celular e PC.</p>
+                    <p class="text-[10px] text-slate-400 mb-2 leading-tight">Atualize a foto de fundo do seu site. O sistema gera os cortes e o tom automaticamente para telemóvel e PC.</p>
                     
                     <div class="space-y-2.5">
                         <input type="file" id="design-fundo-img" accept="image/*" class="w-full p-2 border border-slate-700 rounded-xl bg-slate-800 text-xs text-slate-400 file:mr-3 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[11px] file:font-bold file:bg-amber-500/10 file:text-amber-400 hover:file:bg-amber-500/20 file:cursor-pointer">
@@ -178,8 +178,8 @@
     <footer class="bg-slate-900/90 backdrop-blur-sm text-slate-400 pt-7 pb-3 border-t border-slate-800 mt-auto">
         <div class="container mx-auto px-4 grid grid-cols-1 sm:grid-cols-3 gap-5 text-center sm:text-left">
             <div>
-                <h4 class="text-white font-black text-sm tracking-wide uppercase mb-1.5 text-amber-500 leading-tight">DU LANCHES</h4>
-                <p class="text-[10px] text-slate-400 leading-relaxed max-w-[280px] sm:max-w-none mx-auto sm:mx-0">Produzindo os lanches mais saborosos da região com máxima velocidade.</p>
+                <h4 class="text-white font-black text-sm tracking-wide uppercase mb-1.5 text-amber-500 leading-tight">BIG LANCHE</h4>
+                <p class="text-[10px] text-slate-400 leading-relaxed max-w-[280px] sm:max-w-none mx-auto sm:mx-0">Os melhores e maiores lanches da região entregues com rapidez extrema.</p>
             </div>
             <div>
                 <h4 class="text-white font-bold text-xs uppercase tracking-wider mb-1.5"><i class="far fa-clock text-amber-500 mr-1"></i> Funcionamento</h4>
@@ -189,14 +189,14 @@
             <div>
                 <h4 class="text-white font-bold text-xs uppercase tracking-wider mb-1.5">Siga-nos</h4>
                 <div class="flex justify-center sm:justify-start gap-1.5 text-base">
-                    <a href="#" target="_blank" class="w-8 h-8 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-300 rounded-xl flex items-center justify-center transition-all"><i class="fab fa-instagram"></i></a>
+                    <a href="#" target="_blank" class="w-8 h-8 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-300 rounded-xl flex items-center justify-center transition-all"><i class="fab fa-indigo"></i></a>
                     <a href="#" target="_blank" class="w-8 h-8 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-300 rounded-xl flex items-center justify-center transition-all"><i class="fab fa-facebook-f text-xs"></i></a>
                     <a href="#" target="_blank" class="w-8 h-8 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-300 rounded-xl flex items-center justify-center transition-all"><i class="fab fa-whatsapp"></i></a>
                 </div>
             </div>
         </div>
         <div class="text-center text-[10px] text-slate-600 mt-6 border-t border-slate-800/60 pt-3">
-            &copy; 2026 Du Lanches. Todos os direitos reservados.
+            &copy; 2026 Big Lanche. Todos os direitos reservados.
         </div>
     </footer>
 
@@ -225,15 +225,13 @@
             }
         }
 
-        // Carrega a imagem salva de forma segura via LocalStorage
+        // Carrega o fundo de forma segura. Se não houver, mantém a imagem padrão bonita do código
         function carregarImagemFundo() {
             const bgContainer = document.getElementById('bg-dinamico');
             const urlSalva = localStorage.getItem('du_lanches_bg_url');
             
             if (urlSalva) {
-                // Remove timestamp para evitar cache desnecessário na leitura
                 bgContainer.style.backgroundImage = `url('${urlSalva}')`;
-                bgContainer.classList.remove('hidden');
             }
         }
 
@@ -272,7 +270,7 @@
                 <div class="bg-slate-900/80 backdrop-blur rounded-xl shadow border border-slate-800 overflow-hidden hover:border-slate-700 transition-all flex flex-col group">
                     <div class="overflow-hidden bg-slate-800 h-24 xs:h-28 sm:h-36 md:h-44 cursor-pointer relative" onclick="abrirZoom('${prod.imagem_url}')">
                         <img src="${prod.imagem_url || 'https://via.placeholder.com/150'}" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500" loading="lazy">
-                        <div class="absolute inset-0 bg-slate-950/40 opacity- group-hover:opacity-100 flex items-center justify-center transition-all">
+                        <div class="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
                             <span class="bg-white text-slate-900 text-[9px] md:text-[10px] px-2 py-1 rounded shadow-sm font-bold flex items-center gap-1 transform translate-y-1 group-hover:translate-y-0 transition-all"><i class="fas fa-search-plus text-amber-500"></i> Ver</span>
                         </div>
                     </div>
@@ -301,7 +299,6 @@
             const img = document.getElementById('img-zoom');
             img.src = url;
             modal.classList.add('active');
-            // Animação de escala no mobile para realçar a foto
             if(window.innerWidth < 640) {
                img.style.transform = "scale(1.05)";
                setTimeout(() => img.style.transform = "scale(1)", 150);
@@ -326,7 +323,6 @@
                 carrinhoCompras.push({ ...produto, quantidade: 1 });
             }
             atualizarInterfaceCarrinho();
-            // No mobile, abre o carrinho ao adicionar
             if(window.innerWidth < 640) {
                document.getElementById('sidebar-carrinho').classList.remove('translate-x-full');
             }
@@ -395,7 +391,7 @@
                 return;
             }
             
-            let msg = `*🍔 NOVO PEDIDO - DU LANCHES* 🍔\n\n`;
+            let msg = `*🍔 NOVO PEDIDO - BIG LANCHE* 🍔\n\n`;
             msg += `👤 *Cliente:* ${nomeCliente}\n`;
             msg += `📍 *Entrega:* ${enderecoCliente}\n`;
             msg += `--------------------------------------\n\n`;
@@ -450,7 +446,6 @@
             btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> Salvando fundo...`;
 
             try {
-                // Sobe com timestamp fixo substituindo o antigo (upsert: true)
                 const contentType = arquivo.type;
                 const { error: upError } = await _supabase.storage
                     .from('imagens-produtos')
@@ -461,14 +456,12 @@
 
                 if (upError) throw upError;
 
-                // Busca a URL pública garantida
                 const { data: urlData } = _supabase.storage
                     .from('imagens-produtos')
                     .getPublicUrl('fundo_catalogo.jpg');
                 
                 const imagem_url = urlData.publicUrl;
 
-                // Salva o link de forma persistente e instantânea
                 localStorage.setItem('du_lanches_bg_url', imagem_url);
 
                 alert("Imagem de fundo atualizada com sucesso!");
