@@ -3,36 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Du Lanche - Catálogo</title>
+    <title>Du Lanche</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Fundo fixo e responsivo que não trava o navegador */
-        .bg-fixed-container {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            z-index: -2;
-            background-color: #0f172a;
-            background-size: cover;
-            background-position: center center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
+        /* Fundo fixo, otimizado e responsivo */
+        .bg-fundo {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -2; background-color: #0f172a;
+            background-size: cover; background-position: center;
+            background-repeat: no-repeat; background-attachment: fixed;
         }
+        .zoom-modal { 
+            position: fixed; inset: 0; z-index: 50; display: none;
+            background: rgba(0,0,0,0.9); align-items: center; justify-content: center;
+        }
+        .zoom-modal.active { display: flex; }
     </style>
 </head>
 <body class="min-h-screen text-slate-800">
 
-    <div id="bg-dinamico" class="bg-fixed-container"></div>
-    <div class="fixed inset-0 z-[-1] bg-slate-950/70 pointer-events-none"></div>
+    <div id="bg-dinamico" class="bg-fundo"></div>
+    <div class="fixed inset-0 z-[-1] bg-slate-950/60 pointer-events-none"></div>
 
-    <main class="container mx-auto p-4">
+    <main class="container mx-auto p-4 z-10 relative">
         <h1 class="text-amber-500 font-black text-3xl mb-6">Du LANCHE</h1>
-        
-        <div id="grid-produtos" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <p class="text-white">Carregando cardápio...</p>
+        <div id="grid-produtos" class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <p class="text-white">Carregando...</p>
         </div>
     </main>
+
+    <div id="zoom-modal" class="zoom-modal" onclick="fecharZoom()">
+        <img id="img-zoom" class="max-w-[90%] max-h-[80vh] rounded-lg shadow-2xl" src="" alt="Zoom">
+    </div>
 
     <script>
         const _supabase = supabase.createClient(
@@ -40,41 +44,53 @@
             "sb_publishable__TXuxjZ8PObBZxsM-PjF1Q_fAvPsDa3"
         );
 
-        async function carregarTudo() {
-            // 1. Tentar carregar imagem de fundo sem travar
+        // Inicializador seguro
+        window.onload = async () => {
+            await Promise.all([carregarFundo(), carregarProdutos()]);
+        };
+
+        async function carregarFundo() {
             try {
                 const { data } = _supabase.storage.from('imagens-produtos').getPublicUrl('fundo_catalogo.jpg');
-                if (data && data.publicUrl) {
+                if (data?.publicUrl) {
                     const img = new Image();
-                    img.src = data.publicUrl + "?t=" + new Date().getTime();
+                    img.src = `${data.publicUrl}?t=${Date.now()}`;
                     img.onload = () => {
                         document.getElementById('bg-dinamico').style.backgroundImage = `url('${img.src}')`;
                     };
                 }
-            } catch (err) { console.warn("Fundo não encontrado ou erro de rede"); }
+            } catch (e) { console.warn("Erro ao carregar fundo"); }
+        }
 
-            // 2. Carregar produtos
+        async function carregarProdutos() {
             try {
                 const { data } = await _supabase.from('produtos').select('*').order('criado_em', { ascending: false });
                 const grid = document.getElementById('grid-produtos');
                 if (data && data.length > 0) {
                     grid.innerHTML = data.map(p => `
-                        <div class="bg-white/95 p-3 rounded-xl shadow-lg border border-slate-200">
-                            <img src="${p.imagem_url}" class="w-full h-24 object-cover rounded-lg mb-2">
-                            <h2 class="font-bold text-sm truncate">${p.nome}</h2>
-                            <p class="text-xs text-slate-600 mb-2">R$ ${parseFloat(p.preco).toFixed(2).replace('.', ',')}</p>
-                            <button class="w-full bg-slate-900 text-white py-1 rounded text-xs font-bold">+ Pedir</button>
+                        <div class="bg-white/70 backdrop-blur-sm p-3 rounded-xl border border-white/20 shadow-lg">
+                            <div class="h-20 overflow-hidden rounded-lg mb-2 cursor-pointer" onclick="abrirZoom('${p.imagem_url}')">
+                                <img src="${p.imagem_url}" class="w-full h-full object-cover">
+                            </div>
+                            <h2 class="font-bold text-xs truncate">${p.nome}</h2>
+                            <p class="text-[10px] text-slate-700 leading-tight mb-2 truncate">${p.descricao || ''}</p>
+                            <button class="w-full bg-slate-900 text-white py-1 rounded text-[10px] font-bold uppercase">+ Pedir</button>
                         </div>
                     `).join('');
                 } else {
-                    grid.innerHTML = '<p class="text-white">Nenhum produto cadastrado.</p>';
+                    grid.innerHTML = '<p class="text-white">Nenhum produto.</p>';
                 }
-            } catch (err) {
-                console.error("Erro ao carregar produtos", err);
-            }
+            } catch (e) { console.error("Erro ao carregar produtos"); }
         }
 
-        window.onload = carregarTudo;
+        function abrirZoom(url) {
+            document.getElementById('img-zoom').src = url;
+            document.getElementById('zoom-modal').classList.add('active');
+        }
+
+        function fecharZoom() {
+            document.getElementById('zoom-modal').classList.remove('active');
+        }
     </script>
 </body>
 </html>
