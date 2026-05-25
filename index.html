@@ -266,36 +266,33 @@
         }
 
         function renderizarProdutosNoHtml() {
-            const grid = document.getElementById('grid-produtos');
-            if (listaProdutos.length === 0) {
-                grid.innerHTML = `
-                    <div class="col-span-full text-center py-16 text-slate-400 bg-white rounded-2xl border border-slate-100 p-6 shadow-sm">
-                        <i class="fas fa-hamburger text-4xl mb-2 text-slate-300"></i>
-                        <p class="text-sm font-medium">Nenhum produto cadastrado no momento.</p>
-                    </div>`;
-                return;
-            }
+    const grid = document.getElementById('grid-produtos');
+    // ... (restante do código)
 
-            grid.innerHTML = listaProdutos.map(prod => `
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-xl hover:border-slate-200/60 transition-all flex flex-col group">
-                    <div class="overflow-hidden bg-slate-100 h-48 cursor-pointer relative" onclick="abrirZoom('${prod.imagem_url}')">
-                        <img src="${prod.imagem_url || 'https://via.placeholder.com/300'}" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500">
-                    </div>
-                    <div class="p-4 flex-grow flex flex-col justify-between">
-                        <div>
-                            <h3 class="font-bold text-slate-800 text-sm mb-1">${prod.nome}</h3>
-                            <p class="text-slate-400 text-xs mb-4 line-clamp-2 leading-relaxed font-medium">${prod.descricao || ''}</p>
-                        </div>
-                        <div class="flex justify-between items-center mt-auto pt-3 border-t border-slate-50">
-                            <span class="text-slate-900 font-black text-base">R$ ${parseFloat(prod.preco).toFixed(2).replace('.', ',')}</span>
-                            <button onclick="adicionarNoCarrinho('${prod.id}')" class="bg-slate-900 text-white hover:bg-amber-500 hover:text-slate-950 px-3.5 py-2 rounded-xl text-xs font-bold transition-all">
-                                + Adicionar
-                            </button>
-                        </div>
-                    </div>
+    grid.innerHTML = listaProdutos.map(prod => `
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-lg transition-all flex flex-col group">
+            <div class="overflow-hidden bg-slate-100 h-32 cursor-pointer relative" onclick="abrirZoom('${prod.imagem_url}')">
+                <img src="${prod.imagem_url || 'https://via.placeholder.com/300'}" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500">
+                <div class="absolute bottom-2 right-2 bg-black/50 text-white p-1 rounded-full text-[10px]">
+                    <i class="fas fa-search-plus"></i>
                 </div>
-            `).join('');
-        }
+            </div>
+            
+            <div class="p-3 flex-grow flex flex-col justify-between">
+                <div>
+                    <h3 class="font-bold text-slate-800 text-sm mb-1 line-clamp-1">${prod.nome}</h3>
+                    <p class="text-slate-400 text-[11px] mb-3 line-clamp-2 leading-relaxed">${prod.descricao || ''}</p>
+                </div>
+                <div class="flex justify-between items-center mt-auto pt-2 border-t border-slate-50">
+                    <span class="text-slate-900 font-black text-sm">R$ ${parseFloat(prod.preco).toFixed(2).replace('.', ',')}</span>
+                    <button onclick="adicionarNoCarrinho('${prod.id}')" class="bg-slate-900 text-white hover:bg-amber-500 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all">
+                        + Pedir
+                    </button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
 
         function abrirZoom(url) {
             if(!url) return;
