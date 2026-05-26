@@ -68,10 +68,15 @@
         .categoria-card {
             position: relative;
             overflow: hidden;
+            transition: .4s;
+        }
+
+        .categoria-card:hover {
+            transform: translateY(-6px);
         }
 
         .categoria-card img {
-            transition: transform .6s ease;
+            transition: transform .7s ease;
         }
 
         .categoria-card:hover img {
@@ -94,6 +99,26 @@
             background: #f59e0b;
             border-radius: 10px;
         }
+
+        .loading {
+            animation: pulse 1.2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0% {
+                opacity: .5;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: .5;
+            }
+
+        }
     </style>
 </head>
 
@@ -109,18 +134,24 @@
     <header
         class="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-white/5">
 
-        <div class="container mx-auto px-5 py-4 flex items-center justify-between">
+        <div
+            class="container mx-auto px-5 py-4 flex items-center justify-between">
 
-            <div onclick="voltarHome()"
+            <div
+                onclick="voltarHome()"
                 class="cursor-pointer">
 
-                <h1 class="text-2xl md:text-3xl font-black text-amber-400">
+                <h1
+                    class="text-2xl md:text-3xl font-black text-amber-400">
+
                     DU LANCHE
+
                 </h1>
 
             </div>
 
-            <div class="flex items-center gap-5">
+            <div
+                class="flex items-center gap-5">
 
                 <button
                     onclick="mudarAba('admin')"
@@ -136,7 +167,8 @@
 
                     <i class="fas fa-shopping-bag"></i>
 
-                    <span id="cart-badge"
+                    <span
+                        id="cart-badge"
                         class="hidden absolute -top-2 -right-2 bg-red-500 w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center">
 
                         0
@@ -153,11 +185,13 @@
 
     <!-- MAIN -->
 
-    <main class="container mx-auto px-4 py-6 flex-grow">
+    <main
+        class="container mx-auto px-4 py-6 flex-grow">
 
         <!-- HOME -->
 
-        <section id="aba-catalogo"
+        <section
+            id="aba-catalogo"
             class="tab-content active">
 
             <!-- HERO -->
@@ -203,7 +237,8 @@
 
             <!-- CATEGORIAS -->
 
-            <section id="categorias"
+            <section
+                id="categorias"
                 class="mb-14">
 
                 <div
@@ -216,10 +251,20 @@
 
                     </h2>
 
+                    <button
+                        onclick="mostrarTodosProdutos()"
+                        class="text-amber-400 hover:text-amber-300">
+
+                        Ver todos
+
+                    </button>
+
                 </div>
 
-                <div id="grid-categorias"
+                <div
+                    id="grid-categorias"
                     class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
                 </div>
 
             </section>
@@ -231,25 +276,20 @@
                 <div
                     class="flex items-center justify-between mb-6">
 
-                    <h2 id="titulo-produtos"
+                    <h2
+                        id="titulo-produtos"
                         class="text-3xl font-black">
 
                         Todos os Produtos
 
                     </h2>
 
-                    <button
-                        onclick="mostrarTodosProdutos()"
-                        class="text-amber-400 hover:text-amber-300 font-semibold">
-
-                        Ver Todos
-
-                    </button>
-
                 </div>
 
-                <div id="grid-produtos"
+                <div
+                    id="grid-produtos"
                     class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
                 </div>
 
             </section>
@@ -258,51 +298,52 @@
 
         <!-- ADMIN -->
 
-        <section id="aba-admin"
+        <section
+            id="aba-admin"
             class="tab-content">
 
-            <div
-                class="grid md:grid-cols-[260px_1fr] gap-6">
+            <!-- LOGIN -->
 
-                <!-- MENU -->
+            <div
+                id="secao-login-admin"
+                class="max-w-md mx-auto">
 
                 <div
-                    class="bg-slate-900 border border-white/10 rounded-3xl p-5 h-fit">
+                    class="bg-slate-900 border border-white/10 rounded-3xl p-8 shadow-2xl">
 
                     <h2
-                        class="text-2xl font-black mb-6">
+                        class="text-3xl font-black mb-2">
 
-                        Painel Admin
+                        Login Admin
 
                     </h2>
 
-                    <div class="space-y-3">
+                    <p
+                        class="text-white/50 mb-6">
+
+                        Entre para acessar o painel administrativo.
+
+                    </p>
+
+                    <div class="space-y-4">
+
+                        <input
+                            type="email"
+                            id="login-email"
+                            placeholder="Seu e-mail"
+                            class="w-full bg-slate-800 rounded-2xl p-4 outline-none border border-white/10">
+
+                        <input
+                            type="password"
+                            id="login-senha"
+                            placeholder="Sua senha"
+                            class="w-full bg-slate-800 rounded-2xl p-4 outline-none border border-white/10">
 
                         <button
-                            class="w-full bg-amber-500 text-black py-3 rounded-xl font-black">
+                            onclick="fazerLogin()"
+                            class="w-full bg-amber-500 hover:bg-amber-400 transition text-black py-4 rounded-2xl font-black">
 
-                            Produtos
-
-                        </button>
-
-                        <button
-                            class="w-full bg-slate-800 py-3 rounded-xl font-bold">
-
-                            Categorias
-
-                        </button>
-
-                        <button
-                            class="w-full bg-slate-800 py-3 rounded-xl font-bold">
-
-                            Cupons
-
-                        </button>
-
-                        <button
-                            class="w-full bg-slate-800 py-3 rounded-xl font-bold">
-
-                            Aparência
+                            ENTRAR
 
                         </button>
 
@@ -310,54 +351,148 @@
 
                 </div>
 
-                <!-- CONTEUDO -->
+            </div>
+
+            <!-- PAINEL -->
+
+            <div
+                id="painel-admin-conteudo"
+                class="hidden">
 
                 <div
-                    class="bg-slate-900 border border-white/10 rounded-3xl p-6">
+                    class="grid md:grid-cols-[260px_1fr] gap-6">
 
-                    <h2
-                        class="text-3xl font-black mb-6">
-
-                        Adicionar Produto
-
-                    </h2>
+                    <!-- MENU -->
 
                     <div
-                        class="grid md:grid-cols-2 gap-4">
+                        class="bg-slate-900 border border-white/10 rounded-3xl p-5 h-fit sticky top-24">
 
-                        <input type="file"
-                            id="prod-img"
-                            class="bg-slate-800 rounded-xl p-4 text-sm">
+                        <div
+                            class="flex items-center justify-between mb-6">
 
-                        <input type="text"
-                            id="prod-nome"
-                            placeholder="Nome do produto"
-                            class="bg-slate-800 rounded-xl p-4 outline-none">
+                            <h2
+                                class="text-2xl font-black">
 
-                        <input type="text"
-                            id="prod-categoria"
-                            placeholder="Categoria"
-                            class="bg-slate-800 rounded-xl p-4 outline-none">
+                                Painel
 
-                        <input type="number"
-                            id="prod-preco"
-                            placeholder="Preço"
-                            class="bg-slate-800 rounded-xl p-4 outline-none">
+                            </h2>
+
+                            <button
+                                onclick="fazerLogout()"
+                                class="text-red-400 hover:text-red-300">
+
+                                <i class="fas fa-sign-out-alt"></i>
+
+                            </button>
+
+                        </div>
+
+                        <div class="space-y-3">
+
+                            <button
+                                class="w-full bg-amber-500 text-black py-3 rounded-xl font-black">
+
+                                Produtos
+
+                            </button>
+
+                        </div>
 
                     </div>
 
-                    <textarea
-                        id="prod-desc"
-                        placeholder="Descrição do produto"
-                        class="w-full h-32 bg-slate-800 rounded-xl p-4 outline-none mt-4"></textarea>
+                    <!-- CONTEUDO -->
 
-                    <button
-                        onclick="adicionarProduto()"
-                        class="mt-5 bg-amber-500 hover:bg-amber-400 transition text-black px-8 py-4 rounded-2xl font-black shadow-xl">
+                    <div class="space-y-6">
 
-                        CADASTRAR PRODUTO
+                        <!-- FORM -->
 
-                    </button>
+                        <div
+                            class="bg-slate-900 border border-white/10 rounded-3xl p-6">
+
+                            <h2
+                                class="text-3xl font-black mb-6">
+
+                                Adicionar Produto
+
+                            </h2>
+
+                            <div
+                                class="grid md:grid-cols-2 gap-4">
+
+                                <input
+                                    type="file"
+                                    id="prod-img"
+                                    class="bg-slate-800 rounded-xl p-4 text-sm">
+
+                                <input
+                                    type="text"
+                                    id="prod-nome"
+                                    placeholder="Nome do produto"
+                                    class="bg-slate-800 rounded-xl p-4 outline-none">
+
+                                <input
+                                    type="text"
+                                    id="prod-categoria"
+                                    placeholder="Categoria"
+                                    class="bg-slate-800 rounded-xl p-4 outline-none">
+
+                                <input
+                                    type="number"
+                                    id="prod-preco"
+                                    placeholder="Preço"
+                                    class="bg-slate-800 rounded-xl p-4 outline-none">
+
+                            </div>
+
+                            <textarea
+                                id="prod-desc"
+                                placeholder="Descrição"
+                                class="w-full h-32 bg-slate-800 rounded-xl p-4 outline-none mt-4"></textarea>
+
+                            <button
+                                onclick="adicionarProduto()"
+                                class="mt-5 bg-amber-500 hover:bg-amber-400 transition text-black px-8 py-4 rounded-2xl font-black">
+
+                                CADASTRAR PRODUTO
+
+                            </button>
+
+                        </div>
+
+                        <!-- LISTA -->
+
+                        <div
+                            class="bg-slate-900 border border-white/10 rounded-3xl p-6">
+
+                            <div
+                                class="flex items-center justify-between mb-6">
+
+                                <h2
+                                    class="text-2xl font-black">
+
+                                    Produtos Cadastrados
+
+                                </h2>
+
+                                <button
+                                    onclick="carregarProdutosAdmin()"
+                                    class="bg-slate-800 hover:bg-slate-700 transition px-4 py-2 rounded-xl">
+
+                                    Atualizar
+
+                                </button>
+
+                            </div>
+
+                            <div
+                                id="lista-admin-produtos"
+                                class="space-y-4">
+
+                            </div>
+
+                        </div>
+
+                    </div>
 
                 </div>
 
@@ -369,7 +504,8 @@
 
     <!-- CARRINHO -->
 
-    <div id="sidebar-carrinho"
+    <div
+        id="sidebar-carrinho"
         class="fixed top-0 right-0 h-full w-full md:w-[430px] bg-slate-950 z-50 translate-x-full transition-transform duration-300 border-l border-white/10 flex flex-col">
 
         <div
@@ -392,8 +528,10 @@
 
         </div>
 
-        <div id="itens-carrinho"
+        <div
+            id="itens-carrinho"
             class="flex-grow overflow-y-auto p-5 space-y-4">
+
         </div>
 
         <div
@@ -401,12 +539,14 @@
 
             <div class="space-y-3 mb-5">
 
-                <input type="text"
+                <input
+                    type="text"
                     id="cliente-nome"
                     placeholder="Seu nome"
                     class="w-full bg-slate-900 border border-white/10 rounded-xl p-4 outline-none">
 
-                <input type="text"
+                <input
+                    type="text"
                     id="cliente-endereco"
                     placeholder="Endereço"
                     class="w-full bg-slate-900 border border-white/10 rounded-xl p-4 outline-none">
@@ -423,7 +563,8 @@
 
                 </span>
 
-                <span id="total-carrinho"
+                <span
+                    id="total-carrinho"
                     class="text-3xl font-black text-amber-400">
 
                     R$ 0,00
@@ -446,11 +587,13 @@
 
     <!-- ZOOM -->
 
-    <div id="zoom-modal"
+    <div
+        id="zoom-modal"
         class="zoom-modal"
         onclick="fecharZoom()">
 
-        <img id="img-zoom"
+        <img
+            id="img-zoom"
             class="max-w-[90%] max-h-[90vh] rounded-3xl shadow-2xl">
 
     </div>
@@ -468,15 +611,105 @@
         let carrinho = [];
 
         // =========================================
-        // INICIAR
+        // REALTIME
+        // =========================================
+
+        _supabase
+            .channel('public:produtos')
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'produtos'
+                },
+                () => {
+
+                    carregarProdutos();
+                    carregarProdutosAdmin();
+
+                }
+            )
+            .subscribe();
+
+        // =========================================
+        // START
         // =========================================
 
         window.onload = async () => {
 
             carregarProdutos();
             carregarFundo();
+            verificarSessao();
 
         };
+
+        // =========================================
+        // AUTH
+        // =========================================
+
+        async function verificarSessao() {
+
+            const {
+                data: { session }
+            } = await _supabase.auth.getSession();
+
+            if (session) {
+
+                mostrarPainelAdmin();
+
+            }
+
+        }
+
+        async function fazerLogin() {
+
+            const email =
+                document.getElementById('login-email').value;
+
+            const senha =
+                document.getElementById('login-senha').value;
+
+            const { error } =
+                await _supabase.auth.signInWithPassword({
+
+                    email,
+                    password: senha
+
+                });
+
+            if (error) {
+
+                alert('Erro no login.');
+                return;
+
+            }
+
+            mostrarPainelAdmin();
+
+        }
+
+        async function fazerLogout() {
+
+            await _supabase.auth.signOut();
+
+            location.reload();
+
+        }
+
+        function mostrarPainelAdmin() {
+
+            document
+                .getElementById('secao-login-admin')
+                .classList.add('hidden');
+
+            document
+                .getElementById('painel-admin-conteudo')
+                .classList.remove('hidden');
+
+            carregarProdutosAdmin();
+
+        }
 
         // =========================================
         // UI
@@ -484,10 +717,14 @@
 
         function mudarAba(aba) {
 
-            document.querySelectorAll('.tab-content')
-                .forEach(el => el.classList.remove('active'));
+            document
+                .querySelectorAll('.tab-content')
+                .forEach(el =>
+                    el.classList.remove('active')
+                );
 
-            document.getElementById('aba-' + aba)
+            document
+                .getElementById('aba-' + aba)
                 .classList.add('active');
 
         }
@@ -500,7 +737,8 @@
 
         function scrollCategorias() {
 
-            document.getElementById('categorias')
+            document
+                .getElementById('categorias')
                 .scrollIntoView({
                     behavior: 'smooth'
                 });
@@ -509,37 +747,43 @@
 
         function toggleCarrinho() {
 
-            document.getElementById('sidebar-carrinho')
+            document
+                .getElementById('sidebar-carrinho')
                 .classList.toggle('translate-x-full');
 
         }
 
         function abrirZoom(url) {
 
-            document.getElementById('img-zoom').src = url;
+            document
+                .getElementById('img-zoom')
+                .src = url;
 
-            document.getElementById('zoom-modal')
+            document
+                .getElementById('zoom-modal')
                 .classList.add('active');
 
         }
 
         function fecharZoom() {
 
-            document.getElementById('zoom-modal')
+            document
+                .getElementById('zoom-modal')
                 .classList.remove('active');
 
         }
 
         // =========================================
-        // CARREGAR PRODUTOS
+        // PRODUTOS
         // =========================================
 
         async function carregarProdutos() {
 
-            const { data, error } = await _supabase
-                .from('produtos')
-                .select('*')
-                .order('nome');
+            const { data, error } =
+                await _supabase
+                    .from('produtos')
+                    .select('*')
+                    .order('nome');
 
             if (error) {
 
@@ -555,14 +799,12 @@
 
         }
 
-        // =========================================
-        // CATEGORIAS PREMIUM
-        // =========================================
-
         function renderizarCategorias() {
 
             const categorias = [...new Set(
-                listaProdutos.map(p => p.categoria || 'Outros')
+                listaProdutos.map(
+                    p => p.categoria || 'Outros'
+                )
             )];
 
             const imagensCategorias = {
@@ -597,14 +839,16 @@
 
             };
 
-            document.getElementById('grid-categorias').innerHTML =
-                categorias.map(cat => {
+            document
+                .getElementById('grid-categorias')
+                .innerHTML = categorias.map(cat => {
 
-                    const nomeCategoria = cat.toLowerCase();
+                    const nomeCategoria =
+                        cat.toLowerCase();
 
                     const imagem =
                         imagensCategorias[nomeCategoria]
-                        || imagensCategorias['outros'];
+                        || imagensCategorias.outros;
 
                     const icon =
                         icones[nomeCategoria]
@@ -612,7 +856,9 @@
 
                     const quantidade =
                         listaProdutos.filter(
-                            p => (p.categoria || 'Outros') === cat
+                            p => (
+                                p.categoria || 'Outros'
+                            ) === cat
                         ).length;
 
                     return `
@@ -627,10 +873,6 @@
 
                         <div
                             class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent">
-                        </div>
-
-                        <div
-                            class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition duration-500">
                         </div>
 
                         <div
@@ -679,18 +921,17 @@
 
         }
 
-        // =========================================
-        // FILTRAR CATEGORIA
-        // =========================================
-
         function filtrarCategoria(categoria) {
 
-            document.getElementById('titulo-produtos')
+            document
+                .getElementById('titulo-produtos')
                 .innerText = categoria;
 
             const produtos =
                 listaProdutos.filter(
-                    p => (p.categoria || 'Outros') === categoria
+                    p => (
+                        p.categoria || 'Outros'
+                    ) === categoria
                 );
 
             renderizarProdutos(produtos);
@@ -699,21 +940,19 @@
 
         function mostrarTodosProdutos() {
 
-            document.getElementById('titulo-produtos')
+            document
+                .getElementById('titulo-produtos')
                 .innerText = 'Todos os Produtos';
 
             renderizarProdutos(listaProdutos);
 
         }
 
-        // =========================================
-        // PRODUTOS
-        // =========================================
-
         function renderizarProdutos(produtos) {
 
-            document.getElementById('grid-produtos').innerHTML =
-                produtos.map(p => `
+            document
+                .getElementById('grid-produtos')
+                .innerHTML = produtos.map(p => `
 
                 <div
                     class="produto-card bg-slate-900 border border-white/10 rounded-[35px] overflow-hidden shadow-xl flex flex-col">
@@ -756,7 +995,7 @@
                             <span
                                 class="text-3xl font-black text-amber-400">
 
-                                R$ ${parseFloat(p.preco).toFixed(2)}
+                                R$ ${Number(p.preco).toFixed(2)}
 
                             </span>
 
@@ -779,7 +1018,7 @@
         }
 
         // =========================================
-        // ADICIONAR PRODUTO
+        // ADMIN CRUD
         // =========================================
 
         async function adicionarProduto() {
@@ -807,7 +1046,7 @@
             }
 
             const fileName =
-                `produto_${Date.now()}.jpg`;
+                `produto_${Date.now()}`;
 
             const { error: uploadError } =
                 await _supabase.storage
@@ -816,12 +1055,14 @@
 
             if (uploadError) {
 
-                alert('Erro ao enviar imagem.');
+                alert('Erro upload imagem.');
                 return;
 
             }
 
-            const { data: { publicUrl } } =
+            const {
+                data: { publicUrl }
+            } =
                 _supabase.storage
                     .from('imagens-produtos')
                     .getPublicUrl(fileName);
@@ -830,24 +1071,193 @@
                 await _supabase
                     .from('produtos')
                     .insert([{
+
                         nome,
                         descricao,
                         preco,
                         categoria,
                         imagem_url: publicUrl
+
                     }]);
 
             if (error) {
 
-                alert('Erro ao salvar produto.');
+                alert('Erro salvar produto.');
                 return;
 
             }
 
+            limparFormulario();
+
+            carregarProdutos();
+            carregarProdutosAdmin();
+
             alert('Produto cadastrado.');
 
-            limparFormulario();
+        }
+
+        async function carregarProdutosAdmin() {
+
+            const container =
+                document.getElementById('lista-admin-produtos');
+
+            container.innerHTML =
+                '<p class="text-white/50 loading">Carregando...</p>';
+
+            const { data, error } =
+                await _supabase
+                    .from('produtos')
+                    .select('*')
+                    .order('created_at', {
+                        ascending: false
+                    });
+
+            if (error) {
+
+                container.innerHTML =
+                    '<p>Erro carregar produtos.</p>';
+
+                return;
+
+            }
+
+            container.innerHTML =
+                data.map(produto => `
+
+                <div
+                    class="bg-slate-800 border border-white/10 rounded-2xl p-4 flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
+
+                    <div
+                        class="flex gap-4 items-center">
+
+                        <img
+                            src="${produto.imagem_url}"
+                            class="w-20 h-20 rounded-2xl object-cover">
+
+                        <div>
+
+                            <h3
+                                class="font-black text-lg">
+
+                                ${produto.nome}
+
+                            </h3>
+
+                            <p
+                                class="text-white/50 text-sm">
+
+                                ${produto.categoria || 'Sem categoria'}
+
+                            </p>
+
+                            <p
+                                class="text-amber-400 font-bold mt-1">
+
+                                R$ ${Number(produto.preco).toFixed(2)}
+
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <div
+                        class="flex gap-3">
+
+                        <button
+                            onclick="editarProduto('${produto.id}')"
+                            class="bg-blue-500 hover:bg-blue-400 transition px-5 py-3 rounded-xl font-bold">
+
+                            Editar
+
+                        </button>
+
+                        <button
+                            onclick="excluirProduto('${produto.id}')"
+                            class="bg-red-500 hover:bg-red-400 transition px-5 py-3 rounded-xl font-bold">
+
+                            Excluir
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+                `).join('');
+
+        }
+
+        async function excluirProduto(id) {
+
+            const confirmar =
+                confirm('Excluir produto?');
+
+            if (!confirmar) return;
+
+            const { error } =
+                await _supabase
+                    .from('produtos')
+                    .delete()
+                    .eq('id', id);
+
+            if (error) {
+
+                alert('Erro excluir.');
+                return;
+
+            }
+
             carregarProdutos();
+            carregarProdutosAdmin();
+
+        }
+
+        async function editarProduto(id) {
+
+            const produto =
+                listaProdutos.find(
+                    p => String(p.id) === String(id)
+                );
+
+            if (!produto) return;
+
+            const novoNome =
+                prompt('Nome:', produto.nome);
+
+            if (!novoNome) return;
+
+            const novaDescricao =
+                prompt('Descrição:', produto.descricao);
+
+            const novoPreco =
+                prompt('Preço:', produto.preco);
+
+            const novaCategoria =
+                prompt('Categoria:', produto.categoria);
+
+            const { error } =
+                await _supabase
+                    .from('produtos')
+                    .update({
+
+                        nome: novoNome,
+                        descricao: novaDescricao,
+                        preco: novoPreco,
+                        categoria: novaCategoria
+
+                    })
+                    .eq('id', id);
+
+            if (error) {
+
+                alert('Erro editar.');
+                return;
+
+            }
+
+            carregarProdutos();
+            carregarProdutosAdmin();
 
         }
 
@@ -874,7 +1284,8 @@
 
             if (data?.publicUrl) {
 
-                document.getElementById('bg-dinamico')
+                document
+                    .getElementById('bg-dinamico')
                     .style.backgroundImage =
                     `url('${data.publicUrl}?t=${Date.now()}')`;
 
@@ -897,7 +1308,7 @@
 
             const existe =
                 carrinho.find(
-                    item => String(item.id) === String(id)
+                    p => String(p.id) === String(id)
                 );
 
             if (existe) {
@@ -907,8 +1318,10 @@
             } else {
 
                 carrinho.push({
+
                     ...produto,
                     qtd: 1
+
                 });
 
             }
@@ -921,7 +1334,7 @@
 
             carrinho =
                 carrinho.filter(
-                    item => String(item.id) !== String(id)
+                    p => String(p.id) !== String(id)
                 );
 
             renderizarCarrinho();
@@ -932,17 +1345,20 @@
 
             let total = 0;
 
-            document.getElementById('itens-carrinho').innerHTML =
-                carrinho.map(item => {
+            document
+                .getElementById('itens-carrinho')
+                .innerHTML = carrinho.map(item => {
 
-                    total += Number(item.preco) * item.qtd;
+                    total +=
+                        Number(item.preco) * item.qtd;
 
                     return `
 
                     <div
                         class="bg-slate-900 border border-white/10 rounded-2xl p-4 flex items-center justify-between">
 
-                        <div class="flex gap-3 items-center">
+                        <div
+                            class="flex gap-3 items-center">
 
                             <img
                                 src="${item.imagem_url}"
@@ -982,7 +1398,8 @@
 
                 }).join('');
 
-            document.getElementById('total-carrinho')
+            document
+                .getElementById('total-carrinho')
                 .innerText =
                 `R$ ${total.toFixed(2)}`;
 
@@ -1028,7 +1445,8 @@
 
             carrinho.forEach(item => {
 
-                total += Number(item.preco) * item.qtd;
+                total +=
+                    Number(item.preco) * item.qtd;
 
             });
 
