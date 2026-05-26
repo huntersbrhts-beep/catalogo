@@ -2,86 +2,104 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Du Lanche - Sistema Oficial</title>
+    <title>Du Lanche - Delivery Profissional</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .bg-fundo { position: fixed; inset: 0; z-index: -2; background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+    </style>
 </head>
-<body class="bg-slate-950 text-white min-h-screen">
+<body class="min-h-screen text-slate-800 flex flex-col">
 
-    <header class="p-4 flex justify-between items-center bg-slate-900 border-b border-white/10">
-        <h1 class="font-black text-amber-500 cursor-pointer" onclick="mudarAba('catalogo')">Du LANCHE</h1>
-        <button onclick="mudarAba('admin')" class="text-xl"><i class="fas fa-cog"></i></button>
+    <div id="bg-dinamico" class="bg-fundo"></div>
+
+    <header class="bg-slate-900/90 backdrop-blur-md text-white p-4 sticky top-0 z-40 border-b border-white/10 flex justify-between items-center">
+        <h1 class="font-black text-amber-500 cursor-pointer text-xl" onclick="mudarAba('catalogo')">Du LANCHE</h1>
+        <button onclick="mudarAba('admin')" class="hover:text-amber-500"><i class="fas fa-cog"></i></button>
     </header>
 
-    <main class="container mx-auto p-4">
+    <main class="flex-grow container mx-auto p-4 z-10 relative">
         <div id="aba-catalogo" class="tab-content active">
-            <div id="filtros" class="flex overflow-x-auto gap-2 py-4 mb-4 scrollbar-hide">
-                <button onclick="filtrar('Todos')" class="px-4 py-2 bg-amber-500 rounded-full font-bold text-xs">Todos</button>
-                <button onclick="filtrar('Hamburguer')" class="px-4 py-2 bg-slate-800 rounded-full font-bold text-xs">Hamburguer</button>
-                <button onclick="filtrar('Batata')" class="px-4 py-2 bg-slate-800 rounded-full font-bold text-xs">Batata</button>
-                <button onclick="filtrar('Caldos')" class="px-4 py-2 bg-slate-800 rounded-full font-bold text-xs">Caldos</button>
-                <button onclick="filtrar('Porcoes')" class="px-4 py-2 bg-slate-800 rounded-full font-bold text-xs">Porções</button>
-                <button onclick="filtrar('Bebidas')" class="px-4 py-2 bg-slate-800 rounded-full font-bold text-xs">Bebidas</button>
-                <button onclick="filtrar('Cachorro Quente')" class="px-4 py-2 bg-slate-800 rounded-full font-bold text-xs">Cachorro Quente</button>
-                <button onclick="filtrar('Combos')" class="px-4 py-2 bg-slate-800 rounded-full font-bold text-xs">Combos</button>
+            <div class="flex overflow-x-auto gap-2 py-4 mb-4 scrollbar-hide">
+                <button onclick="filtrarProdutos('Todos')" class="px-5 py-2 bg-amber-500 text-white rounded-full font-bold text-sm whitespace-nowrap">Todos</button>
+                <button onclick="filtrarProdutos('Hamburguer')" class="px-5 py-2 bg-white/20 backdrop-blur-md text-white rounded-full font-bold text-sm whitespace-nowrap border">Hamburguer</button>
+                <button onclick="filtrarProdutos('Batata')" class="px-5 py-2 bg-white/20 backdrop-blur-md text-white rounded-full font-bold text-sm whitespace-nowrap border">Batata</button>
+                <button onclick="filtrarProdutos('Bebidas')" class="px-5 py-2 bg-white/20 backdrop-blur-md text-white rounded-full font-bold text-sm whitespace-nowrap border">Bebidas</button>
+                <button onclick="filtrarProdutos('Combos')" class="px-5 py-2 bg-white/20 backdrop-blur-md text-white rounded-full font-bold text-sm whitespace-nowrap border">Combos</button>
             </div>
             <div id="grid-produtos" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
         </div>
 
-        <div id="aba-admin" class="tab-content hidden max-w-lg mx-auto bg-slate-900 p-6 rounded-3xl">
-            <h2 class="font-black text-lg mb-4">Gerenciar Categorias</h2>
-            <div id="lista-realocacao" class="space-y-2"></div>
+        <div id="aba-admin" class="tab-content max-w-sm mx-auto bg-white/80 p-6 rounded-3xl shadow-2xl">
+            <h2 class="font-black text-lg mb-4">Painel Administrativo</h2>
+            <div id="secao-login">
+                <input type="email" id="login-email" placeholder="Email" class="w-full p-2 mb-2 rounded border">
+                <input type="password" id="login-senha" placeholder="Senha" class="w-full p-2 mb-2 rounded border">
+                <button onclick="fazerLogin()" class="w-full bg-amber-500 text-white py-2 rounded font-bold">Entrar</button>
+            </div>
+            <div id="secao-admin-painel" class="hidden space-y-3">
+                <select id="prod-categoria" class="w-full p-2 rounded border">
+                    <option value="Hamburguer">Hamburguer</option>
+                    <option value="Batata">Batata</option>
+                    <option value="Bebidas">Bebidas</option>
+                    <option value="Combos">Combos</option>
+                </select>
+                <input type="file" id="prod-img" class="w-full text-xs">
+                <input type="text" id="prod-nome" placeholder="Nome" class="w-full p-2 rounded border">
+                <input type="number" id="prod-preco" placeholder="Preço" class="w-full p-2 rounded border">
+                <button onclick="adicionarProduto()" class="w-full bg-blue-600 text-white py-2 rounded font-bold">Cadastrar Produto</button>
+                <button onclick="fazerLogout()" class="w-full text-red-500 text-xs underline">Sair</button>
+            </div>
         </div>
     </main>
 
     <script>
-        const _s = supabase.createClient("https://yawousokoaqeyvktjosj.supabase.co", "sb_publishable__TXuxjZ8PObBZxsM-PjF1Q_fAvPsDa3");
-        let lista = [];
-        const cats = ['Hamburguer', 'Batata', 'Caldos', 'Porcoes', 'Bebidas', 'Cachorro Quente', 'Combos'];
+        const _supabase = supabase.createClient("https://yawousokoaqeyvktjosj.supabase.co", "sb_publishable__TXuxjZ8PObBZxsM-PjF1Q_fAvPsDa3");
+        let listaProdutos = [];
 
-        async function carregar() {
-            const { data } = await _s.from('produtos').select('*');
-            lista = data || [];
-            filtrar('Todos');
-            montarListaAdmin();
+        window.onload = async () => { await carregarProdutos(); };
+
+        async function carregarProdutos() {
+            const { data } = await _supabase.from('produtos').select('*');
+            listaProdutos = data || [];
+            filtrarProdutos('Todos');
         }
 
-        function filtrar(c) {
+        function filtrarProdutos(cat) {
             const grid = document.getElementById('grid-produtos');
-            const filtrados = c === 'Todos' ? lista : lista.filter(p => p.categoria === c);
+            const filtrados = cat === 'Todos' ? listaProdutos : listaProdutos.filter(p => p.categoria === cat);
             grid.innerHTML = filtrados.map(p => `
-                <div class="bg-slate-800 p-3 rounded-xl border border-white/10">
-                    <img src="${p.imagem_url}" class="h-24 w-full object-cover rounded-lg">
-                    <p class="font-bold text-xs mt-2">${p.nome}</p>
-                    <p class="text-amber-500 text-sm">R$ ${p.preco}</p>
+                <div class="bg-white/50 p-3 rounded-2xl border border-white/20">
+                    <img src="${p.imagem_url}" class="h-24 w-full object-cover rounded-xl mb-2">
+                    <h2 class="font-bold text-xs">${p.nome}</h2>
+                    <p class="font-black text-sm">R$ ${parseFloat(p.preco).toFixed(2)}</p>
                 </div>
             `).join('');
         }
 
-        function montarListaAdmin() {
-            const cont = document.getElementById('lista-realocacao');
-            cont.innerHTML = lista.map(p => `
-                <div class="flex justify-between items-center bg-slate-800 p-2 rounded text-[10px]">
-                    <span class="truncate w-1/3">${p.nome}</span>
-                    <select onchange="realocar('${p.id}', this.value)" class="bg-black p-1 rounded">
-                        ${cats.map(c => `<option value="${c}" ${p.categoria === c ? 'selected' : ''}>${c}</option>`).join('')}
-                    </select>
-                </div>
-            `).join('');
+        async function adicionarProduto() {
+            const file = document.getElementById('prod-img').files[0];
+            const nome = document.getElementById('prod-nome').value;
+            const cat = document.getElementById('prod-categoria').value;
+            const preco = document.getElementById('prod-preco').value;
+            
+            if(!file || !nome || !preco) return alert("Preencha todos os campos!");
+
+            const fileName = `prod_${Date.now()}.jpg`;
+            await _supabase.storage.from('imagens-produtos').upload(fileName, file);
+            const { data: { publicUrl } } = _supabase.storage.from('imagens-produtos').getPublicUrl(fileName);
+            
+            await _supabase.from('produtos').insert([{ nome, categoria: cat, preco, imagem_url: publicUrl }]);
+            alert("Produto cadastrado!"); location.reload();
         }
 
-        async function realocar(id, cat) {
-            await _s.from('produtos').update({ categoria: cat }).eq('id', id);
-            await carregar(); // Recarrega tudo e atualiza o filtro
-        }
-
-        function mudarAba(aba) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active', 'hidden'));
-            document.getElementById('aba-' + aba).classList.add('active');
-            if(aba === 'catalogo') document.getElementById('aba-admin').classList.add('hidden');
-        }
-
-        window.onload = carregar;
+        function mudarAba(aba) { document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active')); document.getElementById('aba-' + aba).classList.add('active'); }
+        async function fazerLogin() { await _supabase.auth.signInWithPassword({ email: document.getElementById('login-email').value, password: document.getElementById('login-senha').value }); location.reload(); }
+        async function fazerLogout() { await _supabase.auth.signOut(); location.reload(); }
     </script>
 </body>
 </html>
