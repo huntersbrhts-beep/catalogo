@@ -2,92 +2,83 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Du Lanche - Sistema Oficial</title>
+    <title>Du Lanche - Sistema Completo</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        .bg-fundo { position: fixed; inset: 0; z-index: -2; background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed; background-color: #0f172a; }
-        .tab-content { display: none; } .tab-content.active { display: block; }
-        .zoom-modal { position: fixed; inset: 0; z-index: 100; display: none; background: rgba(0,0,0,0.95); align-items: center; justify-content: center; }
-        .zoom-modal.active { display: flex; }
-    </style>
 </head>
-<body class="text-slate-800">
-    <div id="bg-dinamico" class="bg-fundo"></div>
-    
-    <header class="p-4 bg-slate-900/90 backdrop-blur-md text-white flex justify-between sticky top-0 z-40">
-        <h1 class="font-black text-amber-500 cursor-pointer" onclick="mudarAba('catalogo')">Du LANCHE</h1>
-        <button onclick="mudarAba('admin')"><i class="fas fa-cog"></i></button>
-    </header>
+<body class="bg-slate-900 text-white p-4">
 
-    <main class="container mx-auto p-4">
-        <div id="aba-catalogo" class="tab-content active">
-            <div class="flex overflow-x-auto gap-2 py-4 mb-4">
-                <button onclick="filtrarProdutos('Todos')" class="px-4 py-2 bg-amber-500 rounded-full font-bold text-xs text-white">Todos</button>
-                <button onclick="filtrarProdutos('Hamburguer')" class="px-4 py-2 bg-white/20 rounded-full font-bold text-xs text-white border">Hamburguer</button>
-                <button onclick="filtrarProdutos('Batata')" class="px-4 py-2 bg-white/20 rounded-full font-bold text-xs text-white border">Batata</button>
-                <button onclick="filtrarProdutos('Porcoes')" class="px-4 py-2 bg-white/20 rounded-full font-bold text-xs text-white border">Porções</button>
-            </div>
-            <div id="grid-produtos" class="grid grid-cols-2 gap-4"></div>
-        </div>
+    <div class="flex gap-2 overflow-x-auto py-4">
+        <button onclick="filtrar('Todos')" class="bg-amber-500 px-4 py-2 rounded-full font-bold">Todos</button>
+        <button onclick="filtrar('Hamburguer')" class="bg-slate-700 px-4 py-2 rounded-full font-bold">Hamburguer</button>
+        <button onclick="filtrar('Batata')" class="bg-slate-700 px-4 py-2 rounded-full font-bold">Batata</button>
+        <button onclick="filtrar('Bebidas')" class="bg-slate-700 px-4 py-2 rounded-full font-bold">Bebidas</button>
+    </div>
 
-        <div id="aba-admin" class="tab-content max-w-sm mx-auto bg-white/90 p-6 rounded-3xl">
-            <h2 class="font-bold mb-4">Gerenciar Categorias</h2>
-            <div id="secao-admin-painel" class="space-y-4">
-                <div id="lista-admin-produtos" class="space-y-2"></div>
-                <button onclick="fazerLogout()" class="text-red-500 text-xs">Sair</button>
-            </div>
+    <div id="grid-produtos" class="grid grid-cols-2 gap-4"></div>
+
+    <div class="mt-10 p-6 bg-slate-800 rounded-xl">
+        <h2 class="text-xl font-bold mb-4">Painel Administrativo</h2>
+        <input type="email" id="email" placeholder="Email" class="w-full p-2 mb-2 text-black rounded">
+        <input type="password" id="senha" placeholder="Senha" class="w-full p-2 mb-4 text-black rounded">
+        <button onclick="logar()" class="bg-blue-600 w-full p-2 rounded">Entrar no Painel</button>
+        
+        <div id="lista-edicao" class="mt-6 hidden">
+            <h3 class="font-bold mb-2">Realocar Categorias:</h3>
+            <div id="container-edicao" class="space-y-2"></div>
         </div>
-    </main>
+    </div>
 
     <script>
-        const _supabase = supabase.createClient("https://yawousokoaqeyvktjosj.supabase.co", "sb_publishable__TXuxjZ8PObBZxsM-PjF1Q_fAvPsDa3");
-        let listaProdutos = [];
+        const _s = supabase.createClient("https://yawousokoaqeyvktjosj.supabase.co", "sb_publishable__TXuxjZ8PObBZxsM-PjF1Q_fAvPsDa3");
+        let produtos = [];
 
-        async function carregarProdutos() {
-            const { data, error } = await _supabase.from('produtos').select('*');
-            if (error) { console.error("Erro Supabase:", error); return; }
-            listaProdutos = data || [];
-            filtrarProdutos('Todos');
-            carregarListaAdmin();
+        async function carregar() {
+            const { data } = await _s.from('produtos').select('*');
+            produtos = data || [];
+            filtrar('Todos');
         }
 
-        function filtrarProdutos(cat) {
+        function filtrar(cat) {
             const grid = document.getElementById('grid-produtos');
-            const filtrados = cat === 'Todos' ? listaProdutos : listaProdutos.filter(p => p.categoria === cat);
-            grid.innerHTML = filtrados.map(p => `
-                <div class="bg-white/50 p-3 rounded-2xl">
-                    <img src="${p.imagem_url}" class="h-24 w-full object-cover rounded-xl">
-                    <h2 class="font-bold text-xs">${p.nome}</h2>
-                    <p class="font-bold text-sm">R$ ${parseFloat(p.preco).toFixed(2)}</p>
+            const lista = cat === 'Todos' ? produtos : produtos.filter(p => p.categoria === cat);
+            grid.innerHTML = lista.map(p => `
+                <div class="bg-slate-800 p-2 rounded-lg">
+                    <img src="${p.imagem_url}" class="h-20 w-full object-cover rounded">
+                    <p class="font-bold text-xs">${p.nome}</p>
+                    <p class="text-amber-500">R$ ${p.preco}</p>
                 </div>
             `).join('');
         }
 
-        async function carregarListaAdmin() {
-            const container = document.getElementById('lista-admin-produtos');
-            container.innerHTML = listaProdutos.map(p => `
-                <div class="flex justify-between items-center bg-slate-100 p-2 rounded text-[10px]">
+        async function logar() {
+            const { error } = await _s.auth.signInWithPassword({ email: document.getElementById('email').value, password: document.getElementById('senha').value });
+            if (!error) {
+                document.getElementById('lista-edicao').classList.remove('hidden');
+                carregarEdicao();
+            } else alert("Erro no login");
+        }
+
+        async function carregarEdicao() {
+            const cont = document.getElementById('container-edicao');
+            cont.innerHTML = produtos.map(p => `
+                <div class="flex justify-between bg-slate-900 p-2 rounded text-xs">
                     <span>${p.nome}</span>
-                    <select onchange="realocar('${p.id}', this.value)" class="p-1">
-                        ${['Hamburguer','Batata','Caldos','Porcoes','Bebidas','Combos'].map(cat => 
-                            `<option value="${cat}" ${p.categoria === cat ? 'selected' : ''}>${cat}</option>`).join('')}
+                    <select onchange="atualizar('${p.id}', this.value)" class="text-black">
+                        ${['Hamburguer','Batata','Caldos','Porcoes','Bebidas','Combos'].map(c => 
+                            `<option value="${c}" ${p.categoria === c ? 'selected' : ''}>${c}</option>`).join('')}
                     </select>
                 </div>
             `).join('');
         }
 
-        async function realocar(id, cat) {
-            await _supabase.from('produtos').update({ categoria: cat }).eq('id', id);
-            alert("Atualizado!");
-            carregarProdutos();
+        async function atualizar(id, cat) {
+            await _s.from('produtos').update({ categoria: cat }).eq('id', id);
+            alert("Categoria alterada!");
+            carregar();
         }
 
-        function mudarAba(aba) { document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active')); document.getElementById('aba-' + aba).classList.add('active'); }
-        async function fazerLogout() { await _supabase.auth.signOut(); location.reload(); }
-        
-        window.onload = () => carregarProdutos();
+        window.onload = carregar;
     </script>
 </body>
 </html>
