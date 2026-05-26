@@ -2,44 +2,26 @@
 <html lang="pt-BR">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Du Lanche - Delivery Premium</title>
+
+    <meta charset="UTF-8" />
+
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0" />
+
+    <title>Du Lanche - Sistema Profissional</title>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <script src="https://cdn.tailwindcss.com"></script>
 
     <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
     <style>
-        * {
-            scroll-behavior: smooth;
-        }
-
         body {
             background: #020617;
+            color: white;
             overflow-x: hidden;
-        }
-
-        .bg-fundo {
-            position: fixed;
-            inset: 0;
-            z-index: -2;
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            opacity: .12;
-        }
-
-        .overlay {
-            position: fixed;
-            inset: 0;
-            z-index: -1;
-            background:
-                linear-gradient(to bottom,
-                    rgba(2, 6, 23, 0.96),
-                    rgba(15, 23, 42, 0.98));
         }
 
         .tab-content {
@@ -50,37 +32,34 @@
             display: block;
         }
 
+        .admin-section {
+            display: none;
+        }
+
+        .admin-section.active {
+            display: block;
+        }
+
         .zoom-modal {
             position: fixed;
             inset: 0;
-            z-index: 999;
+            background: rgba(0, 0, 0, .9);
             display: none;
-            background: rgba(0, 0, 0, .95);
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            z-index: 999;
         }
 
         .zoom-modal.active {
             display: flex;
         }
 
-        .categoria-card {
-            position: relative;
-            overflow: hidden;
-            transition: .4s;
-        }
-
         .categoria-card:hover {
-            transform: translateY(-6px);
+            transform: translateY(-5px);
         }
 
-        .categoria-card img {
-            transition: transform .7s ease;
-        }
-
-        .categoria-card:hover img {
-            transform: scale(1.08);
+        .categoria-card {
+            transition: .3s;
         }
 
         .produto-card {
@@ -90,72 +69,33 @@
         .produto-card:hover {
             transform: translateY(-5px);
         }
-
-        #itens-carrinho::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        #itens-carrinho::-webkit-scrollbar-thumb {
-            background: #f59e0b;
-            border-radius: 10px;
-        }
-
-        .loading {
-            animation: pulse 1.2s infinite;
-        }
-
-        @keyframes pulse {
-
-            0% {
-                opacity: .5;
-            }
-
-            50% {
-                opacity: 1;
-            }
-
-            100% {
-                opacity: .5;
-            }
-
-        }
     </style>
+
 </head>
 
-<body class="text-white min-h-screen flex flex-col">
-
-    <!-- FUNDO -->
-
-    <div id="bg-dinamico" class="bg-fundo"></div>
-    <div class="overlay"></div>
+<body class="min-h-screen flex flex-col">
 
     <!-- HEADER -->
 
     <header
-        class="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-white/5">
+        class="sticky top-0 z-50 bg-slate-950/90 border-b border-white/10 backdrop-blur-xl">
 
         <div
             class="container mx-auto px-5 py-4 flex items-center justify-between">
 
-            <div
-                onclick="voltarHome()"
-                class="cursor-pointer">
+            <h1
+                onclick="mudarAba('catalogo')"
+                class="text-3xl font-black text-amber-400 cursor-pointer">
 
-                <h1
-                    class="text-2xl md:text-3xl font-black text-amber-400">
+                DU LANCHE
 
-                    DU LANCHE
+            </h1>
 
-                </h1>
-
-            </div>
-
-            <div
-                class="flex items-center gap-5">
+            <div class="flex gap-5 items-center">
 
                 <button
                     onclick="mudarAba('admin')"
-                    class="hover:text-amber-400 transition text-xl">
+                    class="text-xl hover:text-amber-400">
 
                     <i class="fas fa-cog"></i>
 
@@ -163,13 +103,13 @@
 
                 <button
                     onclick="toggleCarrinho()"
-                    class="relative hover:text-amber-400 transition text-2xl">
+                    class="relative text-2xl hover:text-amber-400">
 
-                    <i class="fas fa-shopping-bag"></i>
+                    <i class="fas fa-shopping-cart"></i>
 
                     <span
                         id="cart-badge"
-                        class="hidden absolute -top-2 -right-2 bg-red-500 w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center">
+                        class="hidden absolute -top-2 -right-2 bg-red-500 w-5 h-5 rounded-full text-[10px] flex items-center justify-center font-bold">
 
                         0
 
@@ -197,49 +137,37 @@
             <!-- HERO -->
 
             <div
-                class="relative overflow-hidden rounded-[40px] bg-gradient-to-r from-amber-500 to-orange-600 p-8 md:p-14 mb-12 shadow-2xl">
+                class="rounded-[40px] overflow-hidden bg-gradient-to-r from-amber-500 to-orange-600 p-10 mb-10">
 
-                <div class="relative z-10">
+                <h2
+                    class="text-5xl font-black mb-4">
 
-                    <p
-                        class="uppercase tracking-[4px] text-sm font-bold text-white/80 mb-4">
+                    Delivery Premium
 
-                        DELIVERY PREMIUM
+                </h2>
 
-                    </p>
+                <p
+                    class="text-white/80 mb-8">
 
-                    <h2
-                        class="text-4xl md:text-6xl font-black leading-tight mb-5">
+                    Escolha sua categoria favorita.
 
-                        Os melhores <br>
-                        lanches da cidade
+                </p>
 
-                    </h2>
+                <button
+                    onclick="scrollCategorias()"
+                    class="bg-black hover:bg-slate-900 transition px-8 py-4 rounded-2xl font-black">
 
-                    <p
-                        class="max-w-xl text-white/90 text-sm md:text-base mb-8">
+                    VER CARDÁPIO
 
-                        Escolha sua categoria favorita e peça agora mesmo.
-
-                    </p>
-
-                    <button
-                        onclick="scrollCategorias()"
-                        class="bg-black hover:bg-slate-900 transition text-white px-8 py-4 rounded-2xl font-black shadow-xl">
-
-                        VER CARDÁPIO
-
-                    </button>
-
-                </div>
+                </button>
 
             </div>
 
             <!-- CATEGORIAS -->
 
-            <section
+            <div
                 id="categorias"
-                class="mb-14">
+                class="mb-10">
 
                 <div
                     class="flex items-center justify-between mb-6">
@@ -253,7 +181,7 @@
 
                     <button
                         onclick="mostrarTodosProdutos()"
-                        class="text-amber-400 hover:text-amber-300">
+                        class="text-amber-400">
 
                         Ver todos
 
@@ -263,36 +191,31 @@
 
                 <div
                     id="grid-categorias"
-                    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
 
                 </div>
 
-            </section>
+            </div>
 
             <!-- PRODUTOS -->
 
-            <section>
+            <div>
 
-                <div
-                    class="flex items-center justify-between mb-6">
+                <h2
+                    id="titulo-produtos"
+                    class="text-3xl font-black mb-6">
 
-                    <h2
-                        id="titulo-produtos"
-                        class="text-3xl font-black">
+                    Todos os Produtos
 
-                        Todos os Produtos
-
-                    </h2>
-
-                </div>
+                </h2>
 
                 <div
                     id="grid-produtos"
-                    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
 
                 </div>
 
-            </section>
+            </div>
 
         </section>
 
@@ -309,39 +232,32 @@
                 class="max-w-md mx-auto">
 
                 <div
-                    class="bg-slate-900 border border-white/10 rounded-3xl p-8 shadow-2xl">
+                    class="bg-slate-900 border border-white/10 rounded-3xl p-8">
 
                     <h2
-                        class="text-3xl font-black mb-2">
+                        class="text-3xl font-black mb-5">
 
                         Login Admin
 
                     </h2>
 
-                    <p
-                        class="text-white/50 mb-6">
-
-                        Entre para acessar o painel administrativo.
-
-                    </p>
-
                     <div class="space-y-4">
 
                         <input
-                            type="email"
                             id="login-email"
-                            placeholder="Seu e-mail"
-                            class="w-full bg-slate-800 rounded-2xl p-4 outline-none border border-white/10">
+                            type="email"
+                            placeholder="Email"
+                            class="w-full bg-slate-800 rounded-xl p-4 outline-none">
 
                         <input
-                            type="password"
                             id="login-senha"
-                            placeholder="Sua senha"
-                            class="w-full bg-slate-800 rounded-2xl p-4 outline-none border border-white/10">
+                            type="password"
+                            placeholder="Senha"
+                            class="w-full bg-slate-800 rounded-xl p-4 outline-none">
 
                         <button
                             onclick="fazerLogin()"
-                            class="w-full bg-amber-500 hover:bg-amber-400 transition text-black py-4 rounded-2xl font-black">
+                            class="w-full bg-amber-500 hover:bg-amber-400 transition text-black py-4 rounded-xl font-black">
 
                             ENTRAR
 
@@ -356,58 +272,165 @@
             <!-- PAINEL -->
 
             <div
-                id="painel-admin-conteudo"
-                class="hidden">
+                id="painel-admin"
+                class="hidden grid md:grid-cols-[260px_1fr] gap-6">
+
+                <!-- MENU -->
 
                 <div
-                    class="grid md:grid-cols-[260px_1fr] gap-6">
-
-                    <!-- MENU -->
+                    class="bg-slate-900 border border-white/10 rounded-3xl p-5 h-fit sticky top-24">
 
                     <div
-                        class="bg-slate-900 border border-white/10 rounded-3xl p-5 h-fit sticky top-24">
+                        class="flex items-center justify-between mb-8">
+
+                        <h2
+                            class="text-2xl font-black">
+
+                            Painel
+
+                        </h2>
+
+                        <button
+                            onclick="logout()"
+                            class="text-red-400">
+
+                            <i class="fas fa-sign-out-alt"></i>
+
+                        </button>
+
+                    </div>
+
+                    <div class="space-y-3">
+
+                        <button
+                            onclick="abrirSecaoAdmin('dashboard')"
+                            class="w-full bg-amber-500 text-black py-3 rounded-xl font-black">
+
+                            Dashboard
+
+                        </button>
+
+                        <button
+                            onclick="abrirSecaoAdmin('produtos')"
+                            class="w-full bg-slate-800 py-3 rounded-xl font-bold">
+
+                            Produtos
+
+                        </button>
+
+                        <button
+                            onclick="abrirSecaoAdmin('categorias')"
+                            class="w-full bg-slate-800 py-3 rounded-xl font-bold">
+
+                            Categorias
+
+                        </button>
+
+                        <button
+                            onclick="abrirSecaoAdmin('cupons')"
+                            class="w-full bg-slate-800 py-3 rounded-xl font-bold">
+
+                            Cupons
+
+                        </button>
+
+                        <button
+                            onclick="abrirSecaoAdmin('aparencia')"
+                            class="w-full bg-slate-800 py-3 rounded-xl font-bold">
+
+                            Aparência
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <!-- CONTEUDO -->
+
+                <div>
+
+                    <!-- DASHBOARD -->
+
+                    <div
+                        id="secao-dashboard"
+                        class="admin-section active">
 
                         <div
-                            class="flex items-center justify-between mb-6">
+                            class="grid md:grid-cols-4 gap-5">
 
-                            <h2
-                                class="text-2xl font-black">
+                            <div
+                                class="bg-slate-900 border border-white/10 rounded-3xl p-6">
 
-                                Painel
+                                <p
+                                    class="text-white/50 mb-2">
 
-                            </h2>
+                                    Produtos
 
-                            <button
-                                onclick="fazerLogout()"
-                                class="text-red-400 hover:text-red-300">
+                                </p>
 
-                                <i class="fas fa-sign-out-alt"></i>
+                                <h2
+                                    id="total-produtos"
+                                    class="text-4xl font-black text-amber-400">
 
-                            </button>
+                                    0
 
-                        </div>
+                                </h2>
 
-                        <div class="space-y-3">
+                            </div>
 
-                            <button
-                                class="w-full bg-amber-500 text-black py-3 rounded-xl font-black">
+                            <div
+                                class="bg-slate-900 border border-white/10 rounded-3xl p-6">
 
-                                Produtos
+                                <p
+                                    class="text-white/50 mb-2">
 
-                            </button>
+                                    Categorias
+
+                                </p>
+
+                                <h2
+                                    id="total-categorias"
+                                    class="text-4xl font-black text-emerald-400">
+
+                                    0
+
+                                </h2>
+
+                            </div>
+
+                            <div
+                                class="bg-slate-900 border border-white/10 rounded-3xl p-6">
+
+                                <p
+                                    class="text-white/50 mb-2">
+
+                                    Cupons
+
+                                </p>
+
+                                <h2
+                                    id="total-cupons"
+                                    class="text-4xl font-black text-blue-400">
+
+                                    0
+
+                                </h2>
+
+                            </div>
 
                         </div>
 
                     </div>
 
-                    <!-- CONTEUDO -->
+                    <!-- PRODUTOS -->
 
-                    <div class="space-y-6">
-
-                        <!-- FORM -->
+                    <div
+                        id="secao-produtos"
+                        class="admin-section">
 
                         <div
-                            class="bg-slate-900 border border-white/10 rounded-3xl p-6">
+                            class="bg-slate-900 border border-white/10 rounded-3xl p-6 mb-6">
 
                             <h2
                                 class="text-3xl font-black mb-6">
@@ -420,25 +443,25 @@
                                 class="grid md:grid-cols-2 gap-4">
 
                                 <input
-                                    type="file"
                                     id="prod-img"
-                                    class="bg-slate-800 rounded-xl p-4 text-sm">
+                                    type="file"
+                                    class="bg-slate-800 rounded-xl p-4">
 
                                 <input
-                                    type="text"
                                     id="prod-nome"
-                                    placeholder="Nome do produto"
+                                    type="text"
+                                    placeholder="Nome produto"
                                     class="bg-slate-800 rounded-xl p-4 outline-none">
 
                                 <input
-                                    type="text"
                                     id="prod-categoria"
+                                    type="text"
                                     placeholder="Categoria"
                                     class="bg-slate-800 rounded-xl p-4 outline-none">
 
                                 <input
-                                    type="number"
                                     id="prod-preco"
+                                    type="number"
                                     placeholder="Preço"
                                     class="bg-slate-800 rounded-xl p-4 outline-none">
 
@@ -451,44 +474,170 @@
 
                             <button
                                 onclick="adicionarProduto()"
-                                class="mt-5 bg-amber-500 hover:bg-amber-400 transition text-black px-8 py-4 rounded-2xl font-black">
+                                class="mt-5 bg-amber-500 hover:bg-amber-400 transition text-black px-8 py-4 rounded-xl font-black">
 
-                                CADASTRAR PRODUTO
+                                CADASTRAR
 
                             </button>
 
                         </div>
 
-                        <!-- LISTA -->
+                        <div
+                            id="lista-admin-produtos"
+                            class="space-y-4">
+
+                        </div>
+
+                    </div>
+
+                    <!-- CATEGORIAS -->
+
+                    <div
+                        id="secao-categorias"
+                        class="admin-section">
 
                         <div
                             class="bg-slate-900 border border-white/10 rounded-3xl p-6">
 
+                            <h2
+                                class="text-3xl font-black mb-6">
+
+                                Categorias
+
+                            </h2>
+
                             <div
-                                class="flex items-center justify-between mb-6">
+                                class="grid md:grid-cols-3 gap-4 mb-6">
 
-                                <h2
-                                    class="text-2xl font-black">
+                                <input
+                                    id="categoria-nome"
+                                    type="text"
+                                    placeholder="Nome categoria"
+                                    class="bg-slate-800 rounded-xl p-4">
 
-                                    Produtos Cadastrados
-
-                                </h2>
+                                <input
+                                    id="categoria-icone"
+                                    type="text"
+                                    placeholder="Emoji"
+                                    class="bg-slate-800 rounded-xl p-4">
 
                                 <button
-                                    onclick="carregarProdutosAdmin()"
-                                    class="bg-slate-800 hover:bg-slate-700 transition px-4 py-2 rounded-xl">
+                                    onclick="criarCategoria()"
+                                    class="bg-amber-500 text-black rounded-xl font-black">
 
-                                    Atualizar
+                                    CRIAR
 
                                 </button>
 
                             </div>
 
                             <div
-                                id="lista-admin-produtos"
+                                id="lista-categorias"
                                 class="space-y-4">
 
                             </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- CUPONS -->
+
+                    <div
+                        id="secao-cupons"
+                        class="admin-section">
+
+                        <div
+                            class="bg-slate-900 border border-white/10 rounded-3xl p-6">
+
+                            <h2
+                                class="text-3xl font-black mb-6">
+
+                                Cupons
+
+                            </h2>
+
+                            <div
+                                class="grid md:grid-cols-4 gap-4 mb-6">
+
+                                <input
+                                    id="cupom-codigo"
+                                    type="text"
+                                    placeholder="Cupom"
+                                    class="bg-slate-800 rounded-xl p-4">
+
+                                <input
+                                    id="cupom-desconto"
+                                    type="number"
+                                    placeholder="%"
+                                    class="bg-slate-800 rounded-xl p-4">
+
+                                <input
+                                    id="cupom-minimo"
+                                    type="number"
+                                    placeholder="Mínimo"
+                                    class="bg-slate-800 rounded-xl p-4">
+
+                                <button
+                                    onclick="criarCupom()"
+                                    class="bg-amber-500 text-black rounded-xl font-black">
+
+                                    CRIAR
+
+                                </button>
+
+                            </div>
+
+                            <div
+                                id="lista-cupons"
+                                class="space-y-4">
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- APARENCIA -->
+
+                    <div
+                        id="secao-aparencia"
+                        class="admin-section">
+
+                        <div
+                            class="bg-slate-900 border border-white/10 rounded-3xl p-6">
+
+                            <h2
+                                class="text-3xl font-black mb-6">
+
+                                Aparência
+
+                            </h2>
+
+                            <div
+                                class="grid md:grid-cols-2 gap-4">
+
+                                <input
+                                    id="whatsapp-loja"
+                                    type="text"
+                                    placeholder="WhatsApp"
+                                    class="bg-slate-800 rounded-xl p-4">
+
+                                <input
+                                    id="instagram-loja"
+                                    type="text"
+                                    placeholder="Instagram"
+                                    class="bg-slate-800 rounded-xl p-4">
+
+                            </div>
+
+                            <button
+                                onclick="salvarAparencia()"
+                                class="mt-5 bg-amber-500 hover:bg-amber-400 transition text-black px-8 py-4 rounded-xl font-black">
+
+                                SALVAR
+
+                            </button>
 
                         </div>
 
@@ -506,7 +655,7 @@
 
     <div
         id="sidebar-carrinho"
-        class="fixed top-0 right-0 h-full w-full md:w-[430px] bg-slate-950 z-50 translate-x-full transition-transform duration-300 border-l border-white/10 flex flex-col">
+        class="fixed top-0 right-0 w-full md:w-[420px] h-full bg-slate-950 border-l border-white/10 z-50 translate-x-full transition-transform duration-300 flex flex-col">
 
         <div
             class="p-5 border-b border-white/10 flex items-center justify-between">
@@ -519,8 +668,7 @@
             </h2>
 
             <button
-                onclick="toggleCarrinho()"
-                class="w-10 h-10 rounded-full bg-slate-800 hover:bg-slate-700">
+                onclick="toggleCarrinho()">
 
                 <i class="fas fa-times"></i>
 
@@ -531,55 +679,6 @@
         <div
             id="itens-carrinho"
             class="flex-grow overflow-y-auto p-5 space-y-4">
-
-        </div>
-
-        <div
-            class="p-5 border-t border-white/10">
-
-            <div class="space-y-3 mb-5">
-
-                <input
-                    type="text"
-                    id="cliente-nome"
-                    placeholder="Seu nome"
-                    class="w-full bg-slate-900 border border-white/10 rounded-xl p-4 outline-none">
-
-                <input
-                    type="text"
-                    id="cliente-endereco"
-                    placeholder="Endereço"
-                    class="w-full bg-slate-900 border border-white/10 rounded-xl p-4 outline-none">
-
-            </div>
-
-            <div
-                class="flex items-center justify-between mb-5">
-
-                <span
-                    class="text-white/60">
-
-                    Total
-
-                </span>
-
-                <span
-                    id="total-carrinho"
-                    class="text-3xl font-black text-amber-400">
-
-                    R$ 0,00
-
-                </span>
-
-            </div>
-
-            <button
-                onclick="finalizarPedido()"
-                class="w-full bg-emerald-500 hover:bg-emerald-400 transition text-black py-4 rounded-2xl font-black shadow-xl">
-
-                FINALIZAR PEDIDO
-
-            </button>
 
         </div>
 
@@ -594,7 +693,7 @@
 
         <img
             id="img-zoom"
-            class="max-w-[90%] max-h-[90vh] rounded-3xl shadow-2xl">
+            class="max-w-[90%] max-h-[90vh] rounded-3xl">
 
     </div>
 
@@ -603,50 +702,29 @@
     <script>
 
         const _supabase = supabase.createClient(
-            "https://yawousokoaqeyvktjosj.supabase.co",
-            "sb_publishable__TXuxjZ8PObBZxsM-PjF1Q_fAvPsDa3"
+            "SUA_URL_SUPABASE",
+            "SUA_ANON_KEY"
         );
 
         let listaProdutos = [];
+
         let carrinho = [];
 
-        // =========================================
-        // REALTIME
-        // =========================================
-
-        _supabase
-            .channel('public:produtos')
-            .on(
-                'postgres_changes',
-                {
-                    event: '*',
-                    schema: 'public',
-                    table: 'produtos'
-                },
-                () => {
-
-                    carregarProdutos();
-                    carregarProdutosAdmin();
-
-                }
-            )
-            .subscribe();
-
-        // =========================================
+        // =====================================
         // START
-        // =========================================
+        // =====================================
 
         window.onload = async () => {
 
             carregarProdutos();
-            carregarFundo();
+
             verificarSessao();
 
         };
 
-        // =========================================
+        // =====================================
         // AUTH
-        // =========================================
+        // =====================================
 
         async function verificarSessao() {
 
@@ -656,7 +734,7 @@
 
             if (session) {
 
-                mostrarPainelAdmin();
+                mostrarPainel();
 
             }
 
@@ -680,16 +758,16 @@
 
             if (error) {
 
-                alert('Erro no login.');
+                alert('Erro login');
                 return;
 
             }
 
-            mostrarPainelAdmin();
+            mostrarPainel();
 
         }
 
-        async function fazerLogout() {
+        async function logout() {
 
             await _supabase.auth.signOut();
 
@@ -697,23 +775,29 @@
 
         }
 
-        function mostrarPainelAdmin() {
+        function mostrarPainel() {
 
             document
                 .getElementById('secao-login-admin')
                 .classList.add('hidden');
 
             document
-                .getElementById('painel-admin-conteudo')
+                .getElementById('painel-admin')
                 .classList.remove('hidden');
 
             carregarProdutosAdmin();
 
+            carregarCategorias();
+
+            carregarCupons();
+
+            carregarDashboard();
+
         }
 
-        // =========================================
-        // UI
-        // =========================================
+        // =====================================
+        // TABS
+        // =====================================
 
         function mudarAba(aba) {
 
@@ -729,222 +813,93 @@
 
         }
 
-        function voltarHome() {
-
-            mudarAba('catalogo');
-
-        }
-
-        function scrollCategorias() {
+        function abrirSecaoAdmin(secao) {
 
             document
-                .getElementById('categorias')
-                .scrollIntoView({
-                    behavior: 'smooth'
-                });
-
-        }
-
-        function toggleCarrinho() {
+                .querySelectorAll('.admin-section')
+                .forEach(el =>
+                    el.classList.remove('active')
+                );
 
             document
-                .getElementById('sidebar-carrinho')
-                .classList.toggle('translate-x-full');
-
-        }
-
-        function abrirZoom(url) {
-
-            document
-                .getElementById('img-zoom')
-                .src = url;
-
-            document
-                .getElementById('zoom-modal')
+                .getElementById('secao-' + secao)
                 .classList.add('active');
 
         }
 
-        function fecharZoom() {
-
-            document
-                .getElementById('zoom-modal')
-                .classList.remove('active');
-
-        }
-
-        // =========================================
+        // =====================================
         // PRODUTOS
-        // =========================================
+        // =====================================
 
         async function carregarProdutos() {
 
-            const { data, error } =
+            const { data } =
                 await _supabase
                     .from('produtos')
                     .select('*')
                     .order('nome');
 
-            if (error) {
-
-                console.log(error);
-                return;
-
-            }
-
             listaProdutos = data || [];
 
             renderizarCategorias();
+
             mostrarTodosProdutos();
 
         }
 
         function renderizarCategorias() {
 
-            const categorias = [...new Set(
-                listaProdutos.map(
-                    p => p.categoria || 'Outros'
-                )
-            )];
-
-            const imagensCategorias = {
-
-                hamburguer:
-                    'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1200&auto=format&fit=crop',
-
-                bebidas:
-                    'https://images.unsplash.com/photo-1544145945-f90425340c7e?q=80&w=1200&auto=format&fit=crop',
-
-                porcoes:
-                    'https://images.unsplash.com/photo-1576107232684-1279f390859f?q=80&w=1200&auto=format&fit=crop',
-
-                sobremesas:
-                    'https://images.unsplash.com/photo-1551024601-bec78aea704b?q=80&w=1200&auto=format&fit=crop',
-
-                pizza:
-                    'https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=1200&auto=format&fit=crop',
-
-                outros:
-                    'https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=1200&auto=format&fit=crop'
-            };
-
-            const icones = {
-
-                hamburguer: '🍔',
-                bebidas: '🥤',
-                porcoes: '🍟',
-                sobremesas: '🍰',
-                pizza: '🍕',
-                outros: '🔥'
-
-            };
+            const categorias =
+                [...new Set(
+                    listaProdutos.map(
+                        p => p.categoria || 'Outros'
+                    )
+                )];
 
             document
                 .getElementById('grid-categorias')
-                .innerHTML = categorias.map(cat => {
+                .innerHTML = categorias.map(cat => `
 
-                    const nomeCategoria =
-                        cat.toLowerCase();
+                <div
+                    onclick="filtrarCategoria('${cat}')"
+                    class="categoria-card bg-slate-900 border border-white/10 rounded-3xl p-8 cursor-pointer">
 
-                    const imagem =
-                        imagensCategorias[nomeCategoria]
-                        || imagensCategorias.outros;
+                    <h2
+                        class="text-3xl font-black mb-2">
 
-                    const icon =
-                        icones[nomeCategoria]
-                        || '🔥';
+                        ${cat}
 
-                    const quantidade =
-                        listaProdutos.filter(
-                            p => (
-                                p.categoria || 'Outros'
-                            ) === cat
-                        ).length;
+                    </h2>
 
-                    return `
+                    <p
+                        class="text-white/50">
 
-                    <div
-                        onclick="filtrarCategoria('${cat}')"
-                        class="categoria-card group relative rounded-[35px] overflow-hidden h-[240px] cursor-pointer shadow-2xl">
+                        ${listaProdutos.filter(
+                p => p.categoria === cat
+            ).length} produtos
 
-                        <img
-                            src="${imagem}"
-                            class="absolute inset-0 w-full h-full object-cover">
+                    </p>
 
-                        <div
-                            class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent">
-                        </div>
+                </div>
 
-                        <div
-                            class="relative z-10 h-full flex flex-col justify-end p-6">
-
-                            <div
-                                class="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md border border-white/10 flex items-center justify-center text-3xl mb-5">
-
-                                ${icon}
-
-                            </div>
-
-                            <h2
-                                class="text-3xl font-black capitalize mb-1">
-
-                                ${cat}
-
-                            </h2>
-
-                            <div
-                                class="flex items-center justify-between">
-
-                                <p
-                                    class="text-white/70 text-sm">
-
-                                    ${quantidade} produtos
-
-                                </p>
-
-                                <div
-                                    class="w-10 h-10 rounded-full bg-amber-500 text-black flex items-center justify-center font-black">
-
-                                    →
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    `;
-
-                }).join('');
-
-        }
-
-        function filtrarCategoria(categoria) {
-
-            document
-                .getElementById('titulo-produtos')
-                .innerText = categoria;
-
-            const produtos =
-                listaProdutos.filter(
-                    p => (
-                        p.categoria || 'Outros'
-                    ) === categoria
-                );
-
-            renderizarProdutos(produtos);
+                `).join('');
 
         }
 
         function mostrarTodosProdutos() {
 
-            document
-                .getElementById('titulo-produtos')
-                .innerText = 'Todos os Produtos';
-
             renderizarProdutos(listaProdutos);
+
+        }
+
+        function filtrarCategoria(categoria) {
+
+            const produtos =
+                listaProdutos.filter(
+                    p => p.categoria === categoria
+                );
+
+            renderizarProdutos(produtos);
 
         }
 
@@ -952,40 +907,29 @@
 
             document
                 .getElementById('grid-produtos')
-                .innerHTML = produtos.map(p => `
+                .innerHTML = produtos.map(produto => `
 
                 <div
-                    class="produto-card bg-slate-900 border border-white/10 rounded-[35px] overflow-hidden shadow-xl flex flex-col">
+                    class="produto-card bg-slate-900 border border-white/10 rounded-3xl overflow-hidden">
 
-                    <div class="relative">
+                    <img
+                        src="${produto.imagem_url}"
+                        onclick="abrirZoom('${produto.imagem_url}')"
+                        class="w-full h-64 object-cover cursor-pointer">
 
-                        <img
-                            src="${p.imagem_url}"
-                            onclick="abrirZoom('${p.imagem_url}')"
-                            class="w-full h-64 object-cover cursor-pointer">
-
-                        <div
-                            class="absolute top-4 left-4 bg-amber-500 text-black px-3 py-1 rounded-full text-xs font-black uppercase">
-
-                            ${p.categoria || 'Produto'}
-
-                        </div>
-
-                    </div>
-
-                    <div class="p-5 flex flex-col flex-grow">
+                    <div class="p-5">
 
                         <h2
                             class="text-2xl font-black mb-2">
 
-                            ${p.nome}
+                            ${produto.nome}
 
                         </h2>
 
                         <p
-                            class="text-white/60 text-sm leading-relaxed mb-6 flex-grow">
+                            class="text-white/50 text-sm mb-5">
 
-                            ${p.descricao || ''}
+                            ${produto.descricao || ''}
 
                         </p>
 
@@ -995,13 +939,13 @@
                             <span
                                 class="text-3xl font-black text-amber-400">
 
-                                R$ ${Number(p.preco).toFixed(2)}
+                                R$ ${Number(produto.preco).toFixed(2)}
 
                             </span>
 
                             <button
-                                onclick="adicionarCarrinho('${p.id}')"
-                                class="bg-amber-500 hover:bg-amber-400 transition text-black px-5 py-3 rounded-2xl font-black">
+                                onclick="adicionarCarrinho('${produto.id}')"
+                                class="bg-amber-500 hover:bg-amber-400 transition text-black px-5 py-3 rounded-xl font-black">
 
                                 +
 
@@ -1014,461 +958,6 @@
                 </div>
 
                 `).join('');
-
-        }
-
-        // =========================================
-        // ADMIN CRUD
-        // =========================================
-
-        async function adicionarProduto() {
-
-            const file =
-                document.getElementById('prod-img').files[0];
-
-            const nome =
-                document.getElementById('prod-nome').value;
-
-            const descricao =
-                document.getElementById('prod-desc').value;
-
-            const preco =
-                document.getElementById('prod-preco').value;
-
-            const categoria =
-                document.getElementById('prod-categoria').value;
-
-            if (!file || !nome || !preco) {
-
-                alert('Preencha todos os campos.');
-                return;
-
-            }
-
-            const fileName =
-                `produto_${Date.now()}`;
-
-            const { error: uploadError } =
-                await _supabase.storage
-                    .from('imagens-produtos')
-                    .upload(fileName, file);
-
-            if (uploadError) {
-
-                alert('Erro upload imagem.');
-                return;
-
-            }
-
-            const {
-                data: { publicUrl }
-            } =
-                _supabase.storage
-                    .from('imagens-produtos')
-                    .getPublicUrl(fileName);
-
-            const { error } =
-                await _supabase
-                    .from('produtos')
-                    .insert([{
-
-                        nome,
-                        descricao,
-                        preco,
-                        categoria,
-                        imagem_url: publicUrl
-
-                    }]);
-
-            if (error) {
-
-                alert('Erro salvar produto.');
-                return;
-
-            }
-
-            limparFormulario();
-
-            carregarProdutos();
-            carregarProdutosAdmin();
-
-            alert('Produto cadastrado.');
-
-        }
-
-        async function carregarProdutosAdmin() {
-
-            const container =
-                document.getElementById('lista-admin-produtos');
-
-            container.innerHTML =
-                '<p class="text-white/50 loading">Carregando...</p>';
-
-            const { data, error } =
-                await _supabase
-                    .from('produtos')
-                    .select('*')
-                    .order('created_at', {
-                        ascending: false
-                    });
-
-            if (error) {
-
-                container.innerHTML =
-                    '<p>Erro carregar produtos.</p>';
-
-                return;
-
-            }
-
-            container.innerHTML =
-                data.map(produto => `
-
-                <div
-                    class="bg-slate-800 border border-white/10 rounded-2xl p-4 flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
-
-                    <div
-                        class="flex gap-4 items-center">
-
-                        <img
-                            src="${produto.imagem_url}"
-                            class="w-20 h-20 rounded-2xl object-cover">
-
-                        <div>
-
-                            <h3
-                                class="font-black text-lg">
-
-                                ${produto.nome}
-
-                            </h3>
-
-                            <p
-                                class="text-white/50 text-sm">
-
-                                ${produto.categoria || 'Sem categoria'}
-
-                            </p>
-
-                            <p
-                                class="text-amber-400 font-bold mt-1">
-
-                                R$ ${Number(produto.preco).toFixed(2)}
-
-                            </p>
-
-                        </div>
-
-                    </div>
-
-                    <div
-                        class="flex gap-3">
-
-                        <button
-                            onclick="editarProduto('${produto.id}')"
-                            class="bg-blue-500 hover:bg-blue-400 transition px-5 py-3 rounded-xl font-bold">
-
-                            Editar
-
-                        </button>
-
-                        <button
-                            onclick="excluirProduto('${produto.id}')"
-                            class="bg-red-500 hover:bg-red-400 transition px-5 py-3 rounded-xl font-bold">
-
-                            Excluir
-
-                        </button>
-
-                    </div>
-
-                </div>
-
-                `).join('');
-
-        }
-
-        async function excluirProduto(id) {
-
-            const confirmar =
-                confirm('Excluir produto?');
-
-            if (!confirmar) return;
-
-            const { error } =
-                await _supabase
-                    .from('produtos')
-                    .delete()
-                    .eq('id', id);
-
-            if (error) {
-
-                alert('Erro excluir.');
-                return;
-
-            }
-
-            carregarProdutos();
-            carregarProdutosAdmin();
-
-        }
-
-        async function editarProduto(id) {
-
-            const produto =
-                listaProdutos.find(
-                    p => String(p.id) === String(id)
-                );
-
-            if (!produto) return;
-
-            const novoNome =
-                prompt('Nome:', produto.nome);
-
-            if (!novoNome) return;
-
-            const novaDescricao =
-                prompt('Descrição:', produto.descricao);
-
-            const novoPreco =
-                prompt('Preço:', produto.preco);
-
-            const novaCategoria =
-                prompt('Categoria:', produto.categoria);
-
-            const { error } =
-                await _supabase
-                    .from('produtos')
-                    .update({
-
-                        nome: novoNome,
-                        descricao: novaDescricao,
-                        preco: novoPreco,
-                        categoria: novaCategoria
-
-                    })
-                    .eq('id', id);
-
-            if (error) {
-
-                alert('Erro editar.');
-                return;
-
-            }
-
-            carregarProdutos();
-            carregarProdutosAdmin();
-
-        }
-
-        function limparFormulario() {
-
-            document.getElementById('prod-img').value = '';
-            document.getElementById('prod-nome').value = '';
-            document.getElementById('prod-desc').value = '';
-            document.getElementById('prod-preco').value = '';
-            document.getElementById('prod-categoria').value = '';
-
-        }
-
-        // =========================================
-        // FUNDO
-        // =========================================
-
-        async function carregarFundo() {
-
-            const { data } =
-                _supabase.storage
-                    .from('imagens-produtos')
-                    .getPublicUrl('fundo_catalogo.jpg');
-
-            if (data?.publicUrl) {
-
-                document
-                    .getElementById('bg-dinamico')
-                    .style.backgroundImage =
-                    `url('${data.publicUrl}?t=${Date.now()}')`;
-
-            }
-
-        }
-
-        // =========================================
-        // CARRINHO
-        // =========================================
-
-        function adicionarCarrinho(id) {
-
-            const produto =
-                listaProdutos.find(
-                    p => String(p.id) === String(id)
-                );
-
-            if (!produto) return;
-
-            const existe =
-                carrinho.find(
-                    p => String(p.id) === String(id)
-                );
-
-            if (existe) {
-
-                existe.qtd++;
-
-            } else {
-
-                carrinho.push({
-
-                    ...produto,
-                    qtd: 1
-
-                });
-
-            }
-
-            renderizarCarrinho();
-
-        }
-
-        function removerItem(id) {
-
-            carrinho =
-                carrinho.filter(
-                    p => String(p.id) !== String(id)
-                );
-
-            renderizarCarrinho();
-
-        }
-
-        function renderizarCarrinho() {
-
-            let total = 0;
-
-            document
-                .getElementById('itens-carrinho')
-                .innerHTML = carrinho.map(item => {
-
-                    total +=
-                        Number(item.preco) * item.qtd;
-
-                    return `
-
-                    <div
-                        class="bg-slate-900 border border-white/10 rounded-2xl p-4 flex items-center justify-between">
-
-                        <div
-                            class="flex gap-3 items-center">
-
-                            <img
-                                src="${item.imagem_url}"
-                                class="w-16 h-16 rounded-xl object-cover">
-
-                            <div>
-
-                                <h3
-                                    class="font-bold">
-
-                                    ${item.nome}
-
-                                </h3>
-
-                                <p
-                                    class="text-white/50 text-sm">
-
-                                    ${item.qtd}x
-
-                                </p>
-
-                            </div>
-
-                        </div>
-
-                        <button
-                            onclick="removerItem('${item.id}')"
-                            class="text-red-500 text-lg">
-
-                            <i class="fas fa-trash"></i>
-
-                        </button>
-
-                    </div>
-
-                    `;
-
-                }).join('');
-
-            document
-                .getElementById('total-carrinho')
-                .innerText =
-                `R$ ${total.toFixed(2)}`;
-
-            const badge =
-                document.getElementById('cart-badge');
-
-            badge.innerText = carrinho.length;
-
-            badge.classList.toggle(
-                'hidden',
-                carrinho.length === 0
-            );
-
-        }
-
-        // =========================================
-        // FINALIZAR PEDIDO
-        // =========================================
-
-        function finalizarPedido() {
-
-            if (carrinho.length === 0) {
-
-                alert('Carrinho vazio.');
-                return;
-
-            }
-
-            const nome =
-                document.getElementById('cliente-nome').value;
-
-            const endereco =
-                document.getElementById('cliente-endereco').value;
-
-            if (!nome || !endereco) {
-
-                alert('Preencha nome e endereço.');
-                return;
-
-            }
-
-            let total = 0;
-
-            carrinho.forEach(item => {
-
-                total +=
-                    Number(item.preco) * item.qtd;
-
-            });
-
-            const pedido =
-                carrinho.map(item =>
-                    `- ${item.qtd}x ${item.nome}`
-                ).join('\n');
-
-            const mensagem = `
-*DU LANCHE*
-
-👤 Cliente: ${nome}
-📍 Endereço: ${endereco}
-
-${pedido}
-
-💰 TOTAL: R$ ${total.toFixed(2)}
-`;
-
-            window.open(
-                `https://wa.me/5531999999999?text=${encodeURIComponent(mensagem)}`
-            );
 
         }
 
