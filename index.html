@@ -1,111 +1,77 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Du Lanche - Delivery Profissional</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        .bg-fundo { position: fixed; inset: 0; z-index: -2; background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed; background-color: #0f172a; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-    </style>
-</head>
-<body class="min-h-screen text-slate-800 flex flex-col">
+<script>
+    const _supabase = supabase.createClient("https://yawousokoaqeyvktjosj.supabase.co", "sb_publishable__TXuxjZ8PObBZxsM-PjF1Q_fAvPsDa3");
+    let listaProdutos = [], carrinho = [];
 
-    <div id="bg-dinamico" class="bg-fundo"></div>
-    <div class="fixed inset-0 z-[-1] bg-slate-950/60 pointer-events-none"></div>
+    window.onload = async () => {
+        try {
+            await carregarProdutos();
+            await carregarFundo();
+        } catch (e) { console.error("Erro inicial:", e); }
+    };
 
-    <header class="bg-slate-900/90 backdrop-blur-md text-white p-4 sticky top-0 z-40 border-b border-white/10 flex justify-between items-center">
-        <h1 class="font-black text-amber-500 cursor-pointer text-xl" onclick="mudarAba('catalogo')">Du LANCHE</h1>
-        <div class="flex gap-4">
-            <button onclick="mudarAba('admin')" class="hover:text-amber-500"><i class="fas fa-cog"></i></button>
-            <button onclick="toggleCarrinho()" class="relative text-2xl hover:text-amber-500"><i class="fas fa-shopping-bag"></i></button>
-        </div>
-    </header>
-
-    <main class="flex-grow container mx-auto p-4 z-10 relative">
-        <div id="aba-catalogo" class="tab-content active">
-            <div id="filtros" class="flex overflow-x-auto gap-2 py-4 mb-4 scrollbar-hide">
-                <button onclick="filtrar('Todos')" class="px-5 py-2 bg-amber-500 text-white rounded-full font-bold text-xs whitespace-nowrap">Todos</button>
-                <button onclick="filtrar('Hamburguer')" class="px-5 py-2 bg-white/20 text-white rounded-full font-bold text-xs whitespace-nowrap border">Hamburguer</button>
-                <button onclick="filtrar('Batata')" class="px-5 py-2 bg-white/20 text-white rounded-full font-bold text-xs whitespace-nowrap border">Batata</button>
-                <button onclick="filtrar('Bebidas')" class="px-5 py-2 bg-white/20 text-white rounded-full font-bold text-xs whitespace-nowrap border">Bebidas</button>
-            </div>
-            <div id="grid-produtos" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
-        </div>
+    // FUNÇÃO CORRIGIDA DE ADIÇÃO AO CARRINHO
+    function adicionarCarrinho(id) {
+        const p = listaProdutos.find(x => x.id === id);
+        if (!p) return;
         
-        <div id="aba-admin" class="tab-content max-w-md mx-auto bg-white/90 p-6 rounded-3xl">
-            <h2 class="font-black text-xl mb-6">Painel de Gestão</h2>
-            <div id="secao-login" class="space-y-3">
-                <input type="email" id="login-email" placeholder="E-mail" class="w-full p-3 rounded-xl border">
-                <input type="password" id="login-senha" placeholder="Senha" class="w-full p-3 rounded-xl border">
-                <button onclick="fazerLogin()" class="w-full bg-amber-500 text-white py-3 rounded-xl font-bold">Entrar</button>
+        const existe = carrinho.find(item => item.id === id);
+        if (existe) {
+            existe.qtd++;
+        } else {
+            carrinho.push({ ...p, qtd: 1 });
+        }
+        renderizarCarrinho();
+        // Opcional: abrir o carrinho automaticamente
+        document.getElementById('sidebar-carrinho').classList.remove('translate-x-full');
+    }
+
+    function renderizarCarrinho() {
+        const container = document.getElementById('itens-carrinho');
+        let total = 0;
+        
+        container.innerHTML = carrinho.map(c => {
+            total += (parseFloat(c.preco) || 0) * c.qtd;
+            // CORREÇÃO: Usando c.imagem_url corretamente
+            return `
+                <div class="flex justify-between items-center bg-white p-3 rounded-2xl shadow-sm border border-slate-100">
+                    <div class="flex gap-3 items-center">
+                        <img src="${c.imagem_url}" class="w-10 h-10 rounded-lg object-cover">
+                        <div><b class="text-xs">${c.nome}</b><p class="text-[10px] text-slate-500">${c.qtd}x R$ ${parseFloat(c.preco).toFixed(2)}</p></div>
+                    </div>
+                    <button onclick="removerItem('${c.id}')" class="text-red-400 hover:text-red-600 p-2"><i class="fas fa-trash-alt"></i></button>
+                </div>`;
+        }).join('');
+        
+        document.getElementById('total-carrinho').innerText = `R$ ${total.toFixed(2)}`;
+        const badge = document.getElementById('cart-badge');
+        badge.innerText = carrinho.length;
+        badge.classList.toggle('hidden', carrinho.length === 0);
+    }
+
+    async function carregarProdutos() {
+        const { data, error } = await _supabase.from('produtos').select('*').order('nome');
+        if (error) return console.error("Erro ao carregar:", error);
+        listaProdutos = data || [];
+        
+        document.getElementById('grid-produtos').innerHTML = listaProdutos.map(p => `
+            <div class="bg-white/40 backdrop-blur-md p-3 rounded-3xl border border-white/20 shadow-xl flex flex-col">
+                <img src="${p.imagem_url}" class="h-28 w-full object-cover rounded-2xl mb-3 cursor-pointer" onclick="abrirZoom('${p.imagem_url}')">
+                <h2 class="font-black text-xs text-slate-900 truncate px-1">${p.nome}</h2>
+                <p class="font-black text-sm text-slate-900 mt-auto px-1 mb-2">R$ ${parseFloat(p.preco).toFixed(2)}</p>
+                <button onclick="adicionarCarrinho('${p.id}')" class="w-full bg-slate-900 hover:bg-amber-600 text-white py-2 rounded-xl text-[10px] font-black uppercase transition-all shadow-md active:scale-95">+ Adicionar</button>
             </div>
-            <div id="secao-admin-painel" class="hidden space-y-4">
-                <h3 class="font-bold text-sm">Realocar Categorias</h3>
-                <div id="lista-admin" class="space-y-2"></div>
-                <button onclick="fazerLogout()" class="w-full text-red-500 text-xs py-2 underline">Sair</button>
-            </div>
-        </div>
-    </main>
+        `).join('');
+    }
 
-    <script>
-        const _s = supabase.createClient("https://yawousokoaqeyvktjosj.supabase.co", "sb_publishable__TXuxjZ8PObBZxsM-PjF1Q_fAvPsDa3");
-        let lista = [];
-        const cats = ['Hamburguer', 'Batata', 'Bebidas', 'Combos'];
-
-        window.onload = async () => { await carregar(); };
-
-        async function carregar() {
-            const { data } = await _s.from('produtos').select('*');
-            lista = data || [];
-            filtrar('Todos');
+    // Garante que o painel admin só apareça se estiver logado
+    async function fazerLogin() {
+        const email = document.getElementById('login-email').value;
+        const senha = document.getElementById('login-senha').value;
+        const { error } = await _supabase.auth.signInWithPassword({ email, password: senha });
+        if (!error) {
+            mostrarPainelAdmin();
+        } else {
+            alert("Erro no Login: " + error.message);
         }
-
-        function filtrar(c) {
-            const grid = document.getElementById('grid-produtos');
-            const filtrados = c === 'Todos' ? lista : lista.filter(p => p.categoria === c);
-            grid.innerHTML = filtrados.map(p => `
-                <div class="bg-white/40 p-3 rounded-2xl border border-white/20">
-                    <img src="${p.imagem_url}" class="h-24 w-full object-cover rounded-xl mb-2">
-                    <h2 class="font-bold text-xs">${p.nome}</h2>
-                    <p class="font-black text-sm">R$ ${parseFloat(p.preco).toFixed(2)}</p>
-                </div>
-            `).join('');
-        }
-
-        async function renderizarAdmin() {
-            const cont = document.getElementById('lista-admin');
-            cont.innerHTML = lista.map(p => `
-                <div class="flex justify-between items-center bg-slate-100 p-2 rounded text-[10px]">
-                    <span class="truncate w-1/3">${p.nome}</span>
-                    <select onchange="realocar('${p.id}', this.value)" class="bg-white border p-1 rounded">
-                        ${cats.map(c => `<option value="${c}" ${p.categoria === c ? 'selected' : ''}>${c}</option>`).join('')}
-                    </select>
-                </div>
-            `).join('');
-        }
-
-        async function realocar(id, cat) {
-            await _s.from('produtos').update({ categoria: cat }).eq('id', id);
-            await carregar();
-            renderizarAdmin();
-        }
-
-        async function fazerLogin() { 
-            await _s.auth.signInWithPassword({ email: document.getElementById('login-email').value, password: document.getElementById('login-senha').value });
-            document.getElementById('secao-login').classList.add('hidden');
-            document.getElementById('secao-admin-painel').classList.remove('hidden');
-            renderizarAdmin();
-        }
-
-        function mudarAba(aba) { document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active')); document.getElementById('aba-' + aba).classList.add('active'); }
-        function fazerLogout() { _s.auth.signOut(); location.reload(); }
-        function toggleCarrinho() { /* Mantenha sua função de carrinho aqui */ }
-    </script>
-</body>
-</html>
+    }
+</script>
