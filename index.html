@@ -17,22 +17,16 @@
 <body class="min-h-screen text-slate-800 flex flex-col">
 
     <div id="bg-dinamico" class="bg-fundo"></div>
-    <div class="fixed inset-0 z-[-1] bg-slate-950/60 pointer-events-none"></div>
+    <div class="fixed inset-0 z-[-1] bg-slate-950/60"></div>
 
     <header class="bg-slate-900/90 backdrop-blur-md text-white p-4 sticky top-0 z-40 border-b border-white/10 flex justify-between items-center">
         <h1 class="font-black text-amber-500 cursor-pointer text-xl" onclick="mudarAba('catalogo')">Du LANCHE</h1>
-        <div class="flex gap-4">
-            <button onclick="mudarAba('admin')" class="hover:text-amber-500"><i class="fas fa-cog"></i></button>
-            <button onclick="toggleCarrinho()" class="relative text-xl hover:text-amber-500">
-                <i class="fas fa-shopping-bag"></i>
-                <span id="cart-badge" class="absolute -top-2 -right-2 bg-red-500 text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold hidden">0</span>
-            </button>
-        </div>
+        <button onclick="toggleCarrinho()" class="text-2xl hover:text-amber-500"><i class="fas fa-shopping-bag"></i></button>
     </header>
 
     <main class="flex-grow container mx-auto p-4 z-10 relative">
         <div id="aba-catalogo" class="tab-content active">
-            <div id="bar-filtros" class="flex overflow-x-auto gap-2 py-4 mb-4 scrollbar-hide">
+            <div id="bar-filtros" class="flex overflow-x-auto gap-2 py-4 mb-2 scrollbar-hide">
                 <button onclick="filtrarProdutos('Todos')" class="px-5 py-2 bg-amber-500 text-white rounded-full font-bold text-sm whitespace-nowrap">Todos</button>
                 <button onclick="filtrarProdutos('Hamburguer')" class="px-5 py-2 bg-white/20 backdrop-blur-md text-white rounded-full font-bold text-sm whitespace-nowrap border border-white/20">Hamburguer</button>
                 <button onclick="filtrarProdutos('Batata')" class="px-5 py-2 bg-white/20 backdrop-blur-md text-white rounded-full font-bold text-sm whitespace-nowrap border border-white/20">Batatas</button>
@@ -41,33 +35,29 @@
             <div id="grid-produtos" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
         </div>
         
-        <div id="aba-admin" class="tab-content max-w-sm mx-auto bg-white/80 p-6 rounded-3xl shadow-2xl">
-            <h2 class="font-black text-lg mb-4">Painel Administrativo</h2>
+        <div id="aba-admin" class="tab-content max-w-md mx-auto bg-white/80 p-6 rounded-3xl shadow-2xl">
+            <h2 class="font-black text-xl mb-4">Gestão</h2>
             <div id="secao-login">
                 <input type="email" id="login-email" placeholder="Email" class="w-full p-2 mb-2 rounded border">
                 <input type="password" id="login-senha" placeholder="Senha" class="w-full p-2 mb-2 rounded border">
-                <button onclick="fazerLogin()" class="w-full bg-amber-500 text-white py-2 rounded font-bold">Entrar</button>
+                <button onclick="fazerLogin()" class="w-full bg-amber-500 p-2 rounded text-white font-bold">Entrar</button>
             </div>
             <div id="secao-admin-painel" class="hidden space-y-3">
                 <select id="prod-categoria" class="w-full p-2 rounded border text-sm">
-                    <option value="Hamburguer">Hamburguer</option><option value="Batata">Batatas</option><option value="Bebidas">Bebidas</option><option value="Caldos">Caldos</option>
+                    <option value="Hamburguer">Hamburguer</option>
+                    <option value="Batata">Batatas</option>
+                    <option value="Bebidas">Bebidas</option>
+                    <option value="Caldos">Caldos</option>
                 </select>
                 <input type="file" id="prod-img" class="w-full text-xs">
                 <input type="text" id="prod-nome" placeholder="Nome" class="w-full p-2 rounded border">
                 <textarea id="prod-desc" placeholder="Descrição" class="w-full p-2 rounded border h-16"></textarea>
                 <input type="number" id="prod-preco" placeholder="Preço" class="w-full p-2 rounded border">
-                <button onclick="adicionarProduto()" class="w-full bg-blue-600 text-white py-2 rounded font-bold">Cadastrar</button>
-                <button onclick="salvarImagemFundo()" class="w-full bg-slate-800 text-white py-2 rounded font-bold text-xs">Atualizar Fundo</button>
-                <button onclick="fazerLogout()" class="w-full text-red-500 text-xs underline">Sair</button>
+                <button onclick="adicionarProduto()" class="w-full bg-blue-600 text-white p-2 rounded font-bold">Cadastrar</button>
+                <button onclick="fazerLogout()" class="w-full text-red-500 text-sm underline">Sair</button>
             </div>
         </div>
     </main>
-
-    <div id="sidebar-carrinho" class="fixed inset-y-0 right-0 w-full md:w-80 bg-white shadow-2xl z-50 transform translate-x-full transition-transform flex flex-col">
-        <div class="p-4 bg-slate-900 text-white flex justify-between"><h2 class="font-bold">Carrinho</h2><button onclick="toggleCarrinho()"><i class="fas fa-times"></i></button></div>
-        <div id="itens-carrinho" class="flex-grow p-4 space-y-3"></div>
-        <div class="p-4 border-t"><button onclick="finalizarPedido()" class="w-full bg-emerald-500 text-white py-3 rounded font-bold">FINALIZAR PEDIDO</button></div>
-    </div>
 
     <script>
         const _supabase = supabase.createClient("https://yawousokoaqeyvktjosj.supabase.co", "sb_publishable__TXuxjZ8PObBZxsM-PjF1Q_fAvPsDa3");
@@ -75,20 +65,29 @@
 
         _supabase.channel('public:produtos').on('postgres_changes', { event: '*', schema: 'public', table: 'produtos' }, () => carregarProdutos()).subscribe();
 
-        window.onload = async () => { await carregarProdutos(); carregarFundo(); const { data: { session } } = await _supabase.auth.getSession(); if (session) mostrarPainelAdmin(); };
-
-        async function carregarProdutos() { const { data } = await _supabase.from('produtos').select('*'); listaProdutos = data || []; filtrarProdutos('Todos'); }
+        window.onload = async () => {
+            await carregarProdutos();
+            carregarFundo();
+            const { data: { session } } = await _supabase.auth.getSession();
+            if (session) mostrarPainelAdmin();
+        };
 
         function filtrarProdutos(cat) {
+            const grid = document.getElementById('grid-produtos');
             const filtrados = cat === 'Todos' ? listaProdutos : listaProdutos.filter(p => p.categoria === cat);
-            document.getElementById('grid-produtos').innerHTML = filtrados.map(p => `
-                <div class="bg-white/50 p-3 rounded-2xl border border-white/20">
+            grid.innerHTML = filtrados.map(p => `
+                <div class="bg-white/40 p-3 rounded-2xl border border-white/20">
                     <img src="${p.imagem_url}" class="h-24 w-full object-cover rounded-xl mb-2">
                     <h2 class="font-bold text-xs">${p.nome}</h2>
                     <p class="font-black text-sm">R$ ${parseFloat(p.preco).toFixed(2)}</p>
-                    <button onclick="adicionarCarrinho('${p.id}')" class="w-full bg-slate-900 text-white mt-2 py-1 rounded text-xs">+ Pedir</button>
                 </div>
             `).join('');
+        }
+
+        async function carregarProdutos() {
+            const { data } = await _supabase.from('produtos').select('*');
+            listaProdutos = data || [];
+            filtrarProdutos('Todos');
         }
 
         async function adicionarProduto() {
@@ -96,20 +95,27 @@
             const nome = document.getElementById('prod-nome').value;
             const categoria = document.getElementById('prod-categoria').value;
             const preco = document.getElementById('prod-preco').value;
+            const desc = document.getElementById('prod-desc').value;
+
             const fileName = `prod_${Date.now()}.jpg`;
             await _supabase.storage.from('imagens-produtos').upload(fileName, file);
             const { data: { publicUrl } } = _supabase.storage.from('imagens-produtos').getPublicUrl(fileName);
-            await _supabase.from('produtos').insert([{ nome, categoria, preco, imagem_url: publicUrl }]);
-            alert("Sucesso!"); location.reload();
+
+            await _supabase.from('produtos').insert([{ nome, categoria, preco, descricao: desc, imagem_url: publicUrl }]);
+            alert("Cadastrado!");
+            location.reload();
         }
 
-        async function salvarImagemFundo() { const file = document.getElementById('prod-img').files[0]; await _supabase.storage.from('imagens-produtos').upload('fundo_catalogo.jpg', file, { upsert: true }); location.reload(); }
-        async function carregarFundo() { const { data } = _supabase.storage.from('imagens-produtos').getPublicUrl('fundo_catalogo.jpg'); if (data?.publicUrl) document.getElementById('bg-dinamico').style.backgroundImage = `url('${data.publicUrl}?t=${Date.now()}')`; }
-        function mudarAba(aba) { document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active')); document.getElementById('aba-' + aba).classList.add('active'); }
-        function toggleCarrinho() { document.getElementById('sidebar-carrinho').classList.toggle('translate-x-full'); }
+        function mudarAba(aba) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById('aba-' + aba).classList.add('active');
+        }
+        
         async function fazerLogin() { await _supabase.auth.signInWithPassword({ email: document.getElementById('login-email').value, password: document.getElementById('login-senha').value }); location.reload(); }
         async function fazerLogout() { await _supabase.auth.signOut(); location.reload(); }
         function mostrarPainelAdmin() { document.getElementById('secao-login').classList.add('hidden'); document.getElementById('secao-admin-painel').classList.remove('hidden'); }
+        async function carregarFundo() { const { data } = _supabase.storage.from('imagens-produtos').getPublicUrl('fundo_catalogo.jpg'); if (data?.publicUrl) document.getElementById('bg-dinamico').style.backgroundImage = `url('${data.publicUrl}?t=${Date.now()}')`; }
+        function toggleCarrinho() { /* Adicione sua lógica de carrinho aqui */ }
     </script>
 </body>
 </html>
