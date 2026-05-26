@@ -3,60 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Du Lanche - Delivery</title>
+    <title>Du Lanche - Painel Administrativo</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .bg-fundo { position: fixed; inset: 0; z-index: -2; background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed; background-color: #0f172a; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="min-h-screen text-slate-800 flex flex-col">
+<body class="bg-slate-900 text-slate-100 min-h-screen">
 
-    <div id="bg-dinamico" class="bg-fundo"></div>
-    <div class="fixed inset-0 z-[-1] bg-slate-950/60"></div>
-
-    <header class="bg-slate-900/90 backdrop-blur-md text-white p-4 sticky top-0 z-40 border-b border-white/10 flex justify-between items-center">
-        <h1 class="font-black text-amber-500 cursor-pointer text-xl" onclick="mudarAba('catalogo')">Du LANCHE</h1>
+    <header class="p-4 border-b border-white/10 flex justify-between items-center bg-slate-950">
+        <h1 class="font-black text-amber-500 text-xl cursor-pointer" onclick="mudarAba('catalogo')">Du LANCHE</h1>
         <button onclick="mudarAba('admin')" class="hover:text-amber-500"><i class="fas fa-cog"></i></button>
     </header>
 
-    <main class="flex-grow container mx-auto p-4 z-10 relative">
+    <main class="container mx-auto p-4">
         <div id="aba-catalogo" class="tab-content active">
-            <div class="flex overflow-x-auto gap-2 py-4 mb-4 scrollbar-hide">
-                <button onclick="filtrarProdutos('Todos')" class="px-5 py-2 bg-amber-500 text-white rounded-full font-bold text-sm">Todos</button>
-                <button onclick="filtrarProdutos('Hamburguer')" class="px-5 py-2 bg-white/20 text-white rounded-full font-bold text-sm border">Hamburguer</button>
-                <button onclick="filtrarProdutos('Batata')" class="px-5 py-2 bg-white/20 text-white rounded-full font-bold text-sm border">Batata</button>
-                <button onclick="filtrarProdutos('Caldos')" class="px-5 py-2 bg-white/20 text-white rounded-full font-bold text-sm border">Caldos</button>
-                <button onclick="filtrarProdutos('Porcoes')" class="px-5 py-2 bg-white/20 text-white rounded-full font-bold text-sm border">Porções</button>
-                <button onclick="filtrarProdutos('Bebidas')" class="px-5 py-2 bg-white/20 text-white rounded-full font-bold text-sm border">Bebidas</button>
+            <div id="bar-filtros" class="flex overflow-x-auto gap-2 py-4 mb-4 scrollbar-hide">
+                <button onclick="filtrarProdutos('Todos')" class="px-5 py-2 bg-amber-500 text-white rounded-full font-bold text-sm whitespace-nowrap">Todos</button>
+                <button onclick="filtrarProdutos('Hamburguer')" class="px-5 py-2 bg-slate-700 rounded-full font-bold text-sm whitespace-nowrap">Hamburguer</button>
+                <button onclick="filtrarProdutos('Batata')" class="px-5 py-2 bg-slate-700 rounded-full font-bold text-sm whitespace-nowrap">Batata</button>
+                <button onclick="filtrarProdutos('Caldos')" class="px-5 py-2 bg-slate-700 rounded-full font-bold text-sm whitespace-nowrap">Caldos</button>
+                <button onclick="filtrarProdutos('Porcoes')" class="px-5 py-2 bg-slate-700 rounded-full font-bold text-sm whitespace-nowrap">Porções</button>
+                <button onclick="filtrarProdutos('Bebidas')" class="px-5 py-2 bg-slate-700 rounded-full font-bold text-sm whitespace-nowrap">Bebidas</button>
+                <button onclick="filtrarProdutos('Cachorro Quente')" class="px-5 py-2 bg-slate-700 rounded-full font-bold text-sm whitespace-nowrap">Cachorro Quente</button>
+                <button onclick="filtrarProdutos('Combos')" class="px-5 py-2 bg-slate-700 rounded-full font-bold text-sm whitespace-nowrap">Combos</button>
             </div>
             <div id="grid-produtos" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
         </div>
 
-        <div id="aba-admin" class="tab-content max-w-lg mx-auto bg-white/90 p-6 rounded-3xl shadow-2xl">
-            <h2 class="font-black text-xl mb-4">Painel Administrativo</h2>
+        <div id="aba-admin" class="tab-content max-w-lg mx-auto bg-slate-800 p-6 rounded-3xl shadow-2xl">
+            <h2 class="font-black text-xl mb-6">Painel de Gerenciamento</h2>
             <div id="secao-login">
-                <input type="email" id="login-email" placeholder="Email" class="w-full p-2 mb-2 rounded border">
-                <input type="password" id="login-senha" placeholder="Senha" class="w-full p-2 mb-2 rounded border">
-                <button onclick="fazerLogin()" class="w-full bg-amber-500 text-white py-2 rounded font-bold">Entrar</button>
+                <input type="email" id="login-email" placeholder="Email" class="w-full p-3 mb-2 rounded bg-slate-900 border border-slate-700">
+                <input type="password" id="login-senha" placeholder="Senha" class="w-full p-3 mb-4 rounded bg-slate-900 border border-slate-700">
+                <button onclick="fazerLogin()" class="w-full bg-amber-500 py-3 rounded font-bold">Acessar Painel</button>
             </div>
+            
             <div id="secao-admin-painel" class="hidden space-y-6">
-                <div class="space-y-2">
-                    <h3 class="font-bold text-sm border-b pb-1">Realocar Categorias</h3>
-                    <div id="lista-admin-produtos" class="max-h-48 overflow-y-auto space-y-1"></div>
+                <div>
+                    <h3 class="font-bold mb-3 border-b border-slate-700 pb-2">Produtos Cadastrados (Realocar)</h3>
+                    <div id="lista-admin-produtos" class="max-h-60 overflow-y-auto space-y-2"></div>
                 </div>
-                <div class="space-y-2 border-t pt-4">
-                    <h3 class="font-bold text-sm">Novo Produto</h3>
-                    <input type="file" id="prod-img" class="w-full text-xs">
-                    <input type="text" id="prod-nome" placeholder="Nome" class="w-full p-2 rounded border">
-                    <input type="number" id="prod-preco" placeholder="Preço" class="w-full p-2 rounded border">
-                    <button onclick="adicionarProduto()" class="w-full bg-blue-600 text-white py-2 rounded font-bold">Cadastrar</button>
-                </div>
-                <button onclick="fazerLogout()" class="w-full text-red-500 text-xs underline">Sair</button>
+                <button onclick="fazerLogout()" class="w-full text-red-400 text-xs underline">Sair do Painel</button>
             </div>
         </div>
     </main>
@@ -64,6 +56,7 @@
     <script>
         const _supabase = supabase.createClient("https://yawousokoaqeyvktjosj.supabase.co", "sb_publishable__TXuxjZ8PObBZxsM-PjF1Q_fAvPsDa3");
         let listaProdutos = [];
+        const categorias = ['Hamburguer','Batata','Caldos','Porcoes','Bebidas','Cachorro Quente','Combos'];
 
         window.onload = () => carregarProdutos();
 
@@ -77,10 +70,10 @@
             const grid = document.getElementById('grid-produtos');
             const filtrados = cat === 'Todos' ? listaProdutos : listaProdutos.filter(p => p.categoria === cat);
             grid.innerHTML = filtrados.map(p => `
-                <div class="bg-white/50 p-3 rounded-2xl border border-white/20">
+                <div class="bg-slate-800 p-3 rounded-2xl border border-slate-700">
                     <img src="${p.imagem_url}" class="h-24 w-full object-cover rounded-xl mb-2">
-                    <h2 class="font-bold text-xs truncate">${p.nome}</h2>
-                    <p class="font-black text-sm">R$ ${parseFloat(p.preco).toFixed(2)}</p>
+                    <h2 class="font-bold text-xs">${p.nome}</h2>
+                    <p class="font-black text-amber-500 text-sm">R$ ${parseFloat(p.preco).toFixed(2)}</p>
                 </div>
             `).join('');
         }
@@ -88,39 +81,36 @@
         async function carregarListaAdmin() {
             const container = document.getElementById('lista-admin-produtos');
             container.innerHTML = listaProdutos.map(p => `
-                <div class="flex justify-between items-center bg-white p-2 rounded border text-[10px]">
-                    <span class="truncate w-1/2">${p.nome}</span>
-                    <select onchange="realocarProduto('${p.id}', this.value)" class="bg-slate-100 p-1 rounded">
-                        ${['Hamburguer','Batata','Caldos','Porcoes','Bebidas','Cachorro Quente','Combos'].map(cat => 
-                            `<option value="${cat}" ${p.categoria === cat ? 'selected' : ''}>${cat}</option>`).join('')}
+                <div class="flex justify-between items-center bg-slate-900 p-2 rounded border border-slate-700 text-xs">
+                    <span class="truncate w-1/3">${p.nome}</span>
+                    <select onchange="realocarProduto('${p.id}', this.value)" class="bg-slate-800 p-1 rounded border border-slate-600">
+                        ${categorias.map(cat => `<option value="${cat}" ${p.categoria === cat ? 'selected' : ''}>${cat}</option>`).join('')}
                     </select>
                 </div>
             `).join('');
         }
 
-        async function realocarProduto(id, cat) {
-            await _supabase.from('produtos').update({ categoria: cat }).eq('id', id);
-            carregarProdutos();
+        async function realocarProduto(id, novaCat) {
+            await _supabase.from('produtos').update({ categoria: novaCat }).eq('id', id);
+            await carregarProdutos();
+            carregarListaAdmin();
         }
 
-        async function adicionarProduto() {
-            const file = document.getElementById('prod-img').files[0];
-            const nome = document.getElementById('prod-nome').value;
-            const preco = document.getElementById('prod-preco').value;
-            const fileName = `prod_${Date.now()}.jpg`;
-            await _supabase.storage.from('imagens-produtos').upload(fileName, file);
-            const { data: { publicUrl } } = _supabase.storage.from('imagens-produtos').getPublicUrl(fileName);
-            await _supabase.from('produtos').insert([{ nome, categoria: 'Hamburguer', preco, imagem_url: publicUrl }]);
-            location.reload();
+        function mudarAba(aba) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById('aba-' + aba).classList.add('active');
         }
 
-        function mudarAba(aba) { document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active')); document.getElementById('aba-' + aba).classList.add('active'); }
-        async function fazerLogin() { await _supabase.auth.signInWithPassword({ email: document.getElementById('login-email').value, password: document.getElementById('login-senha').value }); location.reload(); }
-        async function mostrarPainelAdmin() { document.getElementById('secao-login').classList.add('hidden'); document.getElementById('secao-admin-painel').classList.remove('hidden'); carregarListaAdmin(); }
+        async function fazerLogin() {
+            const { error } = await _supabase.auth.signInWithPassword({ email: document.getElementById('login-email').value, password: document.getElementById('login-senha').value });
+            if (!error) {
+                document.getElementById('secao-login').classList.add('hidden');
+                document.getElementById('secao-admin-painel').classList.remove('hidden');
+                carregarListaAdmin();
+            } else alert("Erro no login");
+        }
+
         async function fazerLogout() { await _supabase.auth.signOut(); location.reload(); }
-        
-        // Verifica login ao iniciar
-        _supabase.auth.getSession().then(({data}) => { if(data.session) mostrarPainelAdmin(); });
     </script>
 </body>
 </html>
