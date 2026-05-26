@@ -2,57 +2,62 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Du Lanche - Delivery Profissional</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .bg-fundo { position: fixed; inset: 0; z-index: -2; background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed; }
+        .bg-fundo { position: fixed; inset: 0; z-index: -2; background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed; background-color: #0f172a; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
+        .zoom-modal { position: fixed; inset: 0; z-index: 100; display: none; background: rgba(0,0,0,0.95); align-items: center; justify-content: center; }
+        .zoom-modal.active { display: flex; }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body class="min-h-screen text-slate-800 flex flex-col">
 
     <div id="bg-dinamico" class="bg-fundo"></div>
+    <div class="fixed inset-0 z-[-1] bg-slate-950/60 pointer-events-none"></div>
 
     <header class="bg-slate-900/90 backdrop-blur-md text-white p-4 sticky top-0 z-40 border-b border-white/10 flex justify-between items-center">
         <h1 class="font-black text-amber-500 cursor-pointer text-xl" onclick="mudarAba('catalogo')">Du LANCHE</h1>
-        <button onclick="mudarAba('admin')" class="hover:text-amber-500"><i class="fas fa-cog"></i></button>
+        <div class="flex gap-4">
+            <button onclick="mudarAba('admin')" class="hover:text-amber-500"><i class="fas fa-cog"></i></button>
+        </div>
     </header>
 
     <main class="flex-grow container mx-auto p-4 z-10 relative">
         <div id="aba-catalogo" class="tab-content active">
             <div class="flex overflow-x-auto gap-2 py-4 mb-4 scrollbar-hide">
-                <button onclick="filtrarProdutos('Todos')" class="px-5 py-2 bg-amber-500 text-white rounded-full font-bold text-sm whitespace-nowrap">Todos</button>
-                <button onclick="filtrarProdutos('Hamburguer')" class="px-5 py-2 bg-white/20 backdrop-blur-md text-white rounded-full font-bold text-sm whitespace-nowrap border">Hamburguer</button>
-                <button onclick="filtrarProdutos('Batata')" class="px-5 py-2 bg-white/20 backdrop-blur-md text-white rounded-full font-bold text-sm whitespace-nowrap border">Batata</button>
-                <button onclick="filtrarProdutos('Bebidas')" class="px-5 py-2 bg-white/20 backdrop-blur-md text-white rounded-full font-bold text-sm whitespace-nowrap border">Bebidas</button>
-                <button onclick="filtrarProdutos('Combos')" class="px-5 py-2 bg-white/20 backdrop-blur-md text-white rounded-full font-bold text-sm whitespace-nowrap border">Combos</button>
+                <button onclick="filtrarProdutos('Todos')" class="px-5 py-2 bg-amber-500 text-white rounded-full font-bold text-xs">Todos</button>
+                <button onclick="filtrarProdutos('Hamburguer')" class="px-5 py-2 bg-white/20 backdrop-blur-md text-white rounded-full font-bold text-xs border border-white/20">Hamburguer</button>
+                <button onclick="filtrarProdutos('Batata')" class="px-5 py-2 bg-white/20 backdrop-blur-md text-white rounded-full font-bold text-xs border border-white/20">Batata</button>
+                <button onclick="filtrarProdutos('Bebidas')" class="px-5 py-2 bg-white/20 backdrop-blur-md text-white rounded-full font-bold text-xs border border-white/20">Bebidas</button>
+                <button onclick="filtrarProdutos('Combos')" class="px-5 py-2 bg-white/20 backdrop-blur-md text-white rounded-full font-bold text-xs border border-white/20">Combos</button>
             </div>
             <div id="grid-produtos" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
         </div>
-
-        <div id="aba-admin" class="tab-content max-w-sm mx-auto bg-white/80 p-6 rounded-3xl shadow-2xl">
-            <h2 class="font-black text-lg mb-4">Painel Administrativo</h2>
+        
+        <div id="aba-admin" class="tab-content max-w-md mx-auto bg-white/90 p-6 rounded-3xl shadow-2xl">
+            <h2 class="font-black text-xl mb-6">Painel de Gestão</h2>
             <div id="secao-login">
-                <input type="email" id="login-email" placeholder="Email" class="w-full p-2 mb-2 rounded border">
-                <input type="password" id="login-senha" placeholder="Senha" class="w-full p-2 mb-2 rounded border">
-                <button onclick="fazerLogin()" class="w-full bg-amber-500 text-white py-2 rounded font-bold">Entrar</button>
+                <input type="email" id="login-email" placeholder="Email" class="w-full p-3 mb-2 rounded border">
+                <input type="password" id="login-senha" placeholder="Senha" class="w-full p-3 mb-2 rounded border">
+                <button onclick="fazerLogin()" class="w-full bg-amber-500 text-white py-3 rounded-xl font-bold">Entrar</button>
             </div>
-            <div id="secao-admin-painel" class="hidden space-y-3">
-                <select id="prod-categoria" class="w-full p-2 rounded border">
-                    <option value="Hamburguer">Hamburguer</option>
-                    <option value="Batata">Batata</option>
-                    <option value="Bebidas">Bebidas</option>
-                    <option value="Combos">Combos</option>
-                </select>
-                <input type="file" id="prod-img" class="w-full text-xs">
-                <input type="text" id="prod-nome" placeholder="Nome" class="w-full p-2 rounded border">
-                <input type="number" id="prod-preco" placeholder="Preço" class="w-full p-2 rounded border">
-                <button onclick="adicionarProduto()" class="w-full bg-blue-600 text-white py-2 rounded font-bold">Cadastrar Produto</button>
-                <button onclick="fazerLogout()" class="w-full text-red-500 text-xs underline">Sair</button>
+            <div id="secao-admin-painel" class="hidden space-y-4">
+                <div class="space-y-2">
+                    <select id="prod-categoria" class="w-full p-2 rounded border">
+                        <option value="Hamburguer">Hamburguer</option><option value="Batata">Batata</option><option value="Bebidas">Bebidas</option><option value="Combos">Combos</option>
+                    </select>
+                    <input type="file" id="prod-img" class="w-full text-xs">
+                    <input type="text" id="prod-nome" placeholder="Nome" class="w-full p-2 rounded border">
+                    <input type="number" id="prod-preco" placeholder="Preço" class="w-full p-2 rounded border">
+                    <button onclick="adicionarProduto()" class="w-full bg-blue-600 text-white py-2 rounded-xl font-bold">Cadastrar Produto</button>
+                </div>
+                <button onclick="fazerLogout()" class="w-full text-red-500 text-xs font-bold py-2 border rounded-lg">Sair</button>
             </div>
         </div>
     </main>
@@ -73,9 +78,9 @@
             const grid = document.getElementById('grid-produtos');
             const filtrados = cat === 'Todos' ? listaProdutos : listaProdutos.filter(p => p.categoria === cat);
             grid.innerHTML = filtrados.map(p => `
-                <div class="bg-white/50 p-3 rounded-2xl border border-white/20">
+                <div class="bg-white/40 p-3 rounded-2xl border border-white/20">
                     <img src="${p.imagem_url}" class="h-24 w-full object-cover rounded-xl mb-2">
-                    <h2 class="font-bold text-xs">${p.nome}</h2>
+                    <h2 class="font-bold text-xs text-slate-900">${p.nome}</h2>
                     <p class="font-black text-sm">R$ ${parseFloat(p.preco).toFixed(2)}</p>
                 </div>
             `).join('');
