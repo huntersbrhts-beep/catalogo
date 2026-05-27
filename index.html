@@ -1,192 +1,96 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Du Lanche - Delivery Premium</title>
-
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     <style>
-        * { scroll-behavior: smooth; }
-        body { background: #020617; }
-        .bg-fundo { position: fixed; inset: 0; z-index: -2; background-size: cover; background-position: center; background-repeat: no-repeat; opacity: 0.15; }
-        .overlay { position: fixed; inset: 0; z-index: -1; background: linear-gradient(to bottom, rgba(2, 6, 23, 0.95), rgba(15, 23, 42, 0.96)); }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        .admin-sub-tab { display: none; }
-        .admin-sub-tab.active { display: block; }
-        .categoria-card:hover { transform: translateY(-5px); }
-        .produto-card:hover { transform: translateY(-4px); }
-        .zoom-modal { position: fixed; inset: 0; z-index: 100; display: none; background: rgba(0, 0, 0, 0.92); align-items: center; justify-content: center; }
-        .zoom-modal.active { display: flex; }
-        #itens-carrinho::-webkit-scrollbar { width: 4px; }
-        #itens-carrinho::-webkit-scrollbar-thumb { background: #f59e0b; border-radius: 10px; }
+        body { background: #020617; color: white; }
+        .tab-content, .admin-sub-tab { display: none; }
+        .tab-content.active, .admin-sub-tab.active { display: block; }
+        .zoom-modal { display: none; background: rgba(0,0,0,0.9); }
+        .zoom-modal.active { display: flex; position: fixed; inset: 0; z-index: 100; align-items: center; justify-content: center; }
     </style>
 </head>
+<body>
 
-<body class="text-white min-h-screen flex flex-col">
-
-    <div id="bg-dinamico" class="bg-fundo"></div>
-    <div class="overlay"></div>
-
-    <header class="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-white/5 px-5 py-4 flex items-center justify-between">
-        <div onclick="mudarAba('catalogo')" class="cursor-pointer">
-            <h1 class="text-2xl font-black text-amber-400 tracking-wide">DU LANCHE</h1>
-        </div>
-        <div class="flex items-center gap-5">
-            <button onclick="mudarAba('admin')" class="text-xl hover:text-amber-400 transition"><i class="fas fa-cog"></i></button>
-            <button onclick="toggleCarrinho()" class="relative text-2xl hover:text-amber-400 transition">
-                <i class="fas fa-shopping-bag"></i>
-                <span id="cart-badge" class="hidden absolute -top-2 -right-2 bg-red-500 w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center">0</span>
-            </button>
-        </div>
+    <!-- HEADER -->
+    <header class="p-5 flex justify-between items-center border-b border-white/10">
+        <h1 onclick="mudarAba('catalogo')" class="text-2xl font-black text-amber-400 cursor-pointer">DU LANCHE</h1>
+        <button onclick="mudarAba('admin')" class="text-xl"><i class="fas fa-cog"></i></button>
     </header>
 
-    <main class="container mx-auto px-4 py-6 flex-grow">
-
-        <!-- LOGIN -->
-        <section id="aba-login" class="tab-content max-w-md mx-auto bg-slate-900 border border-white/10 rounded-3xl p-6 my-10">
-            <h2 class="text-2xl font-black mb-6 text-center text-amber-400">Acesso Restrito</h2>
-            <div class="space-y-4">
-                <input type="email" id="login-email" placeholder="E-mail" class="w-full bg-slate-800 rounded-xl p-4 outline-none">
-                <input type="password" id="login-senha" placeholder="Senha" class="w-full bg-slate-800 rounded-xl p-4 outline-none">
-                <button onclick="executarLogin()" class="w-full bg-amber-500 text-black font-black py-4 rounded-2xl">ENTRAR</button>
-            </div>
-        </section>
-
-        <!-- CATALOGO -->
+    <main class="container mx-auto p-4">
+        
+        <!-- ABA CATALOGO -->
         <section id="aba-catalogo" class="tab-content active">
-            <div class="bg-gradient-to-r from-amber-500 to-orange-600 rounded-[35px] p-8 md:p-12 mb-10 shadow-2xl relative overflow-hidden">
-                <h2 class="text-4xl md:text-6xl font-black leading-tight mb-4">O melhor lanche <br> da cidade</h2>
-                <button onclick="scrollCategorias()" class="bg-black text-white px-8 py-4 rounded-2xl font-bold">VER CARDÁPIO</button>
-            </div>
-            <div id="categorias" class="mb-12"><div id="grid-categorias" class="grid grid-cols-2 md:grid-cols-4 gap-5"></div></div>
-            <div>
-                <div class="flex items-center justify-between mb-6"><h3 id="titulo-produtos" class="text-2xl font-black">Produtos</h3></div>
-                <div id="grid-produtos" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-            </div>
+            <div id="grid-produtos" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
         </section>
 
-        <!-- ADMIN -->
-        <section id="aba-admin" class="tab-content max-w-6xl mx-auto">
+        <!-- ABA ADMIN -->
+        <section id="aba-admin" class="tab-content">
             <div class="grid md:grid-cols-[240px_1fr] gap-6">
-                <div class="bg-slate-900 border border-white/10 rounded-3xl p-5 h-fit">
-                    <h3 class="font-black text-lg mb-6">Painel Admin</h3>
-                    <div class="space-y-2">
-                        <button onclick="mudarSubAba('produtos', this)" class="menu-btn w-full bg-amber-500 text-black py-3 rounded-xl font-bold">Produtos</button>
-                        <button onclick="mudarSubAba('categorias', this)" class="menu-btn w-full bg-slate-800 py-3 rounded-xl font-bold">Categorias</button>
-                        <button onclick="mudarSubAba('cupons', this)" class="menu-btn w-full bg-slate-800 py-3 rounded-xl font-bold">Cupons</button>
-                        <button onclick="mudarSubAba('aparencia', this)" class="menu-btn w-full bg-slate-800 py-3 rounded-xl font-bold">Aparência</button>
-                        <button onclick="executarLogout()" class="w-full bg-red-950 text-red-500 py-3 rounded-xl font-bold mt-4">Sair</button>
-                    </div>
+                <div class="bg-slate-900 p-5 rounded-3xl h-fit">
+                    <button onclick="mudarSubAba('produtos', this)" class="menu-btn w-full p-3 bg-amber-500 rounded-xl font-bold mb-2">Produtos</button>
+                    <button onclick="executarLogout()" class="w-full p-3 bg-red-900 rounded-xl font-bold mt-4">Sair</button>
                 </div>
-
-                <div class="bg-slate-900 border border-white/10 rounded-3xl p-6">
-                    <!-- SUB-ABAS -->
+                <div id="admin-content" class="bg-slate-900 p-6 rounded-3xl">
+                    <!-- Gerenciamento -->
                     <div id="sub-produtos" class="admin-sub-tab active">
-                        <h2 class="text-2xl font-black mb-6">Adicionar Produto</h2>
-                        <div class="grid md:grid-cols-2 gap-4">
-                            <input type="file" id="prod-img" class="bg-slate-800 rounded-xl p-3">
-                            <input type="text" id="prod-nome" placeholder="Nome" class="bg-slate-800 rounded-xl p-4 outline-none">
-                            <input type="text" id="prod-categoria" placeholder="Categoria" class="bg-slate-800 rounded-xl p-4 outline-none">
-                            <input type="number" id="prod-preco" placeholder="Preço" class="bg-slate-800 rounded-xl p-4 outline-none">
-                        </div>
-                        <textarea id="prod-desc" placeholder="Descrição" class="bg-slate-800 rounded-xl p-4 outline-none w-full h-32 mt-4"></textarea>
-                        <button onclick="adicionarProduto()" class="mt-5 bg-amber-500 text-black font-black px-8 py-4 rounded-2xl">CADASTRAR</button>
+                        <h2 class="text-2xl font-black mb-6">Meus Produtos</h2>
+                        <table class="w-full text-left">
+                            <thead><tr class="text-white/50 border-b border-white/10"><th>Nome</th><th>Preço</th><th>Ações</th></tr></thead>
+                            <tbody id="lista-admin-produtos"></tbody>
+                        </table>
                     </div>
-                    <div id="sub-categorias" class="admin-sub-tab"><h2 class="text-2xl font-black">Gestão de Categorias</h2></div>
-                    <div id="sub-cupons" class="admin-sub-tab"><h2 class="text-2xl font-black">Gestão de Cupons</h2></div>
-                    <div id="sub-aparencia" class="admin-sub-tab"><h2 class="text-2xl font-black">Aparência</h2></div>
                 </div>
             </div>
         </section>
     </main>
 
-    <!-- CARRINHO & ZOOM -->
-    <div id="sidebar-carrinho" class="fixed top-0 right-0 h-full w-full md:w-[430px] bg-slate-950 z-50 translate-x-full transition-transform flex flex-col border-l border-white/10">
-        <div class="p-5 border-b flex justify-between items-center">
-            <h2 class="font-black text-xl">Seu Pedido</h2>
-            <button onclick="toggleCarrinho()"><i class="fas fa-times"></i></button>
-        </div>
-        <div id="itens-carrinho" class="flex-grow overflow-y-auto p-5 space-y-4"></div>
-        <div class="p-5 border-t">
-            <input type="text" id="cliente-nome" placeholder="Nome" class="w-full bg-slate-900 p-4 rounded-xl mb-3">
-            <input type="text" id="cliente-endereco" placeholder="Endereço" class="w-full bg-slate-900 p-4 rounded-xl mb-3">
-            <button onclick="finalizarPedido()" class="w-full bg-emerald-500 py-4 rounded-2xl font-black">FINALIZAR PEDIDO</button>
-        </div>
-    </div>
-
-    <div id="zoom-modal" class="zoom-modal" onclick="fecharZoom()">
-        <img id="img-zoom" class="max-w-[90%] max-h-[90vh] rounded-3xl" src="" />
-    </div>
-
     <script>
         const _supabase = supabase.createClient("https://yawousokoaqeyvktjosj.supabase.co", "sb_publishable__TXuxjZ8PObBZxsM-PjF1Q_fAvPsDa3");
-        let listaProdutos = [], carrinho = [];
 
-        window.onload = () => { carregarProdutos(); carregarFundo(); };
-
+        // Funções de Navegação
         function mudarAba(aba) {
-            if (aba === 'admin') {
-                _supabase.auth.getSession().then(({ data }) => {
-                    if (!data.session) aba = 'login';
-                    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-                    document.getElementById('aba-' + aba).classList.add('active');
-                });
-            } else {
-                document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-                document.getElementById('aba-' + aba).classList.add('active');
-            }
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById('aba-' + aba).classList.add('active');
         }
 
         function mudarSubAba(sub, btn) {
             document.querySelectorAll('.admin-sub-tab').forEach(el => el.classList.remove('active'));
             document.getElementById('sub-' + sub).classList.add('active');
-            document.querySelectorAll('.menu-btn').forEach(b => { b.classList.remove('bg-amber-500', 'text-black'); b.classList.add('bg-slate-800', 'text-white'); });
-            btn.classList.add('bg-amber-500', 'text-black');
         }
 
-        async function executarLogin() {
-            const { error } = await _supabase.auth.signInWithPassword({
-                email: document.getElementById('login-email').value,
-                password: document.getElementById('login-senha').value
-            });
-            if (error) alert(error.message); else mudarAba('admin');
-        }
-
-        async function executarLogout() { await _supabase.auth.signOut(); window.location.reload(); }
-
-        async function carregarProdutos() {
+        // Carregar Produtos no Admin
+        async function carregarProdutosAdmin() {
             const { data } = await _supabase.from('produtos').select('*');
-            listaProdutos = data || [];
-            renderizarProdutos(listaProdutos);
-        }
-
-        function renderizarProdutos(produtos) {
-            document.getElementById('grid-produtos').innerHTML = produtos.map(p => `
-                <div class="produto-card bg-slate-900 p-5 rounded-[30px] border border-white/10">
-                    <img src="${p.imagem_url}" class="w-full h-64 object-cover rounded-2xl cursor-pointer" onclick="abrirZoom('${p.imagem_url}')">
-                    <h2 class="text-xl font-black mt-4">${p.nome}</h2>
-                    <p class="text-amber-400 font-bold">R$ ${parseFloat(p.preco).toFixed(2)}</p>
-                    <button onclick="adicionarCarrinho('${p.id}')" class="w-full bg-amber-500 mt-4 py-2 rounded-xl text-black font-bold">+</button>
-                </div>
+            const container = document.getElementById('lista-admin-produtos');
+            container.innerHTML = data.map(p => `
+                <tr class="border-b border-white/5">
+                    <td class="p-3">${p.nome}</td>
+                    <td class="p-3">R$ ${parseFloat(p.preco).toFixed(2)}</td>
+                    <td class="p-3">
+                        <button onclick="excluirProduto('${p.id}')" class="text-red-400"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
             `).join('');
         }
 
-        // Funções auxiliares (Zoom, Carrinho, Upload) mantidas conforme original...
-        function toggleCarrinho() { document.getElementById('sidebar-carrinho').classList.toggle('translate-x-full'); }
-        function abrirZoom(url) { document.getElementById('img-zoom').src = url; document.getElementById('zoom-modal').classList.add('active'); }
-        function fecharZoom() { document.getElementById('zoom-modal').classList.remove('active'); }
-        function scrollCategorias() { document.getElementById('categorias').scrollIntoView(); }
-        async function carregarFundo() { /* Lógica de fundo original */ }
-        function adicionarCarrinho(id) { /* Lógica de carrinho original */ }
-        function finalizarPedido() { /* Lógica de pedido original */ }
-        async function adicionarProduto() { /* Lógica de cadastro original */ }
+        async function excluirProduto(id) {
+            if(confirm('Excluir este produto?')) {
+                await _supabase.from('produtos').delete().eq('id', id);
+                carregarProdutosAdmin();
+                location.reload();
+            }
+        }
 
+        async function executarLogout() { await _supabase.auth.signOut(); location.reload(); }
+
+        window.onload = () => { carregarProdutosAdmin(); };
     </script>
 </body>
 </html>
