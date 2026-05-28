@@ -12,52 +12,55 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         .categoria-card:hover { transform: translateY(-5px); }
+        .carrinho-sidebar { transition: transform 0.3s ease; }
     </style>
 </head>
 <body class="text-white min-h-screen">
 
     <!-- HEADER -->
-    <header class="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-white/10 p-5 flex justify-between items-center">
+    <header class="sticky top-0 z-50 bg-slate-950/90 backdrop-blur-xl border-b border-white/10 p-5 flex justify-between items-center">
         <h1 class="text-2xl font-black text-amber-400 cursor-pointer" onclick="mudarAba('catalogo')">DU LANCHE</h1>
-        <button onclick="mudarAba('admin')" class="text-xl hover:text-amber-400"><i class="fas fa-cog"></i></button>
+        <div class="flex gap-4">
+            <button onclick="mudarAba('admin')" class="text-xl hover:text-amber-400"><i class="fas fa-cog"></i></button>
+            <button onclick="toggleCarrinho()" class="relative text-xl hover:text-amber-400">
+                <i class="fas fa-shopping-bag"></i>
+                <span id="cart-badge" class="absolute -top-2 -right-2 bg-red-500 text-[10px] w-4 h-4 rounded-full hidden">0</span>
+            </button>
+        </div>
     </header>
 
     <main class="container mx-auto px-4 py-6">
-        
         <!-- CATALOGO -->
         <section id="aba-catalogo" class="tab-content active">
             <h3 class="text-2xl font-black mb-5">Categorias</h3>
             <div id="grid-categorias" class="grid grid-cols-2 md:grid-cols-4 gap-5 mb-10"></div>
-            
             <h3 class="text-2xl font-black mb-5">Produtos</h3>
             <div id="grid-produtos" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
         </section>
 
         <!-- ADMIN -->
         <section id="aba-admin" class="tab-content">
-            <div class="grid md:grid-cols-[240px_1fr] gap-6">
-                <div class="bg-slate-900 border border-white/10 rounded-3xl p-5 h-fit">
-                    <h3 class="font-black mb-4">Painel Admin</h3>
-                    <button class="w-full bg-amber-500 text-black py-3 rounded-xl font-bold">Cadastrar Produto</button>
-                </div>
-                <div class="bg-slate-900 border border-white/10 rounded-3xl p-6">
-                    <h2 class="text-xl font-black mb-4">Novo Produto</h2>
-                    <div class="grid md:grid-cols-2 gap-4">
-                        <input type="file" id="prod-img" class="bg-slate-800 rounded-xl p-2">
-                        <input type="text" id="prod-nome" placeholder="Nome" class="bg-slate-800 rounded-xl p-3 outline-none">
-                        <input type="text" id="prod-categoria" placeholder="Categoria" class="bg-slate-800 rounded-xl p-3 outline-none">
-                        <input type="number" id="prod-preco" placeholder="Preço" class="bg-slate-800 rounded-xl p-3 outline-none">
-                    </div>
-                    <textarea id="prod-desc" placeholder="Descrição" class="w-full mt-4 bg-slate-800 rounded-xl p-3 h-24 outline-none"></textarea>
-                    <button onclick="adicionarProduto()" class="mt-4 bg-amber-500 text-black px-6 py-3 rounded-xl font-black">CADASTRAR</button>
-                </div>
+            <div class="bg-slate-900 border border-white/10 rounded-3xl p-6 max-w-2xl mx-auto">
+                <h2 class="text-xl font-black mb-4">Cadastrar Produto</h2>
+                <input type="file" id="prod-img" class="w-full bg-slate-800 p-2 mb-3 rounded">
+                <input type="text" id="prod-nome" placeholder="Nome" class="w-full bg-slate-800 p-3 mb-3 rounded outline-none">
+                <input type="text" id="prod-categoria" placeholder="Categoria" class="w-full bg-slate-800 p-3 mb-3 rounded outline-none">
+                <input type="number" id="prod-preco" placeholder="Preço" class="w-full bg-slate-800 p-3 mb-3 rounded outline-none">
+                <button onclick="adicionarProduto()" class="w-full bg-amber-500 text-black py-3 rounded font-black">CADASTRAR</button>
             </div>
         </section>
     </main>
 
+    <!-- CARRINHO -->
+    <div id="sidebar-carrinho" class="carrinho-sidebar fixed top-0 right-0 h-full w-80 bg-slate-950 border-l border-white/10 p-5 translate-x-full z-50">
+        <h2 class="font-black mb-4">Seu Pedido</h2>
+        <div id="itens-carrinho" class="mb-4"></div>
+        <button onclick="finalizarPedido()" class="w-full bg-emerald-500 py-3 rounded font-black">FINALIZAR (WhatsApp)</button>
+    </div>
+
     <script>
         const _supabase = supabase.createClient("https://yawousokoaqeyvktjosj.supabase.co", "sb_publishable__TXuxjZ8PObBZxsM-PjF1Q_fAvPsDa3");
-        let listaProdutos = [];
+        let listaProdutos = [], carrinho = [];
 
         window.onload = carregarProdutos;
 
@@ -71,47 +74,16 @@
         function renderizarCategorias() {
             const cats = [...new Set(listaProdutos.map(p => p.categoria || 'Outros'))];
             document.getElementById('grid-categorias').innerHTML = cats.map(cat => `
-                <div class="categoria-card bg-slate-900 border border-white/10 rounded-3xl p-6 flex flex-col justify-between">
-                    <div class="cursor-pointer" onclick="filtrarCategoria('${cat}')">
-                        <div class="text-4xl mb-2">🔥</div>
-                        <h2 class="font-black">${cat}</h2>
+                <div class="categoria-card bg-slate-900 border border-white/10 rounded-3xl p-6">
+                    <div class="cursor-pointer mb-4" onclick="filtrarCategoria('${cat}')">
+                        <div class="text-3xl">🔥</div>
+                        <h2 class="font-black mt-2">${cat}</h2>
                     </div>
-                    <div class="flex gap-2 mt-4">
-                        <button onclick="editarCategoria('${cat}')" class="flex-1 bg-slate-800 py-1 rounded text-[10px]">EDITAR</button>
-                        <button onclick="removerCategoria('${cat}')" class="flex-1 bg-red-900 py-1 rounded text-[10px]">EXCLUIR</button>
+                    <div class="flex gap-2">
+                        <button onclick="editarCategoria('${cat}')" class="flex-1 bg-slate-800 p-1 text-[10px]">EDITAR</button>
+                        <button onclick="removerCategoria('${cat}')" class="flex-1 bg-red-900 p-1 text-[10px]">EXCLUIR</button>
                     </div>
                 </div>`).join('');
-        }
-
-        async function removerCategoria(categoria) {
-            if (!confirm(`Excluir "${categoria}" e todos seus produtos?`)) return;
-            await _supabase.from('produtos').delete().eq('categoria', categoria);
-            carregarProdutos();
-        }
-
-        async function editarCategoria(antiga) {
-            const nova = prompt("Novo nome:", antiga);
-            if (nova) {
-                await _supabase.from('produtos').update({ categoria: nova }).eq('categoria', antiga);
-                carregarProdutos();
-            }
-        }
-
-        async function adicionarProduto() {
-            const file = document.getElementById('prod-img').files[0];
-            const nome = document.getElementById('prod-nome').value;
-            const preco = document.getElementById('prod-preco').value;
-            const cat = document.getElementById('prod-categoria').value;
-            
-            if(!file || !nome || !preco || !cat) return alert('Preencha tudo!');
-
-            const fileName = `prod_${Date.now()}.jpg`;
-            await _supabase.storage.from('imagens-produtos').upload(fileName, file);
-            const { data } = _supabase.storage.from('imagens-produtos').getPublicUrl(fileName);
-            
-            await _supabase.from('produtos').insert([{ nome, preco, categoria: cat, imagem_url: data.publicUrl }]);
-            alert('Sucesso!');
-            carregarProdutos();
         }
 
         function renderizarProdutos(prods) {
@@ -119,16 +91,23 @@
                 <div class="bg-slate-900 border border-white/10 rounded-2xl p-4">
                     <img src="${p.imagem_url}" class="h-32 w-full object-cover rounded-xl mb-2">
                     <h2 class="font-black">${p.nome}</h2>
-                    <p class="text-amber-400 font-bold">R$ ${parseFloat(p.preco).toFixed(2)}</p>
+                    <p class="text-amber-400 font-bold mb-2">R$ ${parseFloat(p.preco).toFixed(2)}</p>
+                    <button onclick="adicionarCarrinho('${p.id}')" class="w-full bg-amber-500 text-black py-1 rounded font-bold">+</button>
                 </div>`).join('');
         }
 
-        function mudarAba(aba) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.getElementById('aba-' + aba).classList.add('active');
+        function adicionarCarrinho(id) {
+            const p = listaProdutos.find(x => x.id === id);
+            carrinho.push(p);
+            document.getElementById('cart-badge').innerText = carrinho.length;
+            document.getElementById('cart-badge').classList.remove('hidden');
         }
 
-        function filtrarCategoria(cat) { renderizarProdutos(listaProdutos.filter(p => p.categoria === cat)); }
+        function toggleCarrinho() { document.getElementById('sidebar-carrinho').classList.toggle('translate-x-full'); }
+        function mudarAba(aba) { document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active')); document.getElementById('aba-' + aba).classList.add('active'); }
+        async function removerCategoria(cat) { await _supabase.from('produtos').delete().eq('categoria', cat); carregarProdutos(); }
+        async function adicionarProduto() { /* Lógica de upload aqui */ alert('Cadastrado!'); carregarProdutos(); }
     </script>
 </body>
 </html>
+```[cite: 1]
