@@ -1,333 +1,400 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Big Lanche - Catálogo & Admin Unificado</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+<title>Big Lanche</title>
 
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.tailwindcss.com"></script>
 
-    <link rel="icon" href="data:,">
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <style>
-        .zoom-modal { display:none; }
-        .zoom-modal.active { display:flex; }
+<style>
 
-        .tab-content { display:none; }
-        .tab-content.active { display:block; }
+.zoom-modal{
+display:none;
+}
 
-        .categoria-ativa{
-            background:#f59e0b !important;
-            color:white !important;
-            border-color:#f59e0b !important;
-        }
-    </style>
+.zoom-modal.active{
+display:flex;
+}
+
+.tab-content{
+display:none;
+}
+
+.tab-content.active{
+display:block;
+}
+
+.categoria-ativa{
+background:#f59e0b !important;
+color:white !important;
+border-color:#f59e0b !important;
+}
+
+</style>
 </head>
 
 <body class="bg-gray-50 font-sans flex flex-col min-h-screen">
 
+<!-- HEADER -->
 <header class="bg-amber-500 text-white shadow-md sticky top-0 z-40">
-    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
 
-        <h1 class="text-2xl font-bold tracking-wider cursor-pointer"
-            onclick="mudarAba('catalogo')">
-            BIG LANCHE
-        </h1>
+<div class="container mx-auto px-4 py-3 flex justify-between items-center">
 
-        <div class="flex items-center gap-4">
+<h1 class="text-2xl font-bold tracking-wider cursor-pointer"
+onclick="mudarAba('catalogo')">
 
-            <button onclick="mudarAba('admin')"
-                    class="text-sm bg-amber-600 hover:bg-amber-700 px-3 py-2 rounded-lg font-semibold transition flex items-center gap-2">
-                <i class="fas fa-lock"></i>
-                Painel Admin
-            </button>
+BIG LANCHE
 
-            <button onclick="toggleCarrinho()"
-                    class="relative p-2 bg-amber-600 rounded-full hover:bg-amber-700 transition">
+</h1>
 
-                <i class="fas fa-shopping-cart text-xl"></i>
+<div class="flex items-center gap-4">
 
-                <span id="cart-count"
-                      class="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold hidden">
-                    0
-                </span>
-            </button>
+<button onclick="mudarAba('admin')"
+class="text-sm bg-amber-600 hover:bg-amber-700 px-3 py-2 rounded-lg font-semibold transition flex items-center gap-2">
 
-        </div>
-    </div>
+<i class="fas fa-lock"></i>
+Painel Admin
+
+</button>
+
+<button onclick="toggleCarrinho()"
+class="relative p-2 bg-amber-600 rounded-full hover:bg-amber-700 transition">
+
+<i class="fas fa-shopping-cart text-xl"></i>
+
+<span id="cart-count"
+class="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold hidden">
+
+0
+
+</span>
+
+</button>
+
+</div>
+
+</div>
+
 </header>
 
 <!-- CATÁLOGO -->
 <main id="aba-catalogo"
-      class="tab-content active container mx-auto p-4 flex-grow">
+class="tab-content active container mx-auto p-4 flex-grow">
 
-    <div class="bg-orange-100 border-l-4 border-orange-500 text-orange-700 p-4 mb-6 rounded shadow-sm">
-        <p class="font-bold">Bem-vindo ao Big Lanche!</p>
+<div class="bg-orange-100 border-l-4 border-orange-500 text-orange-700 p-4 mb-6 rounded shadow-sm">
 
-        <p class="text-sm">
-            Monte seu carrinho clicando nos produtos e envie o pedido direto pelo nosso WhatsApp.
-        </p>
-    </div>
+<p class="font-bold">
+Bem-vindo ao Big Lanche!
+</p>
 
-    <!-- CATEGORIAS -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+<p class="text-sm">
+Faça seu pedido pelo WhatsApp.
+</p>
 
-        <button onclick="filtrarCategoria('todos',this)"
-                class="categoria-btn categoria-ativa bg-white border p-3 rounded-xl shadow font-bold hover:bg-gray-50 transition">
-            🍔 Todos
-        </button>
+</div>
 
-        <button onclick="filtrarCategoria('hamburguer',this)"
-                class="categoria-btn bg-white border p-3 rounded-xl shadow hover:bg-gray-50 transition">
-            🍔 Hambúrgueres
-        </button>
+<!-- FILTROS -->
+<div id="filtros-categorias"
+class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
 
-        <button onclick="filtrarCategoria('bebida',this)"
-                class="categoria-btn bg-white border p-3 rounded-xl shadow hover:bg-gray-50 transition">
-            🥤 Bebidas
-        </button>
+<button onclick="filtrarCategoria('todos',this)"
+class="categoria-btn categoria-ativa bg-white border p-3 rounded-xl shadow font-bold">
 
-        <button onclick="filtrarCategoria('combo',this)"
-                class="categoria-btn bg-white border p-3 rounded-xl shadow hover:bg-gray-50 transition">
-            🍟 Combos
-        </button>
+🍔 Todos
 
-    </div>
+</button>
 
-    <!-- PRODUTOS -->
-    <div id="grid-produtos"
-         class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+</div>
 
-        <div class="col-span-full text-center py-12 text-gray-500">
-            <i class="fas fa-spinner fa-spin text-3xl mb-2"></i>
-            <p>Carregando cardápio...</p>
-        </div>
+<!-- PRODUTOS -->
+<div id="grid-produtos"
+class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
 
-    </div>
+<div class="col-span-full text-center py-12 text-gray-500">
+
+<i class="fas fa-spinner fa-spin text-3xl mb-2"></i>
+
+<p>
+Carregando cardápio...
+</p>
+
+</div>
+
+</div>
 
 </main>
 
 <!-- ADMIN -->
 <main id="aba-admin"
-      class="tab-content container mx-auto p-4 flex-grow">
+class="tab-content container mx-auto p-4 flex-grow">
 
-    <div class="max-w-2xl mx-auto mt-6">
+<div class="max-w-2xl mx-auto mt-6">
 
-        <button onclick="mudarAba('catalogo')"
-                class="mb-4 text-amber-600 hover:text-amber-700 font-semibold flex items-center gap-1">
+<button onclick="mudarAba('catalogo')"
+class="mb-4 text-amber-600 hover:text-amber-700 font-semibold flex items-center gap-1">
 
-            <i class="fas fa-arrow-left"></i>
-            Voltar para o Catálogo
-        </button>
+<i class="fas fa-arrow-left"></i>
+Voltar
 
-        <!-- LOGIN -->
-        <div id="secao-login"
-             class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+</button>
 
-            <h2 class="text-xl font-bold mb-4 text-center text-gray-800">
-                Login do Administrador
-            </h2>
+<!-- LOGIN -->
+<div id="secao-login"
+class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
 
-            <div class="space-y-3">
+<h2 class="text-xl font-bold mb-4 text-center text-gray-800">
 
-                <input type="email"
-                       id="login-email"
-                       placeholder="Seu e-mail cadastrado"
-                       class="w-full p-2 border rounded focus:outline-amber-500">
+Login Admin
 
-                <input type="password"
-                       id="login-senha"
-                       placeholder="Sua senha"
-                       class="w-full p-2 border rounded focus:outline-amber-500">
+</h2>
 
-                <button onclick="fazerLogin()"
-                        class="w-full bg-amber-500 text-white p-2 rounded font-bold hover:bg-amber-600 transition">
+<div class="space-y-3">
 
-                    Entrar no Painel
-                </button>
+<input type="email"
+id="login-email"
+placeholder="E-mail"
+class="w-full p-2 border rounded">
 
-            </div>
-        </div>
+<input type="password"
+id="login-senha"
+placeholder="Senha"
+class="w-full p-2 border rounded">
 
-        <!-- PAINEL -->
-        <div id="secao-admin-painel"
-             class="bg-white p-6 rounded-xl shadow-md border border-gray-200 hidden">
+<button onclick="fazerLogin()"
+class="w-full bg-amber-500 text-white p-2 rounded font-bold">
 
-            <div class="flex justify-between items-center mb-6 border-b pb-3">
+Entrar
 
-                <div>
-                    <h2 class="text-2xl font-bold text-gray-800">
-                        Novo Produto
-                    </h2>
+</button>
 
-                    <p class="text-xs text-green-600 font-semibold">
-                        <i class="fas fa-check-circle"></i>
-                        Autenticado via Supabase
-                    </p>
-                </div>
+</div>
 
-                <button onclick="fazerLogout()"
-                        class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded text-sm font-semibold transition">
+</div>
 
-                    Sair
-                </button>
+<!-- PAINEL -->
+<div id="secao-admin-painel"
+class="bg-white p-6 rounded-xl shadow-md border border-gray-200 hidden">
 
-            </div>
+<div class="flex justify-between items-center mb-6 border-b pb-3">
 
-            <form id="form-produto"
-                  onsubmit="salvarProduto(event)"
-                  class="space-y-4">
+<h2 class="text-2xl font-bold text-gray-800">
+Novo Produto
+</h2>
 
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">
-                        Nome
-                    </label>
+<button onclick="fazerLogout()"
+class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded text-sm font-semibold">
 
-                    <input type="text"
-                           id="prod-nome"
-                           required
-                           class="w-full p-2 border rounded focus:outline-amber-500">
-                </div>
+Sair
 
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">
-                        Descrição
-                    </label>
+</button>
 
-                    <textarea id="prod-descricao"
-                              rows="3"
-                              class="w-full p-2 border rounded focus:outline-amber-500"></textarea>
-                </div>
+</div>
 
-                <!-- CATEGORIA -->
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">
-                        Categoria
-                    </label>
+<form id="form-produto"
+onsubmit="salvarProduto(event)"
+class="space-y-4">
 
-                    <select id="prod-categoria"
-                            class="w-full p-2 border rounded focus:outline-amber-500">
+<input type="text"
+id="prod-nome"
+placeholder="Nome"
+required
+class="w-full p-2 border rounded">
 
-                        <option value="hamburguer">Hambúrguer</option>
-                        <option value="bebida">Bebida</option>
-                        <option value="combo">Combo</option>
+<textarea id="prod-descricao"
+placeholder="Descrição"
+rows="3"
+class="w-full p-2 border rounded"></textarea>
 
-                    </select>
-                </div>
+<!-- NOVA CATEGORIA -->
+<div class="flex gap-2">
 
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">
-                        Preço
-                    </label>
+<input type="text"
+id="nova-categoria"
+placeholder="Nova categoria"
+class="flex-1 p-2 border rounded">
 
-                    <input type="number"
-                           step="0.01"
-                           id="prod-preco"
-                           required
-                           class="w-full p-2 border rounded focus:outline-amber-500">
-                </div>
+<button type="button"
+onclick="criarCategoria()"
+class="bg-amber-500 text-white px-4 rounded font-bold">
 
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">
-                        Imagem
-                    </label>
++
 
-                    <input type="file"
-                           id="prod-imagem"
-                           accept="image/*"
-                           required
-                           class="w-full p-2 border rounded bg-gray-50">
-                </div>
+</button>
 
-                <button type="submit"
-                        id="btn-cadastrar"
-                        class="w-full bg-green-500 text-white p-3 rounded-lg font-bold hover:bg-green-600 transition">
+</div>
 
-                    <i class="fas fa-cloud-upload-alt"></i>
-                    Publicar no Catálogo
-                </button>
+<select id="prod-categoria"
+class="w-full p-2 border rounded">
 
-            </form>
+<option value="hamburguer">Hambúrguer</option>
+<option value="bebida">Bebida</option>
+<option value="combo">Combo</option>
 
-        </div>
+</select>
 
-    </div>
+<input type="number"
+step="0.01"
+id="prod-preco"
+placeholder="Preço"
+required
+class="w-full p-2 border rounded">
+
+<input type="file"
+id="prod-imagem"
+accept="image/*"
+required
+class="w-full p-2 border rounded">
+
+<button type="submit"
+id="btn-cadastrar"
+class="w-full bg-green-500 text-white p-3 rounded-lg font-bold">
+
+Cadastrar Produto
+
+</button>
+
+</form>
+
+</div>
+
+</div>
+
 </main>
 
 <!-- CARRINHO -->
 <div id="sidebar-carrinho"
-     class="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col">
+class="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col">
 
-    <div class="p-4 bg-gray-100 flex justify-between items-center border-b">
+<div class="p-4 bg-gray-100 flex justify-between items-center border-b">
 
-        <h3 class="text-lg font-bold text-gray-800">
-            Seu Pedido
-        </h3>
+<h3 class="text-lg font-bold text-gray-800">
 
-        <button onclick="toggleCarrinho()"
-                class="text-2xl font-bold">
-            ×
-        </button>
-    </div>
+Seu Pedido
 
-    <div id="itens-carrinho"
-         class="p-4 flex-grow overflow-y-auto space-y-4">
+</h3>
 
-        <p class="text-center text-gray-400 my-8">
-            Seu carrinho está vazio.
-        </p>
+<button onclick="toggleCarrinho()"
+class="text-2xl font-bold">
 
-    </div>
+×
 
-    <div class="p-4 border-t bg-gray-50 space-y-3">
+</button>
 
-        <div class="flex justify-between font-bold text-lg">
-            <span>Total:</span>
-            <span id="total-carrinho">R$ 0,00</span>
-        </div>
+</div>
 
-        <input type="text"
-               id="cliente-nome"
-               placeholder="Seu nome"
-               class="w-full p-2 border rounded">
+<div id="itens-carrinho"
+class="p-4 flex-grow overflow-y-auto space-y-4">
 
-        <input type="text"
-               id="cliente-endereco"
-               placeholder="Seu endereço"
-               class="w-full p-2 border rounded">
+<p class="text-center text-gray-400 my-8">
 
-        <button onclick="enviarWhatsApp()"
-                class="w-full bg-green-500 text-white py-3 rounded-lg font-bold hover:bg-green-600 transition">
+Seu carrinho está vazio.
 
-            <i class="fab fa-whatsapp"></i>
-            Enviar Pedido
-        </button>
+</p>
 
-    </div>
+</div>
+
+<div class="p-4 border-t bg-gray-50 space-y-3">
+
+<div class="flex justify-between font-bold text-lg">
+
+<span>Total:</span>
+
+<span id="total-carrinho">
+R$ 0,00
+</span>
+
+</div>
+
+<input type="text"
+id="cliente-nome"
+placeholder="Seu nome"
+class="w-full p-2 border rounded">
+
+<input type="text"
+id="cliente-telefone"
+placeholder="Seu telefone"
+class="w-full p-2 border rounded">
+
+<!-- ENTREGA -->
+<div class="flex gap-2">
+
+<button type="button"
+id="btn-entrega"
+onclick="selecionarTipoPedido('entrega')"
+class="flex-1 bg-amber-500 text-white py-2 rounded font-bold">
+
+🚚 Entrega
+
+</button>
+
+<button type="button"
+id="btn-retirada"
+onclick="selecionarTipoPedido('retirada')"
+class="flex-1 bg-gray-200 text-gray-700 py-2 rounded font-bold">
+
+🛍️ Retirada
+
+</button>
+
+</div>
+
+<!-- ENDEREÇO -->
+<div id="box-endereco">
+
+<input type="text"
+id="cliente-endereco"
+placeholder="Seu endereço"
+class="w-full p-2 border rounded">
+
+</div>
+
+<!-- VIP -->
+<div id="info-vip"
+class="hidden bg-green-100 text-green-700 p-2 rounded text-sm font-semibold">
+</div>
+
+<button onclick="enviarWhatsApp()"
+class="w-full bg-green-500 text-white py-3 rounded-lg font-bold">
+
+<i class="fab fa-whatsapp"></i>
+
+Enviar Pedido
+
+</button>
+
+</div>
 
 </div>
 
 <!-- ZOOM -->
 <div id="zoom-modal"
-     class="zoom-modal fixed inset-0 bg-black bg-opacity-90 z-50 items-center justify-center p-4"
-     onclick="fecharZoom()">
+class="zoom-modal fixed inset-0 bg-black bg-opacity-90 z-50 items-center justify-center p-4"
+onclick="fecharZoom()">
 
-    <span class="absolute top-4 right-4 text-white text-4xl cursor-pointer font-bold">
-        ×
-    </span>
+<span class="absolute top-4 right-4 text-white text-4xl cursor-pointer font-bold">
 
-    <img id="img-zoom"
-         class="max-w-full max-h-full rounded-lg shadow-2xl"
-         src=""
-         alt="Zoom">
+×
+
+</span>
+
+<img id="img-zoom"
+class="max-w-full max-h-full rounded-lg shadow-2xl"
+src=""
+alt="Zoom">
 
 </div>
 
 <script>
+
+/* =========================================
+SUPABASE
+========================================= */
 
 const SUPABASE_URL =
 "https://yawousokoaqeyvktjosj.supabase.co";
@@ -339,558 +406,802 @@ const WHATSAPP_NUMERO =
 "5531999999999";
 
 const _supabase =
-supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+supabase.createClient(
+SUPABASE_URL,
+SUPABASE_KEY
+);
+
+/* =========================================
+VARIÁVEIS
+========================================= */
 
 let listaProdutos = [];
 let carrinhoCompras = [];
 let categoriaAtual = 'todos';
+let tipoPedido = 'entrega';
 
 /* =========================================
-   INICIAR
+INICIAR
 ========================================= */
 
-document.addEventListener("DOMContentLoaded",()=>{
+document.addEventListener(
+'DOMContentLoaded',
+()=>{
 
-    limparSessaoCorrompida();
+carregarProdutosDoBanco();
 
-    carregarProdutosDoBanco();
+verificarEstadoLogin();
 
-    verificarEstadoLogin();
+atualizarCategoriasFiltro();
 });
 
 /* =========================================
-   LIMPAR TOKEN CORROMPIDO
-========================================= */
-
-async function limparSessaoCorrompida(){
-
-    try{
-
-        const { error } =
-        await _supabase.auth.getSession();
-
-        if(error){
-
-            await _supabase.auth.signOut();
-
-            localStorage.clear();
-            sessionStorage.clear();
-        }
-
-    }catch(e){
-
-        console.log(e);
-    }
-}
-
-/* =========================================
-   ABAS
+ABAS
 ========================================= */
 
 function mudarAba(nome){
 
-    document.querySelectorAll('.tab-content')
-        .forEach(el=>el.classList.remove('active'));
+document.querySelectorAll('.tab-content')
+.forEach(el=>{
 
-    document.getElementById('aba-'+nome)
-        .classList.add('active');
+el.classList.remove('active');
+
+});
+
+document.getElementById('aba-'+nome)
+.classList.add('active');
 }
 
 /* =========================================
-   FILTRO
+FILTRO
 ========================================= */
 
 function filtrarCategoria(categoria,btn){
 
-    categoriaAtual = categoria;
+categoriaAtual = categoria;
 
-    document.querySelectorAll('.categoria-btn')
-        .forEach(b=>b.classList.remove('categoria-ativa'));
+document.querySelectorAll('.categoria-btn')
+.forEach(b=>{
 
-    btn.classList.add('categoria-ativa');
+b.classList.remove('categoria-ativa');
 
-    renderizarProdutosNoHtml();
+});
+
+btn.classList.add('categoria-ativa');
+
+renderizarProdutosNoHtml();
 }
 
 /* =========================================
-   CARREGAR PRODUTOS
+PRODUTOS
 ========================================= */
 
 async function carregarProdutosDoBanco(){
 
-    try{
+const { data,error } =
+await _supabase
+.from('produtos')
+.select('*');
 
-        const { data,error } =
-        await _supabase
-            .from('produtos')
-            .select('*')
-            .order('criado_em',{ascending:false});
+if(error){
 
-        if(error) throw error;
-
-        listaProdutos = data || [];
-
-        renderizarProdutosNoHtml();
-
-    }catch(err){
-
-        console.log(err);
-
-        document.getElementById('grid-produtos').innerHTML =
-        `
-        <div class="col-span-full text-center py-12 text-red-500">
-            Erro ao carregar produtos
-        </div>
-        `;
-    }
+console.log(error);
+return;
 }
 
-/* =========================================
-   RENDER
-========================================= */
+listaProdutos = data || [];
+
+renderizarProdutosNoHtml();
+}
 
 function renderizarProdutosNoHtml(){
 
-    const grid =
-    document.getElementById('grid-produtos');
+const grid =
+document.getElementById('grid-produtos');
 
-    let produtos = listaProdutos;
+let produtos = listaProdutos;
 
-    if(categoriaAtual !== 'todos'){
+if(categoriaAtual !== 'todos'){
 
-        produtos =
-        listaProdutos.filter(p =>
-            p.categoria === categoriaAtual
-        );
-    }
+produtos =
+listaProdutos.filter(p=>
+p.categoria === categoriaAtual
+);
+}
 
-    if(produtos.length === 0){
+if(produtos.length===0){
 
-        grid.innerHTML =
-        `
-        <div class="col-span-full text-center py-12 text-gray-400">
-            Nenhum produto encontrado
-        </div>
-        `;
+grid.innerHTML =
+'<p class="col-span-full text-center text-gray-400">Nenhum produto</p>';
 
-        return;
-    }
+return;
+}
 
-    grid.innerHTML = produtos.map(prod=>`
+grid.innerHTML = produtos.map(prod=>`
 
-        <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl border border-gray-100 transition flex flex-col">
+<div class="bg-white rounded-xl shadow-md overflow-hidden">
 
-            <div class="overflow-hidden bg-gray-50 h-48 cursor-pointer relative group"
-                 onclick="abrirZoom('${prod.imagem_url}')">
+<div class="overflow-hidden h-48 cursor-pointer"
+onclick="abrirZoom('${prod.imagem_url}')">
 
-                <img src="${prod.imagem_url || 'https://via.placeholder.com/300'}"
-                     class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+<img src="${prod.imagem_url}"
+class="w-full h-full object-cover hover:scale-105 transition">
 
-                <div class="absolute top-2 left-2 bg-amber-500 text-white text-xs px-2 py-1 rounded-full font-bold shadow">
-                    ${prod.categoria || 'produto'}
-                </div>
-            </div>
+</div>
 
-            <div class="p-4 flex-grow flex flex-col justify-between">
+<div class="p-4">
 
-                <div>
-                    <h3 class="font-bold text-gray-800 text-base mb-1">
-                        ${prod.nome}
-                    </h3>
+<h3 class="font-bold text-gray-800">
 
-                    <p class="text-gray-500 text-xs mb-3 line-clamp-2">
-                        ${prod.descricao || ''}
-                    </p>
-                </div>
+${prod.nome}
 
-                <div class="flex justify-between items-center mt-auto pt-2 border-t border-gray-50">
+</h3>
 
-                    <span class="text-amber-600 font-extrabold text-lg">
-                        R$ ${parseFloat(prod.preco).toFixed(2).replace('.',',')}
-                    </span>
+<p class="text-gray-500 text-sm mb-3">
 
-                    <button onclick="adicionarNoCarrinho('${prod.id}')"
-                            class="bg-amber-50 text-amber-600 border border-amber-200 hover:bg-amber-500 hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">
+${prod.descricao || ''}
 
-                        <i class="fas fa-cart-plus"></i>
-                        Adicionar
-                    </button>
+</p>
 
-                </div>
-            </div>
+<div class="flex justify-between items-center">
 
-        </div>
+<span class="text-amber-600 font-bold">
 
-    `).join('');
+R$ ${parseFloat(prod.preco).toFixed(2)}
+
+</span>
+
+<button onclick="adicionarNoCarrinho('${prod.id}')"
+class="bg-amber-500 text-white px-3 py-1 rounded">
+
+Adicionar
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+`).join('');
 }
 
 /* =========================================
-   ZOOM
+ZOOM
 ========================================= */
 
 function abrirZoom(url){
 
-    if(!url) return;
+document.getElementById('img-zoom').src = url;
 
-    document.getElementById('img-zoom').src = url;
-
-    document.getElementById('zoom-modal')
-        .classList.add('active');
+document.getElementById('zoom-modal')
+.classList.add('active');
 }
 
 function fecharZoom(){
 
-    document.getElementById('zoom-modal')
-        .classList.remove('active');
+document.getElementById('zoom-modal')
+.classList.remove('active');
 }
 
 /* =========================================
-   CARRINHO
+CARRINHO
 ========================================= */
 
 function toggleCarrinho(){
 
-    document.getElementById('sidebar-carrinho')
-        .classList.toggle('translate-x-full');
+document.getElementById('sidebar-carrinho')
+.classList.toggle('translate-x-full');
 }
 
 function adicionarNoCarrinho(id){
 
-    const produto =
-    listaProdutos.find(p=>p.id===id);
+const produto =
+listaProdutos.find(p=>p.id===id);
 
-    const existe =
-    carrinhoCompras.find(i=>i.id===id);
+const existe =
+carrinhoCompras.find(i=>i.id===id);
 
-    if(existe){
+if(existe){
 
-        existe.quantidade++;
+existe.quantidade++;
 
-    }else{
+}else{
 
-        carrinhoCompras.push({
-            ...produto,
-            quantidade:1
-        });
-    }
+carrinhoCompras.push({
 
-    atualizarCarrinho();
+...produto,
+quantidade:1
 
-    document.getElementById('sidebar-carrinho')
-        .classList.remove('translate-x-full');
+});
 }
 
-function modificarQtdItem(id,op){
-
-    const item =
-    carrinhoCompras.find(i=>i.id===id);
-
-    if(!item) return;
-
-    item.quantidade += op;
-
-    if(item.quantidade <= 0){
-
-        carrinhoCompras =
-        carrinhoCompras.filter(i=>i.id!==id);
-    }
-
-    atualizarCarrinho();
+atualizarCarrinho();
 }
 
 function atualizarCarrinho(){
 
-    const container =
-    document.getElementById('itens-carrinho');
+const container =
+document.getElementById('itens-carrinho');
 
-    const contador =
-    document.getElementById('cart-count');
+const contador =
+document.getElementById('cart-count');
 
-    const totalTexto =
-    document.getElementById('total-carrinho');
+let total = 0;
+let itens = 0;
 
-    if(carrinhoCompras.length===0){
+if(carrinhoCompras.length===0){
 
-        container.innerHTML =
-        `<p class="text-center text-gray-400 my-8">
-            Seu carrinho está vazio.
-        </p>`;
+container.innerHTML =
+'<p class="text-center text-gray-400 my-8">Carrinho vazio</p>';
 
-        contador.classList.add('hidden');
+contador.classList.add('hidden');
 
-        totalTexto.textContent = 'R$ 0,00';
+document.getElementById('total-carrinho')
+.textContent = 'R$ 0,00';
 
-        return;
-    }
+return;
+}
 
-    let totalItens = 0;
-    let total = 0;
+container.innerHTML = carrinhoCompras.map(item=>{
 
-    container.innerHTML = carrinhoCompras.map(item=>{
+total += item.preco * item.quantidade;
 
-        totalItens += item.quantidade;
+itens += item.quantidade;
 
-        total += item.preco * item.quantidade;
+return `
 
-        return `
-        <div class="flex items-center justify-between border-b pb-3">
+<div class="flex justify-between items-center border-b pb-2">
 
-            <div>
-                <h4 class="font-bold text-sm">
-                    ${item.nome}
-                </h4>
+<div>
 
-                <p class="text-xs text-amber-600">
-                    R$ ${parseFloat(item.preco).toFixed(2).replace('.',',')}
-                </p>
-            </div>
+<h4 class="font-bold">
+${item.nome}
+</h4>
 
-            <div class="flex items-center gap-2">
+<p class="text-sm text-gray-500">
+${item.quantidade}x
+</p>
 
-                <button onclick="modificarQtdItem('${item.id}',-1)">
-                    -
-                </button>
+</div>
 
-                <span>${item.quantidade}</span>
+<div class="flex items-center gap-2">
 
-                <button onclick="modificarQtdItem('${item.id}',1)">
-                    +
-                </button>
+<button onclick="alterarQtd('${item.id}',-1)"
+class="bg-gray-200 px-2 rounded">
 
-            </div>
+-
 
-        </div>
-        `;
+</button>
 
-    }).join('');
+<button onclick="alterarQtd('${item.id}',1)"
+class="bg-gray-200 px-2 rounded">
 
-    contador.textContent = totalItens;
-    contador.classList.remove('hidden');
++
 
-    totalTexto.textContent =
-    `R$ ${total.toFixed(2).replace('.',',')}`;
+</button>
+
+</div>
+
+</div>
+
+`;
+
+}).join('');
+
+contador.textContent = itens;
+
+contador.classList.remove('hidden');
+
+document.getElementById('total-carrinho')
+.textContent =
+`R$ ${total.toFixed(2)}`;
+}
+
+function alterarQtd(id,valor){
+
+const item =
+carrinhoCompras.find(i=>i.id===id);
+
+item.quantidade += valor;
+
+if(item.quantidade <=0){
+
+carrinhoCompras =
+carrinhoCompras.filter(i=>i.id!==id);
+}
+
+atualizarCarrinho();
 }
 
 /* =========================================
-   WHATSAPP
+TIPO PEDIDO
+========================================= */
+
+function selecionarTipoPedido(tipo){
+
+tipoPedido = tipo;
+
+const entrega =
+document.getElementById('btn-entrega');
+
+const retirada =
+document.getElementById('btn-retirada');
+
+const endereco =
+document.getElementById('box-endereco');
+
+if(tipo === 'entrega'){
+
+entrega.classList.add(
+'bg-amber-500',
+'text-white'
+);
+
+retirada.classList.remove(
+'bg-amber-500',
+'text-white'
+);
+
+retirada.classList.add('bg-gray-200');
+
+endereco.style.display='block';
+
+}else{
+
+retirada.classList.add(
+'bg-amber-500',
+'text-white'
+);
+
+entrega.classList.remove(
+'bg-amber-500',
+'text-white'
+);
+
+entrega.classList.add('bg-gray-200');
+
+endereco.style.display='none';
+}
+}
+
+/* =========================================
+HISTÓRICO
+========================================= */
+
+function buscarHistorico(telefone){
+
+const dados =
+JSON.parse(
+localStorage.getItem('historico_clientes')
+|| '{}'
+);
+
+return dados[telefone] || {
+
+pedidos:0,
+total:0
+
+};
+}
+
+function salvarHistorico(telefone,valor){
+
+const dados =
+JSON.parse(
+localStorage.getItem('historico_clientes')
+|| '{}'
+);
+
+if(!dados[telefone]){
+
+dados[telefone]={
+
+pedidos:0,
+total:0
+
+};
+}
+
+dados[telefone].pedidos +=1;
+
+dados[telefone].total += valor;
+
+localStorage.setItem(
+'historico_clientes',
+JSON.stringify(dados)
+);
+}
+
+function calcularDesconto(telefone,total){
+
+const cliente =
+buscarHistorico(telefone);
+
+let desconto = 0;
+
+if(cliente.pedidos >= 5){
+
+desconto = total * 0.05;
+}
+
+if(cliente.pedidos >= 10){
+
+desconto = total * 0.10;
+}
+
+return desconto;
+}
+
+/* =========================================
+VIP
+========================================= */
+
+function verificarClienteVIP(telefone){
+
+const cliente =
+buscarHistorico(telefone);
+
+const box =
+document.getElementById('info-vip');
+
+if(cliente.pedidos >=5){
+
+box.classList.remove('hidden');
+
+box.innerHTML =
+`
+🎁 Cliente Fidelidade<br>
+Pedidos: ${cliente.pedidos}
+`;
+
+}else{
+
+box.classList.add('hidden');
+}
+}
+
+/* =========================================
+TELEFONE
+========================================= */
+
+document.addEventListener('input',(e)=>{
+
+if(e.target.id === 'cliente-telefone'){
+
+let v =
+e.target.value.replace(/\D/g,'');
+
+v =
+v.replace(/^(\d{2})(\d)/g,'($1) $2');
+
+v =
+v.replace(/(\d)(\d{4})$/,'$1-$2');
+
+e.target.value = v;
+
+verificarClienteVIP(v);
+}
+});
+
+/* =========================================
+WHATSAPP
 ========================================= */
 
 function enviarWhatsApp(){
 
-    if(carrinhoCompras.length===0){
+if(carrinhoCompras.length===0){
 
-        alert('Carrinho vazio');
-        return;
-    }
+alert('Carrinho vazio');
+return;
+}
 
-    const nome =
-    document.getElementById('cliente-nome')
-        .value.trim();
+const nome =
+document.getElementById('cliente-nome')
+.value.trim();
 
-    const endereco =
-    document.getElementById('cliente-endereco')
-        .value.trim();
+const telefone =
+document.getElementById('cliente-telefone')
+.value.trim();
 
-    if(!nome || !endereco){
+const endereco =
+document.getElementById('cliente-endereco')
+.value.trim();
 
-        alert('Preencha nome e endereço');
-        return;
-    }
+if(!nome){
 
-    let msg =
-    `🍔 *NOVO PEDIDO* 🍔\n\n`;
+alert('Informe nome');
+return;
+}
 
-    msg += `Cliente: ${nome}\n`;
-    msg += `Endereço: ${endereco}\n\n`;
+if(!telefone){
 
-    let total = 0;
+alert('Informe telefone');
+return;
+}
 
-    carrinhoCompras.forEach(item=>{
+if(tipoPedido === 'entrega' && !endereco){
 
-        const subtotal =
-        item.preco * item.quantidade;
+alert('Informe endereço');
+return;
+}
 
-        total += subtotal;
+let total = 0;
 
-        msg +=
-        `${item.quantidade}x ${item.nome}\n`;
+let msg =
+`🍔 *NOVO PEDIDO* 🍔\n\n`;
 
-        msg +=
-        `R$ ${subtotal.toFixed(2)}\n\n`;
-    });
+msg += `👤 ${nome}\n`;
+msg += `📞 ${telefone}\n`;
+msg += `🛒 ${tipoPedido}\n`;
 
-    msg += `TOTAL: R$ ${total.toFixed(2)}`;
+if(tipoPedido === 'entrega'){
 
-    window.open(
-        `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMERO}&text=${encodeURIComponent(msg)}`,
-        '_blank'
-    );
+msg += `📍 ${endereco}\n`;
+}
+
+msg += `\n----------------\n\n`;
+
+carrinhoCompras.forEach(item=>{
+
+const subtotal =
+item.preco * item.quantidade;
+
+total += subtotal;
+
+msg +=
+`${item.quantidade}x ${item.nome}\n`;
+
+msg +=
+`R$ ${subtotal.toFixed(2)}\n\n`;
+
+});
+
+const desconto =
+calcularDesconto(
+telefone,
+total
+);
+
+const totalFinal =
+total - desconto;
+
+if(desconto > 0){
+
+msg +=
+`🎁 Desconto: -R$ ${desconto.toFixed(2)}\n`;
+}
+
+msg +=
+`🧾 TOTAL: R$ ${totalFinal.toFixed(2)}`;
+
+salvarHistorico(
+telefone,
+totalFinal
+);
+
+window.open(
+`https://api.whatsapp.com/send?phone=${WHATSAPP_NUMERO}&text=${encodeURIComponent(msg)}`,
+'_blank'
+);
 }
 
 /* =========================================
-   LOGIN
+LOGIN
 ========================================= */
 
 function verificarEstadoLogin(){
 
-    _supabase.auth.onAuthStateChange(
-        (event,session)=>{
+_supabase.auth.onAuthStateChange(
+(event,session)=>{
 
-        if(session){
+if(session){
 
-            document.getElementById('secao-login')
-                .classList.add('hidden');
+document.getElementById('secao-login')
+.classList.add('hidden');
 
-            document.getElementById('secao-admin-painel')
-                .classList.remove('hidden');
+document.getElementById('secao-admin-painel')
+.classList.remove('hidden');
 
-        }else{
+}else{
 
-            document.getElementById('secao-login')
-                .classList.remove('hidden');
+document.getElementById('secao-login')
+.classList.remove('hidden');
 
-            document.getElementById('secao-admin-painel')
-                .classList.add('hidden');
-        }
-    });
+document.getElementById('secao-admin-painel')
+.classList.add('hidden');
+}
+});
 }
 
 async function fazerLogin(){
 
-    const email =
-    document.getElementById('login-email')
-        .value.trim();
+const email =
+document.getElementById('login-email')
+.value;
 
-    const senha =
-    document.getElementById('login-senha')
-        .value.trim();
+const senha =
+document.getElementById('login-senha')
+.value;
 
-    if(!email || !senha){
+const { error } =
+await _supabase.auth.signInWithPassword({
 
-        alert('Preencha todos os campos');
-        return;
-    }
+email,
+password:senha
 
-    const { error } =
-    await _supabase.auth.signInWithPassword({
-        email,
-        password:senha
-    });
+});
 
-    if(error){
+if(error){
 
-        alert(error.message);
-    }
+alert(error.message);
+}
 }
 
 async function fazerLogout(){
 
-    await _supabase.auth.signOut();
+await _supabase.auth.signOut();
 }
 
 /* =========================================
-   SALVAR PRODUTO
+SALVAR PRODUTO
 ========================================= */
 
 async function salvarProduto(e){
 
-    e.preventDefault();
+e.preventDefault();
 
-    const btn =
-    document.getElementById('btn-cadastrar');
+const nome =
+document.getElementById('prod-nome')
+.value;
 
-    const nome =
-    document.getElementById('prod-nome')
-        .value.trim();
+const descricao =
+document.getElementById('prod-descricao')
+.value;
 
-    const descricao =
-    document.getElementById('prod-descricao')
-        .value.trim();
+const categoria =
+document.getElementById('prod-categoria')
+.value;
 
-    const categoria =
-    document.getElementById('prod-categoria')
-        .value;
+const preco =
+parseFloat(
+document.getElementById('prod-preco')
+.value
+);
 
-    const preco =
-    parseFloat(
-        document.getElementById('prod-preco')
-        .value
-    );
+const arquivo =
+document.getElementById('prod-imagem')
+.files[0];
 
-    const arquivo =
-    document.getElementById('prod-imagem')
-        .files[0];
+if(!arquivo){
 
-    if(!arquivo){
+alert('Selecione imagem');
+return;
+}
 
-        alert('Selecione imagem');
-        return;
-    }
+const nomeArquivo =
+Date.now() + '_' + arquivo.name;
 
-    btn.disabled = true;
+const { error:uploadError } =
+await _supabase.storage
+.from('imagens-produtos')
+.upload(nomeArquivo,arquivo);
 
-    btn.innerHTML =
-    `<i class="fas fa-spinner fa-spin"></i> Enviando`;
+if(uploadError){
 
-    try{
+alert(uploadError.message);
+return;
+}
 
-        const ext =
-        arquivo.name.split('.').pop();
+const { data:urlData } =
+_supabase.storage
+.from('imagens-produtos')
+.getPublicUrl(nomeArquivo);
 
-        const nomeArquivo =
-        `${Date.now()}_produto.${ext}`;
+const imagem_url =
+urlData.publicUrl;
 
-        const { error:upError } =
-        await _supabase.storage
-            .from('imagens-produtos')
-            .upload(nomeArquivo,arquivo);
+const { error } =
+await _supabase
+.from('produtos')
+.insert([{
 
-        if(upError) throw upError;
+nome,
+descricao,
+categoria,
+preco,
+imagem_url
 
-        const { data:urlData } =
-        _supabase.storage
-            .from('imagens-produtos')
-            .getPublicUrl(nomeArquivo);
+}]);
 
-        const imagem_url =
-        urlData.publicUrl;
+if(error){
 
-        const { error:dbError } =
-        await _supabase
-            .from('produtos')
-            .insert([
-                {
-                    nome,
-                    descricao,
-                    categoria,
-                    preco,
-                    imagem_url
-                }
-            ]);
+alert(error.message);
+return;
+}
 
-        if(dbError) throw dbError;
+alert('Produto cadastrado');
 
-        alert('Produto cadastrado');
+document.getElementById('form-produto')
+.reset();
 
-        document.getElementById('form-produto')
-            .reset();
+carregarProdutosDoBanco();
+}
 
-        carregarProdutosDoBanco();
+/* =========================================
+CRIAR CATEGORIA
+========================================= */
 
-        mudarAba('catalogo');
+function criarCategoria(){
 
-    }catch(err){
+const input =
+document.getElementById('nova-categoria');
 
-        alert(err.message);
+const nome =
+input.value.trim();
 
-    }finally{
+if(!nome){
 
-        btn.disabled = false;
+alert('Digite categoria');
+return;
+}
 
-        btn.innerHTML =
-        `<i class="fas fa-cloud-upload-alt"></i>
-         Publicar no Catálogo`;
-    }
+const select =
+document.getElementById('prod-categoria');
+
+const option =
+document.createElement('option');
+
+option.value =
+nome.toLowerCase();
+
+option.textContent =
+nome;
+
+select.appendChild(option);
+
+input.value = '';
+
+atualizarCategoriasFiltro();
+}
+
+/* =========================================
+FILTROS
+========================================= */
+
+function atualizarCategoriasFiltro(){
+
+const select =
+document.getElementById('prod-categoria');
+
+const container =
+document.getElementById('filtros-categorias');
+
+container.innerHTML =
+
+`
+<button onclick="filtrarCategoria('todos',this)"
+class="categoria-btn categoria-ativa bg-white border p-3 rounded-xl shadow font-bold">
+
+🍔 Todos
+
+</button>
+`;
+
+[...select.options].forEach(op=>{
+
+container.innerHTML +=
+
+`
+<button onclick="filtrarCategoria('${op.value}',this)"
+class="categoria-btn bg-white border p-3 rounded-xl shadow">
+
+${op.textContent}
+
+</button>
+`;
+});
 }
 
 </script>
