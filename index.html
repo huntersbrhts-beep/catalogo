@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Big Lanche</title>
+<title>Du Lanches</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.tailwindcss.com"></script>
@@ -13,6 +13,26 @@
 href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
+
+:root{
+--primary:#ff7a00;
+--primary-dark:#e86800;
+--bg:#0f0f10;
+--card:#1a1a1d;
+--text:#ffffff;
+--muted:#b3b3b3;
+--border:#2a2a2d;
+}
+
+body{
+background:
+linear-gradient(
+180deg,
+#0f0f10 0%,
+#1a1a1d 100%
+);
+color:var(--text);
+}
 
 .zoom-modal{
 display:none;
@@ -30,43 +50,149 @@ display:none;
 display:block;
 }
 
+header{
+background:rgba(15,15,16,0.92);
+backdrop-filter:blur(10px);
+border-bottom:1px solid rgba(255,255,255,0.05);
+}
+
 .categoria-ativa{
-background:#f59e0b !important;
-color:white !important;
-border-color:#f59e0b !important;
+background:
+linear-gradient(
+135deg,
+#ff7a00,
+#ff9d00
+)!important;
+
+color:white!important;
+border:none!important;
+box-shadow:0 10px 25px rgba(255,122,0,0.35);
+}
+
+.categoria-btn{
+background:#1a1a1d;
+color:#fff;
+border:1px solid #2a2a2d;
+transition:0.3s;
+}
+
+.categoria-btn:hover{
+transform:translateY(-2px);
+box-shadow:0 8px 20px rgba(0,0,0,0.3);
+}
+
+.card-produto{
+background:#1a1a1d;
+border:1px solid #2a2a2d;
+border-radius:22px;
+overflow:hidden;
+transition:0.35s;
+}
+
+.card-produto:hover{
+transform:translateY(-5px);
+box-shadow:0 15px 35px rgba(0,0,0,0.35);
+}
+
+.card-produto img{
+transition:0.4s;
+}
+
+.card-produto:hover img{
+transform:scale(1.06);
+}
+
+.btn-primary{
+background:
+linear-gradient(
+135deg,
+#ff7a00,
+#ff9d00
+);
+
+color:white;
+font-weight:bold;
+border:none;
+transition:0.3s;
+}
+
+.btn-primary:hover{
+transform:translateY(-2px);
+filter:brightness(1.05);
+}
+
+.glass{
+background:rgba(255,255,255,0.04);
+backdrop-filter:blur(12px);
+border:1px solid rgba(255,255,255,0.06);
+}
+
+input,
+textarea,
+select{
+background:#111!important;
+color:#fff!important;
+border:1px solid #2a2a2d!important;
+}
+
+input::placeholder,
+textarea::placeholder{
+color:#777;
+}
+
+#sidebar-carrinho{
+background:#161618!important;
+color:#fff;
+}
+
+#sidebar-carrinho .bg-gray-50,
+#sidebar-carrinho .bg-gray-100{
+background:#1c1c20!important;
 }
 
 </style>
+
 </head>
 
-<body class="bg-gray-50 font-sans flex flex-col min-h-screen">
+<body class="font-sans flex flex-col min-h-screen">
 
 <!-- HEADER -->
-<header class="bg-amber-500 text-white shadow-md sticky top-0 z-40">
+<header class="sticky top-0 z-40">
 
-<div class="container mx-auto px-4 py-3 flex justify-between items-center">
+<div class="container mx-auto px-4 py-4 flex justify-between items-center">
 
-<h1 class="text-2xl font-bold tracking-wider cursor-pointer"
+<div>
+
+<h1 class="text-3xl font-black tracking-wide cursor-pointer"
 onclick="mudarAba('catalogo')">
 
-BIG LANCHE
+<span class="text-orange-500">DU</span>
+LANCHES
 
 </h1>
 
-<div class="flex items-center gap-4">
+<p class="text-xs text-gray-400 tracking-[4px] uppercase">
+
+Hambúrguer Artesanal
+
+</p>
+
+</div>
+
+<div class="flex items-center gap-3">
 
 <button onclick="mudarAba('admin')"
-class="text-sm bg-amber-600 hover:bg-amber-700 px-3 py-2 rounded-lg font-semibold transition flex items-center gap-2">
+class="glass px-4 py-2 rounded-xl text-sm font-semibold hover:scale-105 transition">
 
-<i class="fas fa-lock"></i>
-Painel Admin
+<i class="fas fa-lock mr-2"></i>
+Admin
 
 </button>
 
 <button onclick="toggleCarrinho()"
-class="relative p-2 bg-amber-600 rounded-full hover:bg-amber-700 transition">
+class="relative btn-primary p-3 rounded-2xl shadow-lg">
 
-<i class="fas fa-shopping-cart text-xl"></i>
+<i class="fas fa-shopping-bag text-xl"></i>
 
 <span id="cart-count"
 class="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold hidden">
@@ -83,28 +209,67 @@ class="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-fu
 
 </header>
 
+<!-- HERO -->
+<section class="relative overflow-hidden">
+
+<div class="container mx-auto px-4 py-10 md:py-16">
+
+<div class="grid md:grid-cols-2 gap-10 items-center">
+
+<div>
+
+<span class="inline-block bg-orange-500/20 text-orange-400 px-4 py-2 rounded-full text-sm font-bold mb-4">
+
+🍔 O Melhor Lanche da Cidade
+
+</span>
+
+<h2 class="text-5xl md:text-6xl font-black leading-tight mb-6">
+
+Sabor que
+<span class="text-orange-500">marca</span>
+memórias.
+
+</h2>
+
+<p class="text-gray-400 text-lg leading-relaxed mb-8">
+
+Hambúrguer artesanal, combos especiais e entrega rápida.
+
+</p>
+
+<button onclick="toggleCarrinho()"
+class="btn-primary px-8 py-4 rounded-2xl text-lg shadow-2xl">
+
+Fazer Pedido
+
+</button>
+
+</div>
+
+<div>
+
+<img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1200&auto=format&fit=crop"
+class="rounded-[30px] shadow-2xl w-full object-cover h-[450px]">
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
 <!-- CATÁLOGO -->
 <main id="aba-catalogo"
 class="tab-content active container mx-auto p-4 flex-grow">
 
-<div class="bg-orange-100 border-l-4 border-orange-500 text-orange-700 p-4 mb-6 rounded shadow-sm">
-
-<p class="font-bold">
-Bem-vindo ao Big Lanche!
-</p>
-
-<p class="text-sm">
-Faça seu pedido pelo WhatsApp.
-</p>
-
-</div>
-
 <!-- FILTROS -->
 <div id="filtros-categorias"
-class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
 
 <button onclick="filtrarCategoria('todos',this)"
-class="categoria-btn categoria-ativa bg-white border p-3 rounded-xl shadow font-bold">
+class="categoria-btn categoria-ativa p-3 rounded-xl shadow font-bold">
 
 🍔 Todos
 
@@ -115,16 +280,6 @@ class="categoria-btn categoria-ativa bg-white border p-3 rounded-xl shadow font-
 <!-- PRODUTOS -->
 <div id="grid-produtos"
 class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-
-<div class="col-span-full text-center py-12 text-gray-500">
-
-<i class="fas fa-spinner fa-spin text-3xl mb-2"></i>
-
-<p>
-Carregando cardápio...
-</p>
-
-</div>
 
 </div>
 
@@ -137,37 +292,36 @@ class="tab-content container mx-auto p-4 flex-grow">
 <div class="max-w-2xl mx-auto mt-6">
 
 <button onclick="mudarAba('catalogo')"
-class="mb-4 text-amber-600 hover:text-amber-700 font-semibold flex items-center gap-1">
+class="mb-4 text-orange-400 hover:text-orange-500 font-semibold">
 
-<i class="fas fa-arrow-left"></i>
-Voltar
+← Voltar
 
 </button>
 
 <!-- LOGIN -->
 <div id="secao-login"
-class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+class="glass p-6 rounded-2xl">
 
-<h2 class="text-xl font-bold mb-4 text-center text-gray-800">
+<h2 class="text-2xl font-bold mb-6 text-center">
 
 Login Admin
 
 </h2>
 
-<div class="space-y-3">
+<div class="space-y-4">
 
 <input type="email"
 id="login-email"
 placeholder="E-mail"
-class="w-full p-2 border rounded">
+class="w-full p-3 rounded-xl">
 
 <input type="password"
 id="login-senha"
 placeholder="Senha"
-class="w-full p-2 border rounded">
+class="w-full p-3 rounded-xl">
 
 <button onclick="fazerLogin()"
-class="w-full bg-amber-500 text-white p-2 rounded font-bold">
+class="w-full btn-primary p-3 rounded-xl">
 
 Entrar
 
@@ -179,16 +333,18 @@ Entrar
 
 <!-- PAINEL -->
 <div id="secao-admin-painel"
-class="bg-white p-6 rounded-xl shadow-md border border-gray-200 hidden">
+class="glass p-6 rounded-2xl hidden">
 
-<div class="flex justify-between items-center mb-6 border-b pb-3">
+<div class="flex justify-between items-center mb-6">
 
-<h2 class="text-2xl font-bold text-gray-800">
+<h2 class="text-2xl font-bold">
+
 Novo Produto
+
 </h2>
 
 <button onclick="fazerLogout()"
-class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded text-sm font-semibold">
+class="bg-gray-700 px-4 py-2 rounded-xl">
 
 Sair
 
@@ -204,24 +360,23 @@ class="space-y-4">
 id="prod-nome"
 placeholder="Nome"
 required
-class="w-full p-2 border rounded">
+class="w-full p-3 rounded-xl">
 
 <textarea id="prod-descricao"
 placeholder="Descrição"
 rows="3"
-class="w-full p-2 border rounded"></textarea>
+class="w-full p-3 rounded-xl"></textarea>
 
-<!-- NOVA CATEGORIA -->
 <div class="flex gap-2">
 
 <input type="text"
 id="nova-categoria"
 placeholder="Nova categoria"
-class="flex-1 p-2 border rounded">
+class="flex-1 p-3 rounded-xl">
 
 <button type="button"
 onclick="criarCategoria()"
-class="bg-amber-500 text-white px-4 rounded font-bold">
+class="btn-primary px-4 rounded-xl">
 
 +
 
@@ -230,7 +385,7 @@ class="bg-amber-500 text-white px-4 rounded font-bold">
 </div>
 
 <select id="prod-categoria"
-class="w-full p-2 border rounded">
+class="w-full p-3 rounded-xl">
 
 <option value="hamburguer">Hambúrguer</option>
 <option value="bebida">Bebida</option>
@@ -243,17 +398,16 @@ step="0.01"
 id="prod-preco"
 placeholder="Preço"
 required
-class="w-full p-2 border rounded">
+class="w-full p-3 rounded-xl">
 
 <input type="file"
 id="prod-imagem"
 accept="image/*"
 required
-class="w-full p-2 border rounded">
+class="w-full p-3 rounded-xl">
 
 <button type="submit"
-id="btn-cadastrar"
-class="w-full bg-green-500 text-white p-3 rounded-lg font-bold">
+class="w-full btn-primary p-4 rounded-xl text-lg">
 
 Cadastrar Produto
 
@@ -269,11 +423,11 @@ Cadastrar Produto
 
 <!-- CARRINHO -->
 <div id="sidebar-carrinho"
-class="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col">
+class="fixed inset-y-0 right-0 w-full max-w-md shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col">
 
-<div class="p-4 bg-gray-100 flex justify-between items-center border-b">
+<div class="p-4 flex justify-between items-center border-b border-gray-700">
 
-<h3 class="text-lg font-bold text-gray-800">
+<h3 class="text-lg font-bold">
 
 Seu Pedido
 
@@ -291,22 +445,24 @@ class="text-2xl font-bold">
 <div id="itens-carrinho"
 class="p-4 flex-grow overflow-y-auto space-y-4">
 
-<p class="text-center text-gray-400 my-8">
+<p class="text-center text-gray-500">
 
-Seu carrinho está vazio.
+Carrinho vazio
 
 </p>
 
 </div>
 
-<div class="p-4 border-t bg-gray-50 space-y-3">
+<div class="p-4 border-t border-gray-700 space-y-3">
 
 <div class="flex justify-between font-bold text-lg">
 
 <span>Total:</span>
 
 <span id="total-carrinho">
+
 R$ 0,00
+
 </span>
 
 </div>
@@ -314,20 +470,19 @@ R$ 0,00
 <input type="text"
 id="cliente-nome"
 placeholder="Seu nome"
-class="w-full p-2 border rounded">
+class="w-full p-3 rounded-xl">
 
 <input type="text"
 id="cliente-telefone"
 placeholder="Seu telefone"
-class="w-full p-2 border rounded">
+class="w-full p-3 rounded-xl">
 
-<!-- ENTREGA -->
 <div class="flex gap-2">
 
 <button type="button"
 id="btn-entrega"
 onclick="selecionarTipoPedido('entrega')"
-class="flex-1 bg-amber-500 text-white py-2 rounded font-bold">
+class="flex-1 btn-primary py-3 rounded-xl">
 
 🚚 Entrega
 
@@ -336,7 +491,7 @@ class="flex-1 bg-amber-500 text-white py-2 rounded font-bold">
 <button type="button"
 id="btn-retirada"
 onclick="selecionarTipoPedido('retirada')"
-class="flex-1 bg-gray-200 text-gray-700 py-2 rounded font-bold">
+class="flex-1 bg-gray-700 py-3 rounded-xl">
 
 🛍️ Retirada
 
@@ -344,23 +499,22 @@ class="flex-1 bg-gray-200 text-gray-700 py-2 rounded font-bold">
 
 </div>
 
-<!-- ENDEREÇO -->
 <div id="box-endereco">
 
 <input type="text"
 id="cliente-endereco"
 placeholder="Seu endereço"
-class="w-full p-2 border rounded">
+class="w-full p-3 rounded-xl">
 
 </div>
 
-<!-- VIP -->
 <div id="info-vip"
-class="hidden bg-green-100 text-green-700 p-2 rounded text-sm font-semibold">
+class="hidden bg-green-500/20 text-green-400 p-3 rounded-xl text-sm">
+
 </div>
 
 <button onclick="enviarWhatsApp()"
-class="w-full bg-green-500 text-white py-3 rounded-lg font-bold">
+class="w-full bg-green-500 hover:bg-green-600 text-white py-4 rounded-xl font-bold text-lg">
 
 <i class="fab fa-whatsapp"></i>
 
@@ -369,24 +523,6 @@ Enviar Pedido
 </button>
 
 </div>
-
-</div>
-
-<!-- ZOOM -->
-<div id="zoom-modal"
-class="zoom-modal fixed inset-0 bg-black bg-opacity-90 z-50 items-center justify-center p-4"
-onclick="fecharZoom()">
-
-<span class="absolute top-4 right-4 text-white text-4xl cursor-pointer font-bold">
-
-×
-
-</span>
-
-<img id="img-zoom"
-class="max-w-full max-h-full rounded-lg shadow-2xl"
-src=""
-alt="Zoom">
 
 </div>
 
@@ -433,6 +569,7 @@ carregarProdutosDoBanco();
 verificarEstadoLogin();
 
 atualizarCategoriasFiltro();
+
 });
 
 /* =========================================
@@ -473,7 +610,7 @@ renderizarProdutosNoHtml();
 }
 
 /* =========================================
-PRODUTOS
+CARREGAR PRODUTOS
 ========================================= */
 
 async function carregarProdutosDoBanco(){
@@ -494,6 +631,10 @@ listaProdutos = data || [];
 renderizarProdutosNoHtml();
 }
 
+/* =========================================
+RENDERIZAR
+========================================= */
+
 function renderizarProdutosNoHtml(){
 
 const grid =
@@ -512,32 +653,31 @@ p.categoria === categoriaAtual
 if(produtos.length===0){
 
 grid.innerHTML =
-'<p class="col-span-full text-center text-gray-400">Nenhum produto</p>';
+'<p class="col-span-full text-center text-gray-500">Nenhum produto encontrado</p>';
 
 return;
 }
 
 grid.innerHTML = produtos.map(prod=>`
 
-<div class="bg-white rounded-xl shadow-md overflow-hidden">
+<div class="card-produto">
 
-<div class="overflow-hidden h-48 cursor-pointer"
-onclick="abrirZoom('${prod.imagem_url}')">
+<div class="overflow-hidden h-52">
 
 <img src="${prod.imagem_url}"
-class="w-full h-full object-cover hover:scale-105 transition">
+class="w-full h-full object-cover">
 
 </div>
 
-<div class="p-4">
+<div class="p-5">
 
-<h3 class="font-bold text-gray-800">
+<h3 class="font-bold text-xl mb-2">
 
 ${prod.nome}
 
 </h3>
 
-<p class="text-gray-500 text-sm mb-3">
+<p class="text-gray-400 text-sm mb-4">
 
 ${prod.descricao || ''}
 
@@ -545,14 +685,14 @@ ${prod.descricao || ''}
 
 <div class="flex justify-between items-center">
 
-<span class="text-amber-600 font-bold">
+<span class="text-orange-400 font-bold text-lg">
 
 R$ ${parseFloat(prod.preco).toFixed(2)}
 
 </span>
 
 <button onclick="adicionarNoCarrinho('${prod.id}')"
-class="bg-amber-500 text-white px-3 py-1 rounded">
+class="btn-primary px-4 py-2 rounded-xl shadow-lg">
 
 Adicionar
 
@@ -565,24 +705,6 @@ Adicionar
 </div>
 
 `).join('');
-}
-
-/* =========================================
-ZOOM
-========================================= */
-
-function abrirZoom(url){
-
-document.getElementById('img-zoom').src = url;
-
-document.getElementById('zoom-modal')
-.classList.add('active');
-}
-
-function fecharZoom(){
-
-document.getElementById('zoom-modal')
-.classList.remove('active');
 }
 
 /* =========================================
@@ -634,12 +756,12 @@ let itens = 0;
 if(carrinhoCompras.length===0){
 
 container.innerHTML =
-'<p class="text-center text-gray-400 my-8">Carrinho vazio</p>';
+'<p class="text-center text-gray-500">Carrinho vazio</p>';
 
 contador.classList.add('hidden');
 
 document.getElementById('total-carrinho')
-.textContent = 'R$ 0,00';
+.textContent='R$ 0,00';
 
 return;
 }
@@ -652,7 +774,7 @@ itens += item.quantidade;
 
 return `
 
-<div class="flex justify-between items-center border-b pb-2">
+<div class="flex justify-between items-center border-b border-gray-700 pb-3">
 
 <div>
 
@@ -660,7 +782,7 @@ return `
 ${item.nome}
 </h4>
 
-<p class="text-sm text-gray-500">
+<p class="text-gray-400 text-sm">
 ${item.quantidade}x
 </p>
 
@@ -669,14 +791,14 @@ ${item.quantidade}x
 <div class="flex items-center gap-2">
 
 <button onclick="alterarQtd('${item.id}',-1)"
-class="bg-gray-200 px-2 rounded">
+class="bg-gray-700 px-3 py-1 rounded">
 
 -
 
 </button>
 
 <button onclick="alterarQtd('${item.id}',1)"
-class="bg-gray-200 px-2 rounded">
+class="bg-gray-700 px-3 py-1 rounded">
 
 +
 
@@ -723,46 +845,16 @@ function selecionarTipoPedido(tipo){
 
 tipoPedido = tipo;
 
-const entrega =
-document.getElementById('btn-entrega');
-
-const retirada =
-document.getElementById('btn-retirada');
-
 const endereco =
 document.getElementById('box-endereco');
 
-if(tipo === 'entrega'){
+if(tipo === 'retirada'){
 
-entrega.classList.add(
-'bg-amber-500',
-'text-white'
-);
-
-retirada.classList.remove(
-'bg-amber-500',
-'text-white'
-);
-
-retirada.classList.add('bg-gray-200');
-
-endereco.style.display='block';
+endereco.style.display='none';
 
 }else{
 
-retirada.classList.add(
-'bg-amber-500',
-'text-white'
-);
-
-entrega.classList.remove(
-'bg-amber-500',
-'text-white'
-);
-
-entrega.classList.add('bg-gray-200');
-
-endereco.style.display='none';
+endereco.style.display='block';
 }
 }
 
@@ -835,57 +927,6 @@ return desconto;
 }
 
 /* =========================================
-VIP
-========================================= */
-
-function verificarClienteVIP(telefone){
-
-const cliente =
-buscarHistorico(telefone);
-
-const box =
-document.getElementById('info-vip');
-
-if(cliente.pedidos >=5){
-
-box.classList.remove('hidden');
-
-box.innerHTML =
-`
-🎁 Cliente Fidelidade<br>
-Pedidos: ${cliente.pedidos}
-`;
-
-}else{
-
-box.classList.add('hidden');
-}
-}
-
-/* =========================================
-TELEFONE
-========================================= */
-
-document.addEventListener('input',(e)=>{
-
-if(e.target.id === 'cliente-telefone'){
-
-let v =
-e.target.value.replace(/\D/g,'');
-
-v =
-v.replace(/^(\d{2})(\d)/g,'($1) $2');
-
-v =
-v.replace(/(\d)(\d{4})$/,'$1-$2');
-
-e.target.value = v;
-
-verificarClienteVIP(v);
-}
-});
-
-/* =========================================
 WHATSAPP
 ========================================= */
 
@@ -930,7 +971,7 @@ return;
 let total = 0;
 
 let msg =
-`🍔 *NOVO PEDIDO* 🍔\n\n`;
+`🍔 *NOVO PEDIDO - DU LANCHES* 🍔\n\n`;
 
 msg += `👤 ${nome}\n`;
 msg += `📞 ${telefone}\n`;
@@ -1074,12 +1115,6 @@ const arquivo =
 document.getElementById('prod-imagem')
 .files[0];
 
-if(!arquivo){
-
-alert('Selecione imagem');
-return;
-}
-
 const nomeArquivo =
 Date.now() + '_' + arquivo.name;
 
@@ -1130,7 +1165,7 @@ carregarProdutosDoBanco();
 }
 
 /* =========================================
-CRIAR CATEGORIA
+CATEGORIA
 ========================================= */
 
 function criarCategoria(){
@@ -1166,10 +1201,6 @@ input.value = '';
 atualizarCategoriasFiltro();
 }
 
-/* =========================================
-FILTROS
-========================================= */
-
 function atualizarCategoriasFiltro(){
 
 const select =
@@ -1182,7 +1213,7 @@ container.innerHTML =
 
 `
 <button onclick="filtrarCategoria('todos',this)"
-class="categoria-btn categoria-ativa bg-white border p-3 rounded-xl shadow font-bold">
+class="categoria-btn categoria-ativa p-3 rounded-xl shadow font-bold">
 
 🍔 Todos
 
@@ -1195,7 +1226,7 @@ container.innerHTML +=
 
 `
 <button onclick="filtrarCategoria('${op.value}',this)"
-class="categoria-btn bg-white border p-3 rounded-xl shadow">
+class="categoria-btn p-3 rounded-xl shadow">
 
 ${op.textContent}
 
