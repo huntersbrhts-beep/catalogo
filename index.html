@@ -544,140 +544,271 @@ function fecharZoom(){
         .classList.remove('active');
 }
 
+<!-- ============================
+SUBSTITUIR APENAS O BLOCO DO CARRINHO
+PELO BLOCO ABAIXO
+============================= -->
+
+<div id="sidebar-carrinho"
+     class="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col">
+
+    <div class="p-4 bg-gray-100 flex justify-between items-center border-b">
+        <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+            <i class="fas fa-shopping-basket text-amber-500"></i>
+            Seu Pedido
+        </h3>
+
+        <button onclick="toggleCarrinho()"
+                class="text-gray-500 hover:text-gray-800 text-2xl font-bold">
+            ×
+        </button>
+    </div>
+
+    <div id="itens-carrinho"
+         class="p-4 flex-grow overflow-y-auto space-y-4">
+
+        <p class="text-center text-gray-400 my-8">
+            Seu carrinho está vazio.
+        </p>
+
+    </div>
+
+    <div class="p-4 border-t bg-gray-50 space-y-3">
+
+        <div class="flex justify-between font-bold text-lg text-gray-800">
+            <span>Total:</span>
+            <span id="total-carrinho">R$ 0,00</span>
+        </div>
+
+        <!-- NOME -->
+        <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">
+                Nome *
+            </label>
+
+            <input type="text"
+                   id="cliente-nome"
+                   placeholder="Seu nome"
+                   class="w-full p-2 border text-sm rounded">
+        </div>
+
+        <!-- TELEFONE -->
+        <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">
+                Telefone *
+            </label>
+
+            <input type="tel"
+                   id="cliente-telefone"
+                   placeholder="(34) 99999-9999"
+                   class="w-full p-2 border text-sm rounded">
+        </div>
+
+        <!-- TIPO -->
+        <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-2">
+                Tipo do Pedido *
+            </label>
+
+            <div class="flex gap-2">
+
+                <button type="button"
+                        onclick="selecionarTipoPedido('entrega')"
+                        id="btn-entrega"
+                        class="flex-1 bg-amber-500 text-white py-2 rounded font-bold">
+
+                    🚚 Entrega
+                </button>
+
+                <button type="button"
+                        onclick="selecionarTipoPedido('retirada')"
+                        id="btn-retirada"
+                        class="flex-1 bg-gray-200 text-gray-700 py-2 rounded font-bold">
+
+                    🛍️ Retirada
+                </button>
+
+            </div>
+        </div>
+
+        <!-- ENDEREÇO -->
+        <div id="box-endereco">
+
+            <label class="block text-xs font-semibold text-gray-600 mb-1">
+                Endereço *
+            </label>
+
+            <input type="text"
+                   id="cliente-endereco"
+                   placeholder="Rua, Número, Bairro"
+                   class="w-full p-2 border text-sm rounded">
+
+        </div>
+
+        <!-- DESCONTO -->
+        <div id="info-desconto"
+             class="hidden bg-green-100 text-green-700 p-2 rounded text-sm font-semibold">
+        </div>
+
+        <button onclick="enviarWhatsApp()"
+                class="w-full bg-green-500 text-white py-3 rounded-lg font-bold hover:bg-green-600 transition flex items-center justify-center gap-2 text-base shadow-md">
+
+            <i class="fab fa-whatsapp text-xl"></i>
+            Enviar Pedido
+        </button>
+
+    </div>
+</div>
+
+<!-- ============================
+ADICIONAR ESSE SCRIPT
+ANTES DO </script>
+============================= -->
+
+<script>
+
 /* =========================================
-   CARRINHO
+TIPO PEDIDO
 ========================================= */
 
-function toggleCarrinho(){
+let tipoPedido = 'entrega';
 
-    document.getElementById('sidebar-carrinho')
-        .classList.toggle('translate-x-full');
-}
+function selecionarTipoPedido(tipo){
 
-function adicionarNoCarrinho(id){
+    tipoPedido = tipo;
 
-    const produto =
-    listaProdutos.find(p=>p.id===id);
+    const btnEntrega =
+    document.getElementById('btn-entrega');
 
-    const existe =
-    carrinhoCompras.find(i=>i.id===id);
+    const btnRetirada =
+    document.getElementById('btn-retirada');
 
-    if(existe){
+    const boxEndereco =
+    document.getElementById('box-endereco');
 
-        existe.quantidade++;
+    if(tipo === 'entrega'){
+
+        btnEntrega.className =
+        'flex-1 bg-amber-500 text-white py-2 rounded font-bold';
+
+        btnRetirada.className =
+        'flex-1 bg-gray-200 text-gray-700 py-2 rounded font-bold';
+
+        boxEndereco.style.display = 'block';
 
     }else{
 
-        carrinhoCompras.push({
-            ...produto,
-            quantidade:1
-        });
+        btnRetirada.className =
+        'flex-1 bg-amber-500 text-white py-2 rounded font-bold';
+
+        btnEntrega.className =
+        'flex-1 bg-gray-200 text-gray-700 py-2 rounded font-bold';
+
+        boxEndereco.style.display = 'none';
     }
-
-    atualizarCarrinho();
-
-    document.getElementById('sidebar-carrinho')
-        .classList.remove('translate-x-full');
-}
-
-function modificarQtdItem(id,op){
-
-    const item =
-    carrinhoCompras.find(i=>i.id===id);
-
-    if(!item) return;
-
-    item.quantidade += op;
-
-    if(item.quantidade <= 0){
-
-        carrinhoCompras =
-        carrinhoCompras.filter(i=>i.id!==id);
-    }
-
-    atualizarCarrinho();
-}
-
-function atualizarCarrinho(){
-
-    const container =
-    document.getElementById('itens-carrinho');
-
-    const contador =
-    document.getElementById('cart-count');
-
-    const totalTexto =
-    document.getElementById('total-carrinho');
-
-    if(carrinhoCompras.length===0){
-
-        container.innerHTML =
-        `<p class="text-center text-gray-400 my-8">
-            Seu carrinho está vazio.
-        </p>`;
-
-        contador.classList.add('hidden');
-
-        totalTexto.textContent = 'R$ 0,00';
-
-        return;
-    }
-
-    let totalItens = 0;
-    let total = 0;
-
-    container.innerHTML = carrinhoCompras.map(item=>{
-
-        totalItens += item.quantidade;
-
-        total += item.preco * item.quantidade;
-
-        return `
-        <div class="flex items-center justify-between border-b pb-3">
-
-            <div>
-                <h4 class="font-bold text-sm">
-                    ${item.nome}
-                </h4>
-
-                <p class="text-xs text-amber-600">
-                    R$ ${parseFloat(item.preco).toFixed(2).replace('.',',')}
-                </p>
-            </div>
-
-            <div class="flex items-center gap-2">
-
-                <button onclick="modificarQtdItem('${item.id}',-1)">
-                    -
-                </button>
-
-                <span>${item.quantidade}</span>
-
-                <button onclick="modificarQtdItem('${item.id}',1)">
-                    +
-                </button>
-
-            </div>
-
-        </div>
-        `;
-
-    }).join('');
-
-    contador.textContent = totalItens;
-    contador.classList.remove('hidden');
-
-    totalTexto.textContent =
-    `R$ ${total.toFixed(2).replace('.',',')}`;
 }
 
 /* =========================================
-   WHATSAPP
+MÁSCARA TELEFONE
+========================================= */
+
+document.addEventListener('input',(e)=>{
+
+    if(e.target.id === 'cliente-telefone'){
+
+        let v = e.target.value
+            .replace(/\D/g,'');
+
+        v = v.replace(/^(\d{2})(\d)/g,'($1) $2');
+        v = v.replace(/(\d)(\d{4})$/,'$1-$2');
+
+        e.target.value = v;
+    }
+});
+
+/* =========================================
+HISTÓRICO CLIENTE
+========================================= */
+
+function buscarHistoricoCliente(telefone){
+
+    const historico =
+    JSON.parse(
+        localStorage.getItem('historico_clientes')
+        || '{}'
+    );
+
+    return historico[telefone] || {
+        pedidos:0,
+        total:0
+    };
+}
+
+/* =========================================
+SALVAR HISTÓRICO
+========================================= */
+
+function salvarHistoricoCliente(
+    telefone,
+    valor
+){
+
+    const historico =
+    JSON.parse(
+        localStorage.getItem('historico_clientes')
+        || '{}'
+    );
+
+    if(!historico[telefone]){
+
+        historico[telefone] = {
+            pedidos:0,
+            total:0
+        };
+    }
+
+    historico[telefone].pedidos += 1;
+
+    historico[telefone].total += valor;
+
+    localStorage.setItem(
+        'historico_clientes',
+        JSON.stringify(historico)
+    );
+}
+
+/* =========================================
+DESCONTO AUTOMÁTICO
+========================================= */
+
+function calcularDesconto(telefone,total){
+
+    const cliente =
+    buscarHistoricoCliente(telefone);
+
+    let desconto = 0;
+
+    if(cliente.pedidos >= 5){
+
+        desconto = total * 0.05;
+    }
+
+    if(cliente.pedidos >= 10){
+
+        desconto = total * 0.10;
+    }
+
+    return desconto;
+}
+
+/* =========================================
+ALTERAR FUNÇÃO enviarWhatsApp()
+SUBSTITUIR COMPLETAMENTE
 ========================================= */
 
 function enviarWhatsApp(){
 
-    if(carrinhoCompras.length===0){
+    if(carrinhoCompras.length === 0){
 
         alert('Carrinho vazio');
         return;
@@ -687,211 +818,241 @@ function enviarWhatsApp(){
     document.getElementById('cliente-nome')
         .value.trim();
 
+    const telefone =
+    document.getElementById('cliente-telefone')
+        .value.trim();
+
     const endereco =
     document.getElementById('cliente-endereco')
         .value.trim();
 
-    if(!nome || !endereco){
+    if(!nome){
 
-        alert('Preencha nome e endereço');
+        alert('Informe o nome');
         return;
     }
 
-    let msg =
-    `🍔 *NOVO PEDIDO* 🍔\n\n`;
+    if(!telefone){
 
-    msg += `Cliente: ${nome}\n`;
-    msg += `Endereço: ${endereco}\n\n`;
+        alert('Informe o telefone');
+        return;
+    }
+
+    if(tipoPedido === 'entrega' && !endereco){
+
+        alert('Informe o endereço');
+        return;
+    }
 
     let total = 0;
+
+    carrinhoCompras.forEach(item=>{
+
+        total += item.preco * item.quantidade;
+    });
+
+    const desconto =
+    calcularDesconto(
+        telefone,
+        total
+    );
+
+    const totalFinal =
+    total - desconto;
+
+    let msg =
+`🍔 *NOVO PEDIDO - BIG LANCHE* 🍔
+
+👤 Cliente: ${nome}
+📞 Telefone: ${telefone}
+🛒 Tipo: ${tipoPedido.toUpperCase()}
+`;
+
+    if(tipoPedido === 'entrega'){
+
+        msg += `📍 Endereço: ${endereco}\n`;
+    }
+
+    msg += `\n----------------------\n\n`;
 
     carrinhoCompras.forEach(item=>{
 
         const subtotal =
         item.preco * item.quantidade;
 
-        total += subtotal;
-
         msg +=
-        `${item.quantidade}x ${item.nome}\n`;
+`${item.quantidade}x ${item.nome}
+R$ ${subtotal.toFixed(2)}
 
-        msg +=
-        `R$ ${subtotal.toFixed(2)}\n\n`;
+`;
     });
 
-    msg += `TOTAL: R$ ${total.toFixed(2)}`;
+    msg += `----------------------\n`;
+
+    msg += `💰 Subtotal: R$ ${total.toFixed(2)}\n`;
+
+    if(desconto > 0){
+
+        msg +=
+`🎁 Desconto Fidelidade:
+- R$ ${desconto.toFixed(2)}
+
+`;
+    }
+
+    msg +=
+`🧾 TOTAL: R$ ${totalFinal.toFixed(2)}`;
+
+    salvarHistoricoCliente(
+        telefone,
+        totalFinal
+    );
 
     window.open(
-        `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMERO}&text=${encodeURIComponent(msg)}`,
-        '_blank'
+`https://api.whatsapp.com/send?phone=${WHATSAPP_NUMERO}&text=${encodeURIComponent(msg)}`,
+'_blank'
     );
+
+    carrinhoCompras = [];
+
+    atualizarCarrinho();
+
+    toggleCarrinho();
+
+    document.getElementById('cliente-nome').value = '';
+    document.getElementById('cliente-telefone').value = '';
+    document.getElementById('cliente-endereco').value = '';
+
+    alert('Pedido enviado com sucesso!');
 }
 
 /* =========================================
-   LOGIN
+CATEGORIAS DINÂMICAS
 ========================================= */
 
-function verificarEstadoLogin(){
-
-    _supabase.auth.onAuthStateChange(
-        (event,session)=>{
-
-        if(session){
-
-            document.getElementById('secao-login')
-                .classList.add('hidden');
-
-            document.getElementById('secao-admin-painel')
-                .classList.remove('hidden');
-
-        }else{
-
-            document.getElementById('secao-login')
-                .classList.remove('hidden');
-
-            document.getElementById('secao-admin-painel')
-                .classList.add('hidden');
-        }
-    });
-}
-
-async function fazerLogin(){
-
-    const email =
-    document.getElementById('login-email')
-        .value.trim();
-
-    const senha =
-    document.getElementById('login-senha')
-        .value.trim();
-
-    if(!email || !senha){
-
-        alert('Preencha todos os campos');
-        return;
-    }
-
-    const { error } =
-    await _supabase.auth.signInWithPassword({
-        email,
-        password:senha
-    });
-
-    if(error){
-
-        alert(error.message);
-    }
-}
-
-async function fazerLogout(){
-
-    await _supabase.auth.signOut();
-}
+let categoriasDinamicas = [
+    'hamburguer',
+    'bebida',
+    'combo'
+];
 
 /* =========================================
-   SALVAR PRODUTO
+CRIAR NOVA CATEGORIA
 ========================================= */
 
-async function salvarProduto(e){
-
-    e.preventDefault();
-
-    const btn =
-    document.getElementById('btn-cadastrar');
+function criarCategoria(){
 
     const nome =
-    document.getElementById('prod-nome')
-        .value.trim();
+    prompt('Nome da nova categoria');
 
-    const descricao =
-    document.getElementById('prod-descricao')
-        .value.trim();
+    if(!nome) return;
 
-    const categoria =
-    document.getElementById('prod-categoria')
-        .value;
+    categoriasDinamicas.push(nome);
 
-    const preco =
-    parseFloat(
-        document.getElementById('prod-preco')
-        .value
+    atualizarCategoriasAdmin();
+
+    atualizarCategoriasFiltro();
+
+    salvarCategorias();
+}
+
+/* =========================================
+SALVAR CATEGORIAS
+========================================= */
+
+function salvarCategorias(){
+
+    localStorage.setItem(
+        'categorias_big_lanche',
+        JSON.stringify(categoriasDinamicas)
+    );
+}
+
+/* =========================================
+CARREGAR CATEGORIAS
+========================================= */
+
+function carregarCategorias(){
+
+    const dados =
+    localStorage.getItem(
+        'categorias_big_lanche'
     );
 
-    const arquivo =
-    document.getElementById('prod-imagem')
-        .files[0];
+    if(dados){
 
-    if(!arquivo){
-
-        alert('Selecione imagem');
-        return;
-    }
-
-    btn.disabled = true;
-
-    btn.innerHTML =
-    `<i class="fas fa-spinner fa-spin"></i> Enviando`;
-
-    try{
-
-        const ext =
-        arquivo.name.split('.').pop();
-
-        const nomeArquivo =
-        `${Date.now()}_produto.${ext}`;
-
-        const { error:upError } =
-        await _supabase.storage
-            .from('imagens-produtos')
-            .upload(nomeArquivo,arquivo);
-
-        if(upError) throw upError;
-
-        const { data:urlData } =
-        _supabase.storage
-            .from('imagens-produtos')
-            .getPublicUrl(nomeArquivo);
-
-        const imagem_url =
-        urlData.publicUrl;
-
-        const { error:dbError } =
-        await _supabase
-            .from('produtos')
-            .insert([
-                {
-                    nome,
-                    descricao,
-                    categoria,
-                    preco,
-                    imagem_url
-                }
-            ]);
-
-        if(dbError) throw dbError;
-
-        alert('Produto cadastrado');
-
-        document.getElementById('form-produto')
-            .reset();
-
-        carregarProdutosDoBanco();
-
-        mudarAba('catalogo');
-
-    }catch(err){
-
-        alert(err.message);
-
-    }finally{
-
-        btn.disabled = false;
-
-        btn.innerHTML =
-        `<i class="fas fa-cloud-upload-alt"></i>
-         Publicar no Catálogo`;
+        categoriasDinamicas =
+        JSON.parse(dados);
     }
 }
+
+/* =========================================
+ATUALIZAR SELECT ADMIN
+========================================= */
+
+function atualizarCategoriasAdmin(){
+
+    const select =
+    document.getElementById('prod-categoria');
+
+    if(!select) return;
+
+    select.innerHTML = '';
+
+    categoriasDinamicas.forEach(cat=>{
+
+        select.innerHTML +=
+`<option value="${cat}">
+${cat}
+</option>`;
+    });
+}
+
+/* =========================================
+ATUALIZAR FILTRO
+========================================= */
+
+function atualizarCategoriasFiltro(){
+
+    const container =
+    document.querySelector('.grid.grid-cols-2.md\\:grid-cols-4.gap-3.mb-6');
+
+    if(!container) return;
+
+    container.innerHTML = '';
+
+    container.innerHTML += `
+<button onclick="filtrarCategoria('todos',this)"
+class="categoria-btn categoria-ativa bg-white border p-3 rounded-xl shadow font-bold">
+🍔 Todos
+</button>
+`;
+
+    categoriasDinamicas.forEach(cat=>{
+
+        container.innerHTML += `
+<button onclick="filtrarCategoria('${cat}',this)"
+class="categoria-btn bg-white border p-3 rounded-xl shadow">
+${cat}
+</button>
+`;
+    });
+}
+
+/* =========================================
+INICIAR CATEGORIAS
+========================================= */
+
+document.addEventListener(
+'DOMContentLoaded',
+()=>{
+
+    carregarCategorias();
+
+    atualizarCategoriasAdmin();
+
+    atualizarCategoriasFiltro();
+});
 
 </script>
 
