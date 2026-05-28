@@ -62,126 +62,103 @@
             <div>
                 <div class="flex items-center justify-between mb-6">
                     <h3 id="titulo-produtos" class="text-2xl font-black">Produtos</h3>
-                    <button onclick="mostrarTodosProdutos()" class="text-sm text-amber-400 hover:text-amber-300">Ver todos</button>
                 </div>
-                <div id="grid-produtos" class="grid grid-cols-1 sm:sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                <div id="grid-produtos" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
             </div>
         </section>
 
         <section id="aba-admin" class="tab-content max-w-6xl mx-auto">
-            <div class="grid md:grid-cols-[240px_1fr] gap-6">
-                <div class="bg-slate-900 border border-white/10 rounded-3xl p-5 h-fit">
-                    <h3 class="font-black text-lg mb-6">Painel Admin</h3>
-                    <div class="space-y-2">
-                        <button class="w-full bg-amber-500 text-black py-3 rounded-xl font-bold">Produtos</button>
-                        <button class="w-full bg-slate-800 py-3 rounded-xl font-bold">Categorias</button>
-                    </div>
+            <div class="bg-slate-900 border border-white/10 rounded-3xl p-6">
+                <h2 class="text-2xl font-black mb-6">Adicionar Produto</h2>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <input type="file" id="prod-img" class="bg-slate-800 rounded-xl p-3 text-sm">
+                    <input type="text" id="prod-nome" placeholder="Nome do produto" class="bg-slate-800 rounded-xl p-4 outline-none">
+                    <input type="text" id="prod-categoria" placeholder="Categoria" class="bg-slate-800 rounded-xl p-4 outline-none">
+                    <input type="number" id="prod-preco" placeholder="Preço" class="bg-slate-800 rounded-xl p-4 outline-none">
                 </div>
-                <div class="bg-slate-900 border border-white/10 rounded-3xl p-6">
-                    <h2 class="text-2xl font-black mb-6">Adicionar Produto</h2>
-                    <div class="grid md:grid-cols-2 gap-4">
-                        <input type="file" id="prod-img" class="bg-slate-800 rounded-xl p-3 text-sm">
-                        <input type="text" id="prod-nome" placeholder="Nome do produto" class="bg-slate-800 rounded-xl p-4 outline-none">
-                        <input type="text" id="prod-categoria" placeholder="Categoria" class="bg-slate-800 rounded-xl p-4 outline-none">
-                        <input type="number" id="prod-preco" placeholder="Preço" class="bg-slate-800 rounded-xl p-4 outline-none">
-                    </div>
-                    <textarea id="prod-desc" placeholder="Descrição" class="bg-slate-800 rounded-xl p-4 outline-none w-full h-32 mt-4"></textarea>
-                    <button onclick="adicionarProduto()" class="mt-5 bg-amber-500 hover:bg-amber-400 text-black font-black px-8 py-4 rounded-2xl transition">CADASTRAR PRODUTO</button>
-                </div>
+                <textarea id="prod-desc" placeholder="Descrição" class="bg-slate-800 rounded-xl p-4 outline-none w-full h-32 mt-4"></textarea>
+                <button onclick="adicionarProduto()" class="mt-5 bg-amber-500 hover:bg-amber-400 text-black font-black px-8 py-4 rounded-2xl transition">CADASTRAR PRODUTO</button>
             </div>
         </section>
     </main>
 
-    <div id="sidebar-carrinho" class="fixed top-0 right-0 h-full w-full md:w-[430px] bg-slate-950 z-50 translate-x-full transition-transform duration-300 flex flex-col border-l border-white/10">
-        <div class="p-5 border-b border-white/10 flex justify-between items-center">
-            <h2 class="font-black text-xl">Seu Pedido</h2>
-            <button onclick="toggleCarrinho()" class="w-10 h-10 rounded-full bg-slate-800 hover:bg-slate-700"><i class="fas fa-times"></i></button>
-        </div>
-        <div id="itens-carrinho" class="flex-grow overflow-y-auto p-5 space-y-4"></div>
-        <div class="p-5 border-t border-white/10">
-            <input type="text" id="cliente-nome" placeholder="Seu nome" class="w-full bg-slate-900 border border-white/10 rounded-xl p-4 mb-3 outline-none">
-            <input type="text" id="cliente-endereco" placeholder="Endereço" class="w-full bg-slate-900 border border-white/10 rounded-xl p-4 mb-5 outline-none">
-            <div class="flex justify-between items-center mb-5">
-                <span class="text-white/60">Total</span>
-                <span id="total-carrinho" class="text-3xl font-black text-amber-400">R$ 0,00</span>
-            </div>
-            <button onclick="finalizarPedido()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-black font-black py-4 rounded-2xl transition">FINALIZAR PEDIDO</button>
-        </div>
-    </div>
-
-    <div id="zoom-modal" class="zoom-modal" onclick="fecharZoom()"><img id="img-zoom" class="max-w-[90%] max-h-[90vh] rounded-3xl shadow-2xl" src=""></div>
-
     <script>
         const _supabase = supabase.createClient("https://yawousokoaqeyvktjosj.supabase.co", "sb_publishable__TXuxjZ8PObBZxsM-PjF1Q_fAvPsDa3");
         let listaProdutos = [];
-        let carrinho = [];
 
-        window.onload = async () => { carregarProdutos(); carregarFundo(); };
+        window.onload = async () => { carregarProdutos(); };
 
+        // --- ADMIN FUNCTIONS ---
+        async function removerCategoria(categoria) {
+            if (!confirm(`Excluir categoria "${categoria}" e todos os produtos?`)) return;
+            const { error } = await _supabase.from('produtos').delete().eq('categoria', categoria);
+            if (!error) { alert("Removido!"); carregarProdutos(); }
+        }
+
+        async function editarCategoria(catAntiga) {
+            const nova = prompt("Novo nome para a categoria:", catAntiga);
+            if (nova) {
+                const { error } = await _supabase.from('produtos').update({ categoria: nova }).eq('categoria', catAntiga);
+                if (!error) { alert("Atualizado!"); carregarProdutos(); }
+            }
+        }
+
+        async function adicionarProduto() {
+            const file = document.getElementById('prod-img').files[0];
+            const nome = document.getElementById('prod-nome').value;
+            const preco = document.getElementById('prod-preco').value;
+            const cat = document.getElementById('prod-categoria').value;
+            const desc = document.getElementById('prod-desc').value;
+
+            if (!file || !nome || !preco || !cat) return alert('Preencha os campos!');
+            
+            const fileName = `produto_${Date.now()}.jpg`;
+            await _supabase.storage.from('imagens-produtos').upload(fileName, file);
+            const { data: { publicUrl } } = _supabase.storage.from('imagens-produtos').getPublicUrl(fileName);
+
+            await _supabase.from('produtos').insert([{ nome, preco, categoria: cat, descricao: desc, imagem_url: publicUrl }]);
+            alert('Cadastrado!');
+            carregarProdutos();
+        }
+
+        // --- RENDER FUNCTIONS ---
         function renderizarCategorias() {
-            const categorias = [...new Set(listaProdutos.map(p => p.categoria || 'Outros'))];
-            const icones = { hamburguer: '🍔', bebidas: '🥤', porcoes: '🍟', sobremesas: '🍰', pizza: '🍕', outros: '🔥' };
-            document.getElementById('grid-categorias').innerHTML = categorias.map(cat => {
-                const icon = icones[cat.toLowerCase()] || '🔥';
-                return `
-                    <div class="categoria-card bg-slate-900 border border-white/10 rounded-3xl p-6 shadow-xl flex flex-col justify-between">
-                        <div onclick="filtrarCategoria('${cat}')" class="cursor-pointer">
-                            <div class="text-5xl mb-4">${icon}</div>
-                            <h2 class="text-xl font-black capitalize">${cat}</h2>
-                            <p class="text-white/50 text-sm mt-1">Ver produtos</p>
-                        </div>
-                        <div class="flex gap-2 mt-5">
-                            <button onclick="console.log('Editar ${cat}')" class="flex-1 bg-slate-800 hover:bg-slate-700 py-2 rounded-xl text-xs font-bold transition">Editar</button>
-                            <button onclick="console.log('Excluir ${cat}')" class="flex-1 bg-red-500/10 hover:bg-red-500/20 text-red-500 py-2 rounded-xl text-xs font-bold transition">Excluir</button>
-                        </div>
-                    </div>`;
-            }).join('');
+            const cats = [...new Set(listaProdutos.map(p => p.categoria || 'Outros'))];
+            document.getElementById('grid-categorias').innerHTML = cats.map(cat => `
+                <div class="categoria-card bg-slate-900 border border-white/10 rounded-3xl p-6 shadow-xl flex flex-col justify-between">
+                    <div onclick="filtrarCategoria('${cat}')" class="cursor-pointer">
+                        <div class="text-4xl mb-4">🔥</div>
+                        <h2 class="text-xl font-black capitalize">${cat}</h2>
+                    </div>
+                    <div class="flex gap-2 mt-5">
+                        <button onclick="editarCategoria('${cat}')" class="flex-1 bg-slate-800 py-2 rounded-xl text-[10px] font-bold">EDITAR</button>
+                        <button onclick="removerCategoria('${cat}')" class="flex-1 bg-red-900 text-red-200 py-2 rounded-xl text-[10px] font-bold">EXCLUIR</button>
+                    </div>
+                </div>`).join('');
         }
 
         async function carregarProdutos() {
-            const { data } = await _supabase.from('produtos').select('*').order('nome');
+            const { data } = await _supabase.from('produtos').select('*');
             listaProdutos = data || [];
             renderizarCategorias();
             renderizarProdutos(listaProdutos);
         }
 
-        function filtrarCategoria(cat) {
-            document.getElementById('titulo-produtos').innerText = cat;
-            renderizarProdutos(listaProdutos.filter(p => (p.categoria || 'Outros') === cat));
-        }
-
-        function mostrarTodosProdutos() {
-            document.getElementById('titulo-produtos').innerText = 'Todos os Produtos';
-            renderizarProdutos(listaProdutos);
-        }
-
-        function renderizarProdutos(produtos) {
-            document.getElementById('grid-produtos').innerHTML = produtos.map(p => `
-                <div class="produto-card bg-slate-900 border border-white/10 rounded-[30px] overflow-hidden shadow-xl flex flex-col">
-                    <img src="${p.imagem_url}" onclick="abrirZoom('${p.imagem_url}')" class="w-full h-64 object-cover cursor-pointer">
-                    <div class="p-5 flex flex-col flex-grow">
-                        <h2 class="text-2xl font-black mb-2">${p.nome}</h2>
-                        <div class="flex items-center justify-between mt-auto">
-                            <span class="text-3xl font-black text-amber-400">R$ ${parseFloat(p.preco).toFixed(2)}</span>
-                            <button onclick="adicionarCarrinho('${p.id}')" class="bg-amber-500 hover:bg-amber-400 text-black px-5 py-3 rounded-2xl font-black transition">+</button>
-                        </div>
-                    </div>
+        function renderizarProdutos(prods) {
+            document.getElementById('grid-produtos').innerHTML = prods.map(p => `
+                <div class="produto-card bg-slate-900 border border-white/10 rounded-[30px] p-5 shadow-xl">
+                    <img src="${p.imagem_url}" class="w-full h-40 object-cover rounded-2xl mb-4">
+                    <h2 class="font-black text-lg">${p.nome}</h2>
+                    <p class="text-amber-400 font-bold">R$ ${parseFloat(p.preco).toFixed(2)}</p>
                 </div>`).join('');
         }
 
-        // Funções auxiliares (UI)
-        function mudarAba(aba) { document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active')); document.getElementById('aba-' + aba).classList.add('active'); }
-        function voltarHome() { mudarAba('catalogo'); }
-        function toggleCarrinho() { document.getElementById('sidebar-carrinho').classList.toggle('translate-x-full'); }
-        function abrirZoom(url) { document.getElementById('img-zoom').src = url; document.getElementById('zoom-modal').classList.add('active'); }
-        function fecharZoom() { document.getElementById('zoom-modal').classList.remove('active'); }
-        function scrollCategorias() { document.getElementById('categorias').scrollIntoView({ behavior: 'smooth' }); }
-        
-        async function adicionarProduto() { /* Lógica original de insert aqui */ }
-        async function carregarFundo() { /* Lógica de fundo aqui */ }
-        function adicionarCarrinho(id) { /* Lógica de carrinho aqui */ }
-        function finalizarPedido() { /* Lógica de WhatsApp aqui */ }
-
+        function mudarAba(aba) { 
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active')); 
+            document.getElementById('aba-' + aba).classList.add('active'); 
+        }
+        function filtrarCategoria(cat) { renderizarProdutos(listaProdutos.filter(p => p.categoria === cat)); }
+        function voltarHome() { location.reload(); }
     </script>
 </body>
 </html>
