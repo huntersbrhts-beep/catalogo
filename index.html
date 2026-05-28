@@ -1,83 +1,56 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Du Lanche - Delivery Premium</title>
-
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     <style>
-        * { scroll-behavior: smooth; }
         body { background: #020617; }
-        .bg-fundo { position: fixed; inset: 0; z-index: -2; background-size: cover; background-position: center; background-repeat: no-repeat; opacity: 0.15; }
-        .overlay { position: fixed; inset: 0; z-index: -1; background: linear-gradient(to bottom, rgba(2, 6, 23, 0.95), rgba(15, 23, 42, 0.96)); }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         .categoria-card:hover { transform: translateY(-5px); }
-        .produto-card:hover { transform: translateY(-4px); }
-        .zoom-modal { position: fixed; inset: 0; z-index: 100; display: none; background: rgba(0, 0, 0, 0.92); align-items: center; justify-content: center; }
-        .zoom-modal.active { display: flex; }
-        #itens-carrinho::-webkit-scrollbar { width: 4px; }
-        #itens-carrinho::-webkit-scrollbar-thumb { background: #f59e0b; border-radius: 10px; }
     </style>
 </head>
+<body class="text-white min-h-screen">
 
-<body class="text-white min-h-screen flex flex-col">
-
-    <div id="bg-dinamico" class="bg-fundo"></div>
-    <div class="overlay"></div>
-
-    <header class="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-white/5 px-5 py-4 flex items-center justify-between">
-        <div onclick="voltarHome()" class="cursor-pointer">
-            <h1 class="text-2xl font-black text-amber-400 tracking-wide">DU LANCHE</h1>
-        </div>
-        <div class="flex items-center gap-5">
-            <button onclick="mudarAba('admin')" class="text-xl hover:text-amber-400 transition"><i class="fas fa-cog"></i></button>
-            <button onclick="toggleCarrinho()" class="relative text-2xl hover:text-amber-400 transition">
-                <i class="fas fa-shopping-bag"></i>
-                <span id="cart-badge" class="hidden absolute -top-2 -right-2 bg-red-500 w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center">0</span>
-            </button>
-        </div>
+    <!-- HEADER -->
+    <header class="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-white/10 p-5 flex justify-between items-center">
+        <h1 class="text-2xl font-black text-amber-400 cursor-pointer" onclick="mudarAba('catalogo')">DU LANCHE</h1>
+        <button onclick="mudarAba('admin')" class="text-xl hover:text-amber-400"><i class="fas fa-cog"></i></button>
     </header>
 
-    <main class="container mx-auto px-4 py-6 flex-grow">
+    <main class="container mx-auto px-4 py-6">
+        
+        <!-- CATALOGO -->
         <section id="aba-catalogo" class="tab-content active">
-            <div class="bg-gradient-to-r from-amber-500 to-orange-600 rounded-[35px] p-8 md:p-12 mb-10 shadow-2xl relative overflow-hidden">
-                <div class="relative z-10">
-                    <p class="uppercase text-sm font-bold tracking-[3px] text-white/80 mb-3">DELIVERY PREMIUM</p>
-                    <h2 class="text-4xl md:text-6xl font-black leading-tight mb-4">O melhor lanche <br> da cidade</h2>
-                    <button onclick="scrollCategorias()" class="bg-black text-white px-8 py-4 rounded-2xl font-bold hover:scale-105 transition">VER CARDÁPIO</button>
-                </div>
-            </div>
-
-            <div id="categorias" class="mb-12">
-                <h3 class="text-2xl font-black mb-5">Categorias</h3>
-                <div id="grid-categorias" class="grid grid-cols-2 md:grid-cols-4 gap-5"></div>
-            </div>
-
-            <div>
-                <div class="flex items-center justify-between mb-6">
-                    <h3 id="titulo-produtos" class="text-2xl font-black">Produtos</h3>
-                </div>
-                <div id="grid-produtos" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-            </div>
+            <h3 class="text-2xl font-black mb-5">Categorias</h3>
+            <div id="grid-categorias" class="grid grid-cols-2 md:grid-cols-4 gap-5 mb-10"></div>
+            
+            <h3 class="text-2xl font-black mb-5">Produtos</h3>
+            <div id="grid-produtos" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
         </section>
 
-        <section id="aba-admin" class="tab-content max-w-6xl mx-auto">
-            <div class="bg-slate-900 border border-white/10 rounded-3xl p-6">
-                <h2 class="text-2xl font-black mb-6">Adicionar Produto</h2>
-                <div class="grid md:grid-cols-2 gap-4">
-                    <input type="file" id="prod-img" class="bg-slate-800 rounded-xl p-3 text-sm">
-                    <input type="text" id="prod-nome" placeholder="Nome do produto" class="bg-slate-800 rounded-xl p-4 outline-none">
-                    <input type="text" id="prod-categoria" placeholder="Categoria" class="bg-slate-800 rounded-xl p-4 outline-none">
-                    <input type="number" id="prod-preco" placeholder="Preço" class="bg-slate-800 rounded-xl p-4 outline-none">
+        <!-- ADMIN -->
+        <section id="aba-admin" class="tab-content">
+            <div class="grid md:grid-cols-[240px_1fr] gap-6">
+                <div class="bg-slate-900 border border-white/10 rounded-3xl p-5 h-fit">
+                    <h3 class="font-black mb-4">Painel Admin</h3>
+                    <button class="w-full bg-amber-500 text-black py-3 rounded-xl font-bold">Cadastrar Produto</button>
                 </div>
-                <textarea id="prod-desc" placeholder="Descrição" class="bg-slate-800 rounded-xl p-4 outline-none w-full h-32 mt-4"></textarea>
-                <button onclick="adicionarProduto()" class="mt-5 bg-amber-500 hover:bg-amber-400 text-black font-black px-8 py-4 rounded-2xl transition">CADASTRAR PRODUTO</button>
+                <div class="bg-slate-900 border border-white/10 rounded-3xl p-6">
+                    <h2 class="text-xl font-black mb-4">Novo Produto</h2>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <input type="file" id="prod-img" class="bg-slate-800 rounded-xl p-2">
+                        <input type="text" id="prod-nome" placeholder="Nome" class="bg-slate-800 rounded-xl p-3 outline-none">
+                        <input type="text" id="prod-categoria" placeholder="Categoria" class="bg-slate-800 rounded-xl p-3 outline-none">
+                        <input type="number" id="prod-preco" placeholder="Preço" class="bg-slate-800 rounded-xl p-3 outline-none">
+                    </div>
+                    <textarea id="prod-desc" placeholder="Descrição" class="w-full mt-4 bg-slate-800 rounded-xl p-3 h-24 outline-none"></textarea>
+                    <button onclick="adicionarProduto()" class="mt-4 bg-amber-500 text-black px-6 py-3 rounded-xl font-black">CADASTRAR</button>
+                </div>
             </div>
         </section>
     </main>
@@ -86,56 +59,7 @@
         const _supabase = supabase.createClient("https://yawousokoaqeyvktjosj.supabase.co", "sb_publishable__TXuxjZ8PObBZxsM-PjF1Q_fAvPsDa3");
         let listaProdutos = [];
 
-        window.onload = async () => { carregarProdutos(); };
-
-        // --- ADMIN FUNCTIONS ---
-        async function removerCategoria(categoria) {
-            if (!confirm(`Excluir categoria "${categoria}" e todos os produtos?`)) return;
-            const { error } = await _supabase.from('produtos').delete().eq('categoria', categoria);
-            if (!error) { alert("Removido!"); carregarProdutos(); }
-        }
-
-        async function editarCategoria(catAntiga) {
-            const nova = prompt("Novo nome para a categoria:", catAntiga);
-            if (nova) {
-                const { error } = await _supabase.from('produtos').update({ categoria: nova }).eq('categoria', catAntiga);
-                if (!error) { alert("Atualizado!"); carregarProdutos(); }
-            }
-        }
-
-        async function adicionarProduto() {
-            const file = document.getElementById('prod-img').files[0];
-            const nome = document.getElementById('prod-nome').value;
-            const preco = document.getElementById('prod-preco').value;
-            const cat = document.getElementById('prod-categoria').value;
-            const desc = document.getElementById('prod-desc').value;
-
-            if (!file || !nome || !preco || !cat) return alert('Preencha os campos!');
-            
-            const fileName = `produto_${Date.now()}.jpg`;
-            await _supabase.storage.from('imagens-produtos').upload(fileName, file);
-            const { data: { publicUrl } } = _supabase.storage.from('imagens-produtos').getPublicUrl(fileName);
-
-            await _supabase.from('produtos').insert([{ nome, preco, categoria: cat, descricao: desc, imagem_url: publicUrl }]);
-            alert('Cadastrado!');
-            carregarProdutos();
-        }
-
-        // --- RENDER FUNCTIONS ---
-        function renderizarCategorias() {
-            const cats = [...new Set(listaProdutos.map(p => p.categoria || 'Outros'))];
-            document.getElementById('grid-categorias').innerHTML = cats.map(cat => `
-                <div class="categoria-card bg-slate-900 border border-white/10 rounded-3xl p-6 shadow-xl flex flex-col justify-between">
-                    <div onclick="filtrarCategoria('${cat}')" class="cursor-pointer">
-                        <div class="text-4xl mb-4">🔥</div>
-                        <h2 class="text-xl font-black capitalize">${cat}</h2>
-                    </div>
-                    <div class="flex gap-2 mt-5">
-                        <button onclick="editarCategoria('${cat}')" class="flex-1 bg-slate-800 py-2 rounded-xl text-[10px] font-bold">EDITAR</button>
-                        <button onclick="removerCategoria('${cat}')" class="flex-1 bg-red-900 text-red-200 py-2 rounded-xl text-[10px] font-bold">EXCLUIR</button>
-                    </div>
-                </div>`).join('');
-        }
+        window.onload = carregarProdutos;
 
         async function carregarProdutos() {
             const { data } = await _supabase.from('produtos').select('*');
@@ -144,21 +68,67 @@
             renderizarProdutos(listaProdutos);
         }
 
+        function renderizarCategorias() {
+            const cats = [...new Set(listaProdutos.map(p => p.categoria || 'Outros'))];
+            document.getElementById('grid-categorias').innerHTML = cats.map(cat => `
+                <div class="categoria-card bg-slate-900 border border-white/10 rounded-3xl p-6 flex flex-col justify-between">
+                    <div class="cursor-pointer" onclick="filtrarCategoria('${cat}')">
+                        <div class="text-4xl mb-2">🔥</div>
+                        <h2 class="font-black">${cat}</h2>
+                    </div>
+                    <div class="flex gap-2 mt-4">
+                        <button onclick="editarCategoria('${cat}')" class="flex-1 bg-slate-800 py-1 rounded text-[10px]">EDITAR</button>
+                        <button onclick="removerCategoria('${cat}')" class="flex-1 bg-red-900 py-1 rounded text-[10px]">EXCLUIR</button>
+                    </div>
+                </div>`).join('');
+        }
+
+        async function removerCategoria(categoria) {
+            if (!confirm(`Excluir "${categoria}" e todos seus produtos?`)) return;
+            await _supabase.from('produtos').delete().eq('categoria', categoria);
+            carregarProdutos();
+        }
+
+        async function editarCategoria(antiga) {
+            const nova = prompt("Novo nome:", antiga);
+            if (nova) {
+                await _supabase.from('produtos').update({ categoria: nova }).eq('categoria', antiga);
+                carregarProdutos();
+            }
+        }
+
+        async function adicionarProduto() {
+            const file = document.getElementById('prod-img').files[0];
+            const nome = document.getElementById('prod-nome').value;
+            const preco = document.getElementById('prod-preco').value;
+            const cat = document.getElementById('prod-categoria').value;
+            
+            if(!file || !nome || !preco || !cat) return alert('Preencha tudo!');
+
+            const fileName = `prod_${Date.now()}.jpg`;
+            await _supabase.storage.from('imagens-produtos').upload(fileName, file);
+            const { data } = _supabase.storage.from('imagens-produtos').getPublicUrl(fileName);
+            
+            await _supabase.from('produtos').insert([{ nome, preco, categoria: cat, imagem_url: data.publicUrl }]);
+            alert('Sucesso!');
+            carregarProdutos();
+        }
+
         function renderizarProdutos(prods) {
             document.getElementById('grid-produtos').innerHTML = prods.map(p => `
-                <div class="produto-card bg-slate-900 border border-white/10 rounded-[30px] p-5 shadow-xl">
-                    <img src="${p.imagem_url}" class="w-full h-40 object-cover rounded-2xl mb-4">
-                    <h2 class="font-black text-lg">${p.nome}</h2>
+                <div class="bg-slate-900 border border-white/10 rounded-2xl p-4">
+                    <img src="${p.imagem_url}" class="h-32 w-full object-cover rounded-xl mb-2">
+                    <h2 class="font-black">${p.nome}</h2>
                     <p class="text-amber-400 font-bold">R$ ${parseFloat(p.preco).toFixed(2)}</p>
                 </div>`).join('');
         }
 
-        function mudarAba(aba) { 
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active')); 
-            document.getElementById('aba-' + aba).classList.add('active'); 
+        function mudarAba(aba) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById('aba-' + aba).classList.add('active');
         }
+
         function filtrarCategoria(cat) { renderizarProdutos(listaProdutos.filter(p => p.categoria === cat)); }
-        function voltarHome() { location.reload(); }
     </script>
 </body>
 </html>
