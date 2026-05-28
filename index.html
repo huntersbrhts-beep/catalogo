@@ -1,878 +1,352 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Du Lanche Premium</title>
+<title>PDV Corrigido</title>
+
+<link rel="icon" href="data:,">
 
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
 <style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-scroll-behavior:smooth;
-}
-
 body{
-background:#020617;
-color:white;
-font-family:Arial, Helvetica, sans-serif;
+    background:#111;
+    color:#fff;
+    font-family:Arial;
+    margin:0;
+    padding:20px;
 }
 
-::-webkit-scrollbar{
-width:5px;
+.container{
+    max-width:900px;
+    margin:auto;
 }
 
-::-webkit-scrollbar-thumb{
-background:#f59e0b;
-border-radius:10px;
+.card{
+    background:#1e1e1e;
+    padding:20px;
+    border-radius:12px;
+    margin-bottom:20px;
 }
 
-.tab{
-display:none;
+textarea{
+    width:100%;
+    height:180px;
+    background:#000;
+    color:#fff;
+    border:1px solid #333;
+    padding:10px;
+    border-radius:10px;
 }
 
-.tab.active{
-display:block;
+button{
+    background:#ff9800;
+    border:none;
+    color:#fff;
+    padding:12px 20px;
+    border-radius:10px;
+    cursor:pointer;
+    margin-top:10px;
+    font-weight:bold;
 }
 
-.card-hover{
-transition:.25s;
+button:hover{
+    opacity:.9;
 }
 
-.card-hover:hover{
-transform:translateY(-5px);
+.lista{
+    margin-top:20px;
 }
 
-.overlay{
-position:fixed;
-inset:0;
-background:rgba(0,0,0,.65);
-z-index:60;
-display:none;
+.item{
+    display:flex;
+    justify-content:space-between;
+    padding:12px;
+    border-bottom:1px solid #333;
 }
 
-.overlay.active{
-display:block;
+.total{
+    font-size:22px;
+    margin-top:20px;
+    font-weight:bold;
+    color:#4caf50;
 }
 
-.zoom{
-position:fixed;
-inset:0;
-background:rgba(0,0,0,.95);
-display:none;
-align-items:center;
-justify-content:center;
-z-index:120;
-padding:20px;
+.erro{
+    color:#ff5252;
+    margin-top:10px;
 }
 
-.zoom.active{
-display:flex;
+.ok{
+    color:#4caf50;
+    margin-top:10px;
 }
-
-.loading{
-animation:pulse 1s infinite;
-}
-
-@keyframes pulse{
-0%{opacity:1}
-50%{opacity:.5}
-100%{opacity:1}
-}
-
 </style>
 </head>
 <body>
 
-<div id="overlay" class="overlay" onclick="toggleCarrinho()"></div>
+<div class="container">
 
-<header class="sticky top-0 z-50 bg-slate-950/90 backdrop-blur border-b border-white/10">
-<div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+    <div class="card">
+        <h1 style="font-size:28px;">PDV - IMPORTAR CARDÁPIO</h1>
 
-<div onclick="trocarAba('catalogo')" class="cursor-pointer">
-<h1 class="text-3xl font-black text-amber-400">
-DU LANCHE
-</h1>
-</div>
+        <p>
+            Formato:
+        </p>
 
-<div class="flex items-center gap-4">
+<pre>
+HAMBÚRGUER 15.00
+X-BURGUER 18.00
+COCA COLA 6.00
+</pre>
 
-<button onclick="trocarAba('admin')" class="text-xl hover:text-amber-400">
-<i class="fa-solid fa-gear"></i>
-</button>
+        <textarea id="entrada"></textarea>
 
-<button onclick="toggleCarrinho()" class="relative text-2xl hover:text-amber-400">
-<i class="fa-solid fa-bag-shopping"></i>
+        <button onclick="processarCardapio()">
+            IMPORTAR CARDÁPIO
+        </button>
 
-<span id="badge"
-class="hidden absolute -top-2 -right-2 bg-red-500 w-5 h-5 rounded-full text-[10px] flex items-center justify-center font-bold">
-0
-</span>
-</button>
+        <div id="status"></div>
+    </div>
 
-</div>
-</div>
-</header>
+    <div class="card">
+        <h2>PRODUTOS</h2>
 
-<main class="max-w-7xl mx-auto p-4">
+        <div id="lista" class="lista"></div>
 
-<section id="catalogo" class="tab active">
+        <div id="total" class="total">
+            TOTAL: R$ 0.00
+        </div>
+    </div>
 
-<div class="bg-gradient-to-r from-amber-500 to-orange-600 rounded-3xl p-8 md:p-12 mb-10 overflow-hidden relative">
-
-<div class="relative z-10">
-<p class="uppercase tracking-[4px] text-sm font-bold mb-4">
-Delivery Premium
-</p>
-
-<h2 class="text-4xl md:text-6xl font-black leading-tight mb-5">
-Os melhores
-lanches da cidade
-</h2>
-
-<p class="max-w-xl text-white/90 mb-8">
-Escolha seus produtos favoritos e peça agora mesmo.
-</p>
-
-<button onclick="document.getElementById('categorias').scrollIntoView({behavior:'smooth'})"
-class="bg-black px-8 py-4 rounded-2xl font-bold hover:scale-105 transition">
-VER CARDÁPIO
-</button>
-</div>
-</div>
-
-<div id="categorias" class="mb-12">
-<div class="flex items-center justify-between mb-5">
-<h2 class="text-2xl font-black">Categorias</h2>
-</div>
-
-<div id="listaCategorias"
-class="grid grid-cols-2 md:grid-cols-4 gap-4">
-</div>
-</div>
-
-<div>
-<div class="flex items-center justify-between mb-6">
-<h2 id="tituloProdutos" class="text-2xl font-black">
-Todos os Produtos
-</h2>
-
-<button onclick="mostrarTodos()"
-class="text-amber-400 hover:text-amber-300">
-Mostrar todos
-</button>
-</div>
-
-<div id="listaProdutos"
-class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-</div>
-</div>
-
-</section>
-
-<section id="admin" class="tab">
-
-<div class="grid lg:grid-cols-[350px_1fr] gap-6">
-
-<div class="bg-slate-900 border border-white/10 rounded-3xl p-5 h-fit">
-<h2 class="text-2xl font-black mb-6">
-Cadastrar Produto
-</h2>
-
-<div class="space-y-4">
-
-<input type="file" id="img"
-class="w-full bg-slate-800 rounded-xl p-3 text-sm">
-
-<input type="text" id="nome"
-placeholder="Nome do produto"
-class="w-full bg-slate-800 rounded-xl p-4 outline-none">
-
-<input type="text" id="categoria"
-placeholder="Categoria"
-class="w-full bg-slate-800 rounded-xl p-4 outline-none">
-
-<input type="number" id="preco"
-placeholder="Preço"
-class="w-full bg-slate-800 rounded-xl p-4 outline-none">
-
-<textarea id="descricao"
-placeholder="Descrição"
-class="w-full bg-slate-800 rounded-xl p-4 h-32 outline-none"></textarea>
-
-<button onclick="salvarProduto()"
-id="btnSalvar"
-class="w-full bg-amber-500 hover:bg-amber-400 text-black font-black py-4 rounded-2xl">
-SALVAR PRODUTO
-</button>
-
-</div>
-</div>
-
-<div class="bg-slate-900 border border-white/10 rounded-3xl p-6 overflow-auto">
-
-<div class="flex items-center justify-between mb-6">
-<h2 class="text-2xl font-black">
-Produtos Cadastrados
-</h2>
-</div>
-
-<div id="adminProdutos" class="space-y-4"></div>
-
-</div>
-</div>
-</section>
-</main>
-
-<aside id="carrinho"
-class="fixed top-0 right-0 h-full w-full md:w-[420px] bg-slate-950 border-l border-white/10 z-[100] translate-x-full transition duration-300 flex flex-col">
-
-<div class="p-5 border-b border-white/10 flex items-center justify-between">
-<h2 class="text-2xl font-black">
-Seu Pedido
-</h2>
-
-<button onclick="toggleCarrinho()"
-class="w-10 h-10 rounded-full bg-slate-800 hover:bg-slate-700">
-<i class="fa-solid fa-xmark"></i>
-</button>
-</div>
-
-<div id="itensCarrinho"
-class="flex-1 overflow-auto p-5 space-y-4">
-</div>
-
-<div class="p-5 border-t border-white/10">
-
-<div class="space-y-3 mb-5">
-<input type="text"
-id="clienteNome"
-placeholder="Seu nome"
-class="w-full bg-slate-900 border border-white/10 rounded-xl p-4 outline-none">
-
-<input type="text"
-id="clienteEndereco"
-placeholder="Endereço"
-class="w-full bg-slate-900 border border-white/10 rounded-xl p-4 outline-none">
-</div>
-
-<div class="flex items-center justify-between mb-5">
-<span class="text-white/60">
-Total
-</span>
-
-<span id="totalCarrinho"
-class="text-3xl font-black text-amber-400">
-R$ 0,00
-</span>
-</div>
-
-<button onclick="finalizarPedido()"
-class="w-full bg-emerald-500 hover:bg-emerald-400 text-black font-black py-4 rounded-2xl">
-FINALIZAR PEDIDO
-</button>
-
-</div>
-</aside>
-
-<div id="zoom" class="zoom" onclick="fecharZoom()">
-<img id="imgZoom"
-class="max-w-full max-h-[90vh] rounded-3xl shadow-2xl">
 </div>
 
 <script>
 
-const supa = supabase.createClient(
-'https://yawousokoaqeyvktjosj.supabase.co',
-'sb_publishable__TXuxjZ8PObBZxsM-PjF1Q_fAvPsDa3'
-);
-
-let produtos = [];
-let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
-let categoriaAtual = null;
-let editando = null;
-
-const icones = {
-hamburguer:'🍔',
-bebidas:'🥤',
-pizza:'🍕',
-porcoes:'🍟',
-sobremesas:'🍰',
-outros:'🔥'
-};
-
-window.onload = async () => {
-await carregarProdutos();
-renderCarrinho();
-}
-
-function dinheiro(v){
-return Number(v || 0).toLocaleString('pt-BR',{
-style:'currency',
-currency:'BRL'
-});
-}
-
-function trocarAba(id){
-
-document.querySelectorAll('.tab')
-.forEach(t=>t.classList.remove('active'));
-
-document.getElementById(id)
-.classList.add('active');
-
-if(id === 'admin'){
-renderAdmin();
-}
-}
-
-async function carregarProdutos(){
-
-const {data,error} = await supa
-.from('produtos')
-.select('*')
-.order('nome');
-
-if(error){
-alert('Erro ao carregar produtos');
-console.error(error);
-return;
-}
-
-produtos = data || [];
-
-renderCategorias();
-mostrarTodos();
-renderAdmin();
-}
-
-function renderCategorias(){
-
-const cats = [...new Set(
-produtos.map(p=>p.categoria || 'Outros')
-)];
-
-const html = cats.map(cat=>{
-
-const emoji = icones[(cat || '').toLowerCase()] || '🔥';
-
-return `
-<div onclick="filtrarCategoria('${cat}')"
-class="card-hover cursor-pointer bg-slate-900 border border-white/10 rounded-3xl p-6">
-
-<div class="text-5xl mb-4">${emoji}</div>
-
-<h2 class="text-xl font-black capitalize mb-1">
-${cat}
-</h2>
-
-<p class="text-white/50 text-sm">
-Ver produtos
-</p>
-
-</div>
-`;
-}).join('');
-
-const lista = document.getElementById('listaCategorias');
-
-lista.innerHTML = html || `
-<div class="text-white/50">
-Nenhuma categoria.
-</div>
-`;
-}
-
-function renderProdutos(lista){
-
-const html = lista.map(p=>`
-<div class="card-hover bg-slate-900 border border-white/10 rounded-[30px] overflow-hidden flex flex-col shadow-xl">
-
-<div class="relative">
-<img src="${p.imagem_url || 'https://placehold.co/600x400'}"
-onclick="abrirZoom('${p.imagem_url}')"
-class="w-full h-64 object-cover cursor-pointer">
-
-<div class="absolute top-4 left-4 bg-amber-500 text-black px-3 py-1 rounded-full text-xs font-black uppercase">
-${p.categoria || 'Produto'}
-</div>
-</div>
-
-<div class="p-5 flex flex-col flex-1">
-
-<h2 class="text-2xl font-black mb-2">
-${p.nome}
-</h2>
-
-<p class="text-white/60 text-sm mb-6 flex-1">
-${p.descricao || ''}
-</p>
-
-<div class="flex items-center justify-between gap-4">
-
-<span class="text-3xl font-black text-amber-400">
-${dinheiro(p.preco)}
-</span>
-
-<button onclick="addCarrinho(${p.id})"
-class="bg-amber-500 hover:bg-amber-400 text-black px-5 py-3 rounded-2xl font-black">
-+
-</button>
-
-</div>
-</div>
-</div>
-`).join('');
-
-const box = document.getElementById('listaProdutos');
-
-box.innerHTML = html || `
-<div class="text-white/50">
-Nenhum produto encontrado.
-</div>
-`;
-}
-
-function filtrarCategoria(cat){
-
-categoriaAtual = cat;
-
-document.getElementById('tituloProdutos').innerText = cat;
-
-const filtrados = produtos.filter(
-p => (p.categoria || 'Outros') === cat
-);
-
-renderProdutos(filtrados);
-}
-
-function mostrarTodos(){
-
-categoriaAtual = null;
-
-document.getElementById('tituloProdutos').innerText = 'Todos os Produtos';
-
-renderProdutos(produtos);
-}
-
-function abrirZoom(url){
-
-if(!url) return;
-
-const zoom = document.getElementById('zoom');
-
-zoom.classList.add('active');
-
-document.getElementById('imgZoom').src = url;
-}
-
-function fecharZoom(){
-document.getElementById('zoom').classList.remove('active');
-}
-
-async function salvarProduto(){
-
-const btn = document.getElementById('btnSalvar');
-btn.disabled = true;
-btn.innerText = 'SALVANDO...';
+/* =========================================
+   LIMPA TOKENS CORROMPIDOS
+========================================= */
 
 try{
 
-const file = document.getElementById('img').files[0];
-const nome = document.getElementById('nome').value.trim();
-const categoria = document.getElementById('categoria').value.trim();
-const preco = document.getElementById('preco').value;
-const descricao = document.getElementById('descricao').value.trim();
+    const versao = localStorage.getItem("versao_app");
 
-if(!nome || !preco){
-alert('Preencha nome e preço');
-return;
-}
+    if(versao !== "1.0"){
 
-let imagem_url = '';
+        localStorage.clear();
+        sessionStorage.clear();
 
-if(file){
-
-const nomeArquivo = `${Date.now()}_${file.name}`;
-
-const upload = await supa.storage
-.from('imagens-produtos')
-.upload(nomeArquivo,file);
-
-if(upload.error){
-throw upload.error;
-}
-
-const publicUrl = supa.storage
-.from('imagens-produtos')
-.getPublicUrl(nomeArquivo);
-
-imagem_url = publicUrl.data.publicUrl;
-}
-
-if(editando){
-
-const payload = {
-nome,
-categoria,
-preco,
-descricao
-};
-
-if(imagem_url){
-payload.imagem_url = imagem_url;
-}
-
-const {error} = await supa
-.from('produtos')
-.update(payload)
-.eq('id',editando);
-
-if(error) throw error;
-
-alert('Produto atualizado');
-
-editando = null;
-
-}else{
-
-const {error} = await supa
-.from('produtos')
-.insert([{
-nome,
-categoria,
-preco,
-descricao,
-imagem_url
-}]);
-
-if(error) throw error;
-
-alert('Produto cadastrado');
-}
-
-limparFormulario();
-await carregarProdutos();
+        localStorage.setItem("versao_app","1.0");
+    }
 
 }catch(e){
-console.error(e);
-alert('Erro ao salvar produto');
-}
-finally{
-btn.disabled = false;
-btn.innerText = 'SALVAR PRODUTO';
-}
+    console.log(e);
 }
 
-function limparFormulario(){
+/* =========================================
+   LIMPAR TEXTO
+========================================= */
 
-document.getElementById('img').value = '';
-document.getElementById('nome').value = '';
-document.getElementById('categoria').value = '';
-document.getElementById('preco').value = '';
-document.getElementById('descricao').value = '';
+function limparTextoSeguro(texto){
+
+    return texto
+        .replace(/[“”]/g,'"')
+        .replace(/[‘’]/g,"'")
+        .replace(/[\u200B-\u200D\uFEFF]/g,'')
+        .replace(/\t/g,' ')
+        .replace(/\r/g,'')
+        .trim();
 }
 
-function renderAdmin(){
+/* =========================================
+   IMPORTAÇÃO SEGURA
+========================================= */
 
-const html = produtos.map(p=>`
-<div class="bg-slate-800 border border-white/10 rounded-2xl p-4 flex flex-col md:flex-row gap-4 justify-between">
+function importarCardapio(texto){
 
-<div class="flex gap-4">
+    try{
 
-<img src="${p.imagem_url || 'https://placehold.co/100'}"
-class="w-24 h-24 rounded-2xl object-cover">
+        const linhas = texto
+            .split('\n')
+            .map(l => l.trim())
+            .filter(l => l !== '');
 
-<div>
-<h2 class="text-xl font-black mb-1">
-${p.nome}
-</h2>
+        const produtos = [];
 
-<p class="text-white/50 text-sm mb-2">
-${p.categoria || 'Sem categoria'}
-</p>
+        linhas.forEach((linha)=>{
 
-<p class="text-amber-400 font-black">
-${dinheiro(p.preco)}
-</p>
-</div>
-</div>
+            linha = linha.replace(/[^\x20-\x7EÀ-ÿ]/g,'');
 
-<div class="flex items-center gap-3">
+            const match = linha.match(/^(.*?)\s+(\d+[.,]?\d*)$/);
 
-<button onclick="editarProduto(${p.id})"
-class="bg-blue-500 px-4 py-2 rounded-xl font-bold">
-Editar
-</button>
+            if(!match){
+                console.log("Linha ignorada:", linha);
+                return;
+            }
 
-<button onclick="excluirProduto(${p.id})"
-class="bg-red-500 px-4 py-2 rounded-xl font-bold">
-Excluir
-</button>
+            const nome = match[1]
+                .trim()
+                .replace(/\s+/g,' ');
 
-</div>
-</div>
-`).join('');
+            const preco = parseFloat(
+                match[2].replace(',','.')
+            );
 
-const box = document.getElementById('adminProdutos');
+            if(isNaN(preco)) return;
 
-box.innerHTML = html || `
-<div class="text-white/50">
-Nenhum produto cadastrado.
-</div>
-`;
+            produtos.push({
+                nome,
+                preco
+            });
+
+        });
+
+        return produtos;
+
+    }catch(err){
+
+        console.error(err);
+
+        return [];
+    }
 }
 
-function editarProduto(id){
+/* =========================================
+   SALVAR
+========================================= */
 
-const p = produtos.find(x=>Number(x.id) === Number(id));
+function salvarCardapio(produtos){
 
-if(!p) return;
+    try{
 
-editando = id;
+        localStorage.setItem(
+            "cardapio",
+            JSON.stringify(produtos)
+        );
 
-document.getElementById('nome').value = p.nome || '';
-document.getElementById('categoria').value = p.categoria || '';
-document.getElementById('preco').value = p.preco || '';
-document.getElementById('descricao').value = p.descricao || '';
+        return true;
 
-trocarAba('admin');
+    }catch(err){
 
-window.scrollTo({top:0,behavior:'smooth'});
+        console.error(err);
+
+        return false;
+    }
 }
 
-async function excluirProduto(id){
+/* =========================================
+   CARREGAR
+========================================= */
 
-if(!confirm('Excluir produto?')) return;
+function carregarCardapio(){
 
-const {error} = await supa
-.from('produtos')
-.delete()
-.eq('id',id);
+    try{
 
-if(error){
-alert('Erro ao excluir');
-return;
+        const dados = localStorage.getItem("cardapio");
+
+        if(!dados) return [];
+
+        return JSON.parse(dados);
+
+    }catch(err){
+
+        console.error(err);
+
+        localStorage.removeItem("cardapio");
+
+        return [];
+    }
 }
 
-await carregarProdutos();
+/* =========================================
+   RENDER
+========================================= */
+
+function renderizarProdutos(){
+
+    const produtos = carregarCardapio();
+
+    const lista = document.getElementById("lista");
+
+    lista.innerHTML = "";
+
+    let total = 0;
+
+    produtos.forEach((produto,index)=>{
+
+        total += produto.preco;
+
+        lista.innerHTML += `
+            <div class="item">
+                <div>
+                    ${produto.nome}
+                </div>
+
+                <div>
+                    R$ ${produto.preco.toFixed(2)}
+                </div>
+            </div>
+        `;
+    });
+
+    document.getElementById("total").innerHTML =
+        `TOTAL: R$ ${total.toFixed(2)}`;
 }
 
-function addCarrinho(id){
+/* =========================================
+   PROCESSAR
+========================================= */
 
-const produto = produtos.find(
-p => Number(p.id) === Number(id)
-);
+function processarCardapio(){
 
-if(!produto) return;
+    try{
 
-const item = carrinho.find(
-p => Number(p.id) === Number(id)
-);
+        const entrada = document.getElementById("entrada");
 
-if(item){
-item.qtd++;
-}else{
-carrinho.push({
-...produto,
-qtd:1
-});
+        const texto = limparTextoSeguro(
+            entrada.value
+        );
+
+        const produtos = importarCardapio(texto);
+
+        if(produtos.length === 0){
+
+            document.getElementById("status").innerHTML =
+                `<div class="erro">
+                    Nenhum produto encontrado.
+                </div>`;
+
+            return;
+        }
+
+        salvarCardapio(produtos);
+
+        renderizarProdutos();
+
+        document.getElementById("status").innerHTML =
+            `<div class="ok">
+                ${produtos.length} produtos importados com sucesso.
+            </div>`;
+
+    }catch(err){
+
+        console.error(err);
+
+        document.getElementById("status").innerHTML =
+            `<div class="erro">
+                Erro ao importar cardápio.
+            </div>`;
+    }
 }
 
-salvarCarrinho();
-renderCarrinho();
-}
+/* =========================================
+   INICIAR
+========================================= */
 
-function aumentarQtd(id){
-
-const item = carrinho.find(
-p=>Number(p.id) === Number(id)
-);
-
-if(item){
-item.qtd++;
-}
-
-salvarCarrinho();
-renderCarrinho();
-}
-
-function diminuirQtd(id){
-
-const item = carrinho.find(
-p=>Number(p.id) === Number(id)
-);
-
-if(!item) return;
-
-item.qtd--;
-
-if(item.qtd <= 0){
-carrinho = carrinho.filter(
-p=>Number(p.id)!==Number(id)
-);
-}
-
-salvarCarrinho();
-renderCarrinho();
-}
-
-function removerItem(id){
-
-carrinho = carrinho.filter(
-p=>Number(p.id)!==Number(id)
-);
-
-salvarCarrinho();
-renderCarrinho();
-}
-
-function salvarCarrinho(){
-localStorage.setItem('carrinho',JSON.stringify(carrinho));
-}
-
-function renderCarrinho(){
-
-let total = 0;
-
-const html = carrinho.map(c=>{
-
-const subtotal = Number(c.preco) * Number(c.qtd);
-
-total += subtotal;
-
-return `
-<div class="bg-slate-900 border border-white/10 rounded-2xl p-4">
-
-<div class="flex gap-3">
-
-<img src="${c.imagem_url || 'https://placehold.co/100'}"
-class="w-20 h-20 rounded-2xl object-cover">
-
-<div class="flex-1">
-<h2 class="font-black mb-1">
-${c.nome}
-</h2>
-
-<p class="text-amber-400 font-bold mb-3">
-${dinheiro(subtotal)}
-</p>
-
-<div class="flex items-center gap-2">
-
-<button onclick="diminuirQtd(${c.id})"
-class="w-8 h-8 rounded-full bg-slate-700">
--
-</button>
-
-<span class="font-black">
-${c.qtd}
-</span>
-
-<button onclick="aumentarQtd(${c.id})"
-class="w-8 h-8 rounded-full bg-slate-700">
-+
-</button>
-
-<button onclick="removerItem(${c.id})"
-class="ml-auto text-red-500 text-xl">
-<i class="fa-solid fa-trash"></i>
-</button>
-
-</div>
-</div>
-</div>
-</div>
-`;
-}).join('');
-
-const box = document.getElementById('itensCarrinho');
-
-box.innerHTML = html || `
-<div class="text-center text-white/50 mt-10">
-Carrinho vazio.
-</div>
-`;
-
-const badge = document.getElementById('badge');
-
-badge.innerText = carrinho.reduce((a,b)=>a+b.qtd,0);
-
-badge.classList.toggle(
-'hidden',
-carrinho.length === 0
-);
-
-document.getElementById('totalCarrinho')
-.innerText = dinheiro(total);
-}
-
-function toggleCarrinho(){
-
-document.getElementById('carrinho')
-.classList.toggle('translate-x-full');
-
-document.getElementById('overlay')
-.classList.toggle('active');
-}
-
-function finalizarPedido(){
-
-if(carrinho.length === 0){
-alert('Carrinho vazio');
-return;
-}
-
-const nome = document.getElementById('clienteNome').value.trim();
-const endereco = document.getElementById('clienteEndereco').value.trim();
-
-if(!nome || !endereco){
-alert('Preencha nome e endereço');
-return;
-}
-
-let total = 0;
-
-const itens = carrinho.map(i=>{
-
-const subtotal = Number(i.preco) * Number(i.qtd);
-
-total += subtotal;
-
-return `• ${i.qtd}x ${i.nome} - ${dinheiro(subtotal)}`;
-
-}).join('\n');
-
-const texto = `
-🍔 *DU LANCHE*\n\n
-👤 Cliente: ${nome}\n
-📍 Endereço: ${endereco}\n\n
-${itens}\n\n
-💰 Total: ${dinheiro(total)}
-`;
-
-window.open(
-`https://wa.me/5531999999999?text=${encodeURIComponent(texto)}`,
-'_blank'
-);
-
-carrinho = [];
-
-salvarCarrinho();
-renderCarrinho();
-
-toggleCarrinho();
-}
+renderizarProdutos();
 
 </script>
+
 </body>
 </html>
-```
-
-
