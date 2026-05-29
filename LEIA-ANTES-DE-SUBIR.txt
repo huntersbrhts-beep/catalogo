@@ -14,3 +14,9 @@ Se aparecer a faixa: "Versão completa carregada", o código novo entrou.
 Se não aparecer, o GitHub ainda está com arquivo antigo ou os arquivos foram enviados na pasta errada.
 
 Para pedidos, estoque e tamanhos funcionarem no banco, rode o conteúdo de supabase-sql.txt no Supabase SQL Editor.
+
+
+Atualizacao v4:
+- Roleta gira apenas uma vez por pedido.
+- Botao da roleta ajustado para aparecer melhor no carrinho, inclusive no celular.
+- Ao enviar o pedido, o carrinho limpa e a roleta libera novo giro para o proximo pedido.

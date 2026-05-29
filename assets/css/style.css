@@ -204,3 +204,54 @@ color:#fff;
 text-shadow:0 2px 4px rgba(0,0,0,.8);
 z-index:1;
 }
+
+
+/* Ajuste visual do carrinho e roleta - v4 */
+#sidebar-carrinho{
+  height:100dvh;
+}
+#itens-carrinho{
+  min-height:110px;
+}
+#sidebar-carrinho > .border-t{
+  max-height:62dvh;
+  overflow-y:auto;
+  padding-bottom:calc(1rem + env(safe-area-inset-bottom));
+}
+.roleta-btn-carrinho{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:52px;
+  margin-top:2px;
+  position:relative;
+  z-index:1;
+}
+.roleta-btn-carrinho:disabled,
+#btn-girar-roleta:disabled{
+  filter:grayscale(.25);
+}
+@media (max-width:480px){
+  #sidebar-carrinho > .border-t{
+    max-height:68dvh;
+  }
+  #sidebar-carrinho .p-4{
+    padding:12px;
+  }
+  .roleta-box{
+    padding:18px;
+  }
+  .roleta-area,
+  .roleta-wheel{
+    width:260px;
+    height:260px;
+  }
+  .roleta-wheel:after{
+    inset:78px;
+  }
+  .roleta-labels span{
+    left:98px;
+    top:115px;
+    transform-origin:center center;
+  }
+}
