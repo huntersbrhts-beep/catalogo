@@ -112,3 +112,8 @@ height:80px;
 object-fit:cover;
 border-radius:14px;
 }
+
+.admin-section.hidden{display:none!important;}
+.admin-menu{font-weight:bold;transition:.2s;}
+.admin-menu:hover{transform:translateY(-1px);}
+pre{background:#0b0b0c;border:1px solid #2a2a2d;border-radius:12px;padding:10px;overflow:auto;}
