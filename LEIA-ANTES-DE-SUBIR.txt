@@ -1,22 +1,17 @@
-COMO SUBIR NO GITHUB PAGES
+DU LANCHES - V6
 
-1) Extraia este ZIP no computador.
-2) Envie para o repositório SOMENTE:
-   - index.html
-   - assets/
-   - supabase-sql.txt
+Alterações desta versão:
+- WhatsApp atualizado para 31984656166.
+- ADM agora altera prêmios e limite total da roleta.
+- ADM agora altera plano de fundo por cor/gradiente ou imagem.
+- ADM agora altera redes sociais exibidas no rodapé.
+- Cache atualizado para GitHub Pages.
 
-NÃO envie a pasta du-lanches-cachefix inteira.
+Como subir no GitHub Pages:
+1. Extraia o ZIP.
+2. Envie o index.html e a pasta assets na raiz do repositório.
+3. Não envie a pasta inteira como subpasta.
+4. Depois de publicar, use Ctrl + F5 no navegador.
 
-Depois de subir, abra o site e aperte CTRL + F5.
-Se aparecer a faixa: "Versão completa carregada", o código novo entrou.
-
-Se não aparecer, o GitHub ainda está com arquivo antigo ou os arquivos foram enviados na pasta errada.
-
-Para pedidos, estoque e tamanhos funcionarem no banco, rode o conteúdo de supabase-sql.txt no Supabase SQL Editor.
-
-
-Atualizacao v4:
-- Roleta gira apenas uma vez por pedido.
-- Botao da roleta ajustado para aparecer melhor no carrinho, inclusive no celular.
-- Ao enviar o pedido, o carrinho limpa e a roleta libera novo giro para o proximo pedido.
+Atenção:
+As configurações visuais, redes sociais, cupons e roleta ficam salvas no navegador pelo localStorage, seguindo o padrão das versões anteriores.
