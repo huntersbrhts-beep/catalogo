@@ -1,0 +1,33 @@
+-- Rode estes comandos no Supabase SQL Editor antes de usar todas as novas funções.
+-- Eles não apagam seus produtos existentes.
+
+alter table produtos add column if not exists estoque integer;
+alter table produtos add column if not exists ativo boolean default true;
+alter table produtos add column if not exists tamanhos jsonb;
+
+create table if not exists pedidos (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz default now(),
+  cliente_nome text,
+  telefone text,
+  tipo_pedido text,
+  bairro text,
+  endereco text,
+  itens jsonb,
+  subtotal numeric,
+  taxa_entrega numeric,
+  desconto numeric,
+  total_final numeric,
+  status text default 'novo'
+);
+
+alter table pedidos enable row level security;
+
+drop policy if exists "Permitir inserir pedidos anon" on pedidos;
+create policy "Permitir inserir pedidos anon" on pedidos for insert to anon with check (true);
+
+drop policy if exists "Admin lê pedidos" on pedidos;
+create policy "Admin lê pedidos" on pedidos for select to authenticated using (true);
+
+drop policy if exists "Admin atualiza pedidos" on pedidos;
+create policy "Admin atualiza pedidos" on pedidos for update to authenticated using (true) with check (true);

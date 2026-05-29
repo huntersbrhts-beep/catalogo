@@ -1,0 +1,16 @@
+COMO SUBIR NO GITHUB PAGES
+
+1) Extraia este ZIP no computador.
+2) Envie para o repositório SOMENTE:
+   - index.html
+   - assets/
+   - supabase-sql.txt
+
+NÃO envie a pasta du-lanches-cachefix inteira.
+
+Depois de subir, abra o site e aperte CTRL + F5.
+Se aparecer a faixa: "Versão completa carregada", o código novo entrou.
+
+Se não aparecer, o GitHub ainda está com arquivo antigo ou os arquivos foram enviados na pasta errada.
+
+Para pedidos, estoque e tamanhos funcionarem no banco, rode o conteúdo de supabase-sql.txt no Supabase SQL Editor.
