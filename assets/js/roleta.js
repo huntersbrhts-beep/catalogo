@@ -1,6 +1,7 @@
 let descontoRoleta = null;
 let roletaGirando = false;
 let roletaJaGirou = false;
+const LIMITE_CUPONS_ROLETA = 30;
 
 const premiosRoleta = [
   { texto: '5% OFF', tipo: 'percentual', valor: 5 },
@@ -15,20 +16,21 @@ function atualizarBotaoRoleta() {
   const btnCarrinho = document.getElementById('btn-abrir-roleta');
   const btnGirar = document.getElementById('btn-girar-roleta');
 
+  const roletaEsgotada = !cupomTemLimiteDisponivel({ codigo: 'ROLETA', limite: LIMITE_CUPONS_ROLETA });
   if (btnCarrinho) {
-    btnCarrinho.disabled = roletaJaGirou;
-    btnCarrinho.classList.toggle('opacity-60', roletaJaGirou);
-    btnCarrinho.classList.toggle('cursor-not-allowed', roletaJaGirou);
-    btnCarrinho.innerHTML = roletaJaGirou
-      ? '<i class="fas fa-lock mr-2"></i> Roleta já utilizada neste pedido'
-      : '<i class="fas fa-gift mr-2"></i> Girar roleta de desconto';
+    btnCarrinho.disabled = roletaJaGirou || roletaEsgotada;
+    btnCarrinho.classList.toggle('opacity-60', roletaJaGirou || roletaEsgotada);
+    btnCarrinho.classList.toggle('cursor-not-allowed', roletaJaGirou || roletaEsgotada);
+    btnCarrinho.innerHTML = roletaEsgotada
+      ? '<i class="fas fa-ban mr-2"></i> Cupons da roleta esgotados'
+      : (roletaJaGirou ? '<i class="fas fa-lock mr-2"></i> Roleta já utilizada neste pedido' : '<i class="fas fa-gift mr-2"></i> Girar roleta de desconto');
   }
 
   if (btnGirar) {
-    btnGirar.disabled = roletaJaGirou || roletaGirando;
-    btnGirar.classList.toggle('opacity-60', roletaJaGirou || roletaGirando);
-    btnGirar.classList.toggle('cursor-not-allowed', roletaJaGirou || roletaGirando);
-    btnGirar.textContent = roletaJaGirou ? 'Roleta já usada' : 'Girar agora';
+    btnGirar.disabled = roletaJaGirou || roletaGirando || roletaEsgotada;
+    btnGirar.classList.toggle('opacity-60', roletaJaGirou || roletaGirando || roletaEsgotada);
+    btnGirar.classList.toggle('cursor-not-allowed', roletaJaGirou || roletaGirando || roletaEsgotada);
+    btnGirar.textContent = roletaEsgotada ? 'Cupons esgotados' : (roletaJaGirou ? 'Roleta já usada' : 'Girar agora');
   }
 }
 
@@ -76,6 +78,12 @@ function girarRoleta() {
 
   if (roletaJaGirou) {
     resultado.textContent = 'A roleta só pode ser girada uma vez por pedido.';
+    atualizarBotaoRoleta();
+    return;
+  }
+
+  if (!cupomTemLimiteDisponivel({ codigo: 'ROLETA', limite: LIMITE_CUPONS_ROLETA })) {
+    resultado.textContent = 'Os cupons da roleta acabaram.';
     atualizarBotaoRoleta();
     return;
   }
@@ -131,3 +139,4 @@ window.fecharRoleta = fecharRoleta;
 window.girarRoleta = girarRoleta;
 window.resetarRoletaParaNovoPedido = resetarRoletaParaNovoPedido;
 window.atualizarBotaoRoleta = atualizarBotaoRoleta;
+window.LIMITE_CUPONS_ROLETA = LIMITE_CUPONS_ROLETA;
