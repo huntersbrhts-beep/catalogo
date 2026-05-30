@@ -1,10 +1,18 @@
-VERSÃO V19 - ROLETA SOMENTE SUPABASE
+VERSÃO V20 - ROLETA SOMENTE SUPABASE
 
-1. Suba index.html e a pasta assets na raiz do GitHub.
-2. Rode o supabase-sql.txt no Supabase.
-3. Abra o site com ?v=20260530-19.
-4. No ADM, em Configurações > Prêmios da roleta, deve aparecer: Roleta V19 - SOMENTE SUPABASE.
-5. Clique em Limpar config_roleta local uma vez no celular, se necessário.
-6. Salve os prêmios. A mensagem correta deve conter: Salvo no SUPABASE.
+O que mudou:
+- Removidos os scripts antigos da roleta do index.html.
+- A roleta agora usa apenas assets/js/roleta-v20-supabase-final.js.
+- config_roleta está bloqueado no localStorage/sessionStorage.
+- O ADM mostra: Roleta V20 - SOMENTE SUPABASE.
+- Se o Supabase falhar, aparece erro real. Não existe mais sucesso falso.
 
-Se aparecer qualquer mensagem falando apenas "Prêmios atualizados" ou "modo padrão", o navegador ainda está carregando versão antiga.
+Passos obrigatórios:
+1. Suba TODOS os arquivos no GitHub, substituindo os antigos.
+2. Rode o bloco V20 do supabase-sql.txt no SQL Editor do Supabase.
+3. Abra o site com ?v=20260530-20.
+4. No ADM, confira se aparece "Roleta V20 - SOMENTE SUPABASE".
+5. Adicione/edite os prêmios e clique em SALVAR TUDO NO SUPABASE.
+6. Clique em Testar leitura Supabase.
+
+Se aparecer qualquer texto V18 ou V19, o GitHub/celular ainda está abrindo arquivo antigo.

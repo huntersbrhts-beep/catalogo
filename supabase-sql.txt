@@ -148,3 +148,27 @@ with check (true);
 insert into configuracoes (chave, valor, updated_at) values
 ('config_roleta', '{"limite":0,"premios":[{"texto":"CONFIGURE NO ADM","tipo":"nenhum","valor":0}],"_versao":"v19-inicial"}'::jsonb, now())
 on conflict (chave) do nothing;
+
+-- ===== V20 ROLETA DEFINITIVA SOMENTE SUPABASE =====
+-- Rode este bloco no Supabase SQL Editor.
+create table if not exists configuracoes (
+  chave text primary key,
+  valor jsonb not null default '{}'::jsonb,
+  updated_at timestamptz default now()
+);
+
+alter table configuracoes enable row level security;
+
+drop policy if exists "Publico le e salva configuracoes" on configuracoes;
+create policy "Publico le e salva configuracoes" on configuracoes
+for all to anon, authenticated
+using (true)
+with check (true);
+
+-- Garante que a linha existe, sem sobrescrever os prêmios que você já salvou.
+insert into configuracoes (chave, valor, updated_at) values
+('config_roleta', '{"limite":0,"premios":[{"texto":"CONFIGURAR NO ADM","tipo":"nenhum","valor":0}],"_versao":"v20-inicial"}'::jsonb, now())
+on conflict (chave) do nothing;
+
+-- Para conferir o que realmente está salvo no Supabase:
+select chave, valor, updated_at from configuracoes where chave = 'config_roleta';
