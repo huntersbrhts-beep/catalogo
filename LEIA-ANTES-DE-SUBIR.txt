@@ -1,17 +1,13 @@
-DU LANCHES - V6
+DU LANCHES - V8 SUPABASE REAL
 
-Alterações desta versão:
-- WhatsApp atualizado para 31984656166.
-- ADM agora altera prêmios e limite total da roleta.
-- ADM agora altera plano de fundo por cor/gradiente ou imagem.
-- ADM agora altera redes sociais exibidas no rodapé.
-- Cache atualizado para GitHub Pages.
+Correção desta versão:
+- configurações do ADM não são mais salvas em localStorage
+- config_roleta, taxas_entrega, cupons, redes e aparência são buscados da tabela loja_config no Supabase
+- ao abrir o site, as chaves antigas do localStorage são apagadas automaticamente
 
-Como subir no GitHub Pages:
-1. Extraia o ZIP.
-2. Envie o index.html e a pasta assets na raiz do repositório.
-3. Não envie a pasta inteira como subpasta.
-4. Depois de publicar, use Ctrl + F5 no navegador.
-
-Atenção:
-As configurações visuais, redes sociais, cupons e roleta ficam salvas no navegador pelo localStorage, seguindo o padrão das versões anteriores.
+IMPORTANTE:
+1) Rode o arquivo supabase-sql.txt no Supabase.
+2) Suba index.html e a pasta assets na raiz do GitHub.
+3) Abra o site com Ctrl + F5.
+4) No DevTools > Application > Local Storage, pode continuar aparecendo sb-...auth-token. Isso é normal do login Supabase.
+5) Não devem mais aparecer: config_roleta, taxas_entrega, cupons_desconto, redes_sociais, aparencia_loja, config_loja.
