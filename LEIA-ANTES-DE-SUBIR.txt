@@ -1,33 +1,20 @@
-DU LANCHES - V11 CORRIGIDA
+VERSÃO V16 - CORREÇÃO DEFINITIVA DA ROLETA
 
-Suba o conteúdo deste ZIP na raiz do GitHub Pages:
-- index.html
-- assets/
-- supabase-sql.txt
+1. Suba TODOS os arquivos no GitHub, principalmente:
+   assets/js/roleta-fix-definitivo.js
+   index.html
 
-Correções V11:
-- Cache versionado para v11.
-- Roleta carrega os prêmios salvos pelo ADM no momento de girar.
-- ADM ganhou botão Salvar tudo nos prêmios da roleta.
-- Alterar/excluir/adicionar prêmio atualiza a roleta na hora.
-- Carrinho abre WhatsApp usando wa.me imediatamente, evitando bloqueio por espera do Supabase.
-- Forma de pagamento incluída no pedido.
-- Fidelidade por telefone aparece ao digitar telefone no carrinho.
-- Histórico usa telefone só com números para evitar duplicidade.
+2. Rode o supabase-sql.txt no Supabase.
 
-Após subir no GitHub Pages:
-1. Espere o deploy terminar em Actions/Pages.
-2. Abra em aba anônima ou use Ctrl + Shift + R.
+3. Entre no ADM > Configurações > Prêmios da roleta.
+   Adicione/edite os prêmios e clique em:
+   Salvar tudo definitivamente no Supabase
 
+4. No quadro da roleta no ADM precisa aparecer:
+   Fonte: Supabase v16
+   Chave: roleta_premios_site_v16
 
-IMPORTANTE V12:
-1. Suba todos os arquivos no GitHub.
-2. Rode novamente o supabase-sql.txt no Supabase.
-3. Entre no ADM, abra Configurações > Prêmios da roleta e clique em Salvar tudo.
-4. No celular, abra o site com ?v=12 no final da URL uma vez, exemplo: https://seusite.github.io/repositorio/?v=12
+5. No celular abra o site com ?v=20260530-16 no final da URL.
 
-V13 - Roleta:
-- A roleta agora busca os prêmios no Supabase toda vez que abre/gira.
-- Para o celular receber os prêmios do ADM, é obrigatório rodar o supabase-sql.txt no Supabase.
-- Depois de salvar no ADM, use o botão "Salvar tudo no Supabase".
-- No celular, abra a URL com ?v=20260530-13 uma vez para forçar cache novo.
+Esta versão não usa mais valores padrão escondidos para girar a roleta.
+Se não houver prêmios salvos no Supabase, a roleta mostra erro/sem prêmios.

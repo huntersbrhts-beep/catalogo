@@ -75,3 +75,27 @@ with check (true);
 
 -- Atualiza a data sempre que a config for salva pelo site.
 alter table configuracoes add column if not exists updated_at timestamptz default now();
+
+-- ===== V16 DEFINITIVO ROLETA =====
+-- Esta versão usa a chave roleta_premios_site_v16 e não depende mais de cache/localStorage.
+create table if not exists configuracoes (
+  chave text primary key,
+  valor jsonb not null default '{}'::jsonb,
+  updated_at timestamptz default now()
+);
+
+alter table configuracoes enable row level security;
+
+drop policy if exists "Publico le e salva configuracoes" on configuracoes;
+create policy "Publico le e salva configuracoes" on configuracoes
+for all to anon, authenticated
+using (true)
+with check (true);
+
+-- Remove configuração de teste/padrão da chave nova. Depois salve pelo ADM.
+delete from configuracoes where chave = 'roleta_premios_site_v16';
+
+-- Se quiser copiar a roleta antiga para a chave nova, rode depois de confirmar que config_roleta está certa:
+-- insert into configuracoes (chave, valor, updated_at)
+-- select 'roleta_premios_site_v16', valor, now() from configuracoes where chave='config_roleta'
+-- on conflict (chave) do update set valor=excluded.valor, updated_at=now();
