@@ -1,9 +1,7 @@
-DU LANCHES V26 - ROLETA SOMENTE SUPABASE
+VERSAO V27
 
-1. Suba o CONTEÚDO do ZIP na raiz do GitHub Pages.
-2. Em assets/js deixe somente o arquivo roleta-v25-somente-tabela.js. Apague roleta.js e roleta-v*.js antigos do repositório.
-3. Rode o supabase-sql.txt no Supabase.
-4. Abra o site com ?v=20260530-26.
-5. No ADM precisa aparecer: Roleta V26 - SOMENTE TABELA SUPABASE.
-
-Observação: este arquivo da roleta não usa localStorage. O site ainda pode usar localStorage para fidelidade, cupons locais e aparência, mas a roleta não.
+1. Apague no GitHub qualquer arquivo antigo de roleta em assets/js.
+2. Suba este ZIP extraido, com index.html na raiz.
+3. Rode supabase-sql.txt no Supabase.
+4. Abra o site com ?v=20260530-27.
+5. No DevTools > Application > Local Storage, a chave config_roleta deve sumir. Se ela voltar, o GitHub ainda está servindo index antigo.

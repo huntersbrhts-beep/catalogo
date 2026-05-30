@@ -37,10 +37,9 @@ function renderizarFidelidadeAdmin(){
 }
 
 async function limparCacheLocalAdmin(){
-  ['config_roleta','config_roleta_ANTIGO_BLOQUEADO','roleta_premios_site_v16'].forEach(k=>{try{localStorage.removeItem(k);sessionStorage.removeItem(k);}catch(e){}});
   if(typeof window.renderizarRoletaAdmin==='function') await window.renderizarRoletaAdmin();
-  alert('Cache local da roleta limpo neste aparelho. A roleta agora lê somente do Supabase.');
+  alert('Roleta recarregada do Supabase neste aparelho.');
 }
 
-/* V26: Todas as funções antigas da roleta foram removidas deste arquivo.
-   A roleta oficial fica somente em assets/js/roleta-v22-supabase-unica.js */
+/* V27: Todas as funções antigas da roleta foram removidas deste arquivo.
+   A roleta oficial fica somente em assets/js/roleta-v27-somente-supabase.js */

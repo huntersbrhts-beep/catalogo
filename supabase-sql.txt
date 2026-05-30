@@ -1,4 +1,4 @@
--- DU LANCHES - V26 ROLETA SOMENTE TABELA SUPABASE
+-- DU LANCHES - V27 ROLETA SOMENTE TABELA SUPABASE
 -- Rode este arquivo no Supabase SQL Editor.
 -- A roleta NÃO usa mais config_roleta. Agora usa roleta_premios e roleta_config.
 
@@ -89,6 +89,6 @@ select texto, tipo, valor, ordem, ativo from public.roleta_premios order by orde
 select * from public.roleta_config where id = 1;
 
 
--- V26: conferência rápida
+-- V27: conferência rápida
 select 'roleta_config' as tabela, count(*) from public.roleta_config;
 select 'roleta_premios' as tabela, count(*) from public.roleta_premios;
