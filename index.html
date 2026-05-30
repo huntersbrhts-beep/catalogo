@@ -43,14 +43,14 @@
       <div class="roleta-ponteiro"></div>
       <div id="roleta-wheel" class="roleta-wheel"><div id="roleta-labels" class="roleta-labels"></div></div>
     </div>
-    <button id="btn-girar-roleta" onclick="girarRoletaV27()" class="w-full btn-primary py-3 rounded-xl mt-5">Girar agora</button>
+    <button id="btn-girar-roleta" onclick="girarRoletaV28()" class="w-full btn-primary py-3 rounded-xl mt-5">Girar agora</button>
     <div id="resultado-roleta" class="text-center font-bold text-orange-300 mt-4 min-h-[28px]"></div>
   </div>
 </div>
 <footer class="container mx-auto px-4 py-8 text-center text-sm text-gray-400"><div class="font-bold text-white mb-1"><span class="text-orange-500">DU</span> LANCHES</div><div class="mb-3">Desde 2019</div><div id="rodape-redes" class="flex flex-wrap justify-center gap-3"></div></footer>
 
 <script>
-// V27: bloqueio definitivo antes de qualquer módulo antigo tentar salvar a roleta local.
+// V28: bloqueio definitivo antes de qualquer módulo antigo tentar salvar a roleta local.
 (function(){
   const BLOQUEADA = 'config_roleta';
   try { localStorage.removeItem(BLOQUEADA); sessionStorage.removeItem(BLOQUEADA); } catch(e) {}
@@ -58,7 +58,7 @@
     const originalSetItem = Storage.prototype.setItem;
     Storage.prototype.setItem = function(chave, valor){
       if (String(chave) === BLOQUEADA) {
-        console.warn('V27 bloqueou gravação local da roleta. A roleta usa somente Supabase.');
+        console.warn('V28 bloqueou gravação local da roleta. A roleta usa somente Supabase.');
         try { this.removeItem(BLOQUEADA); } catch(e) {}
         return;
       }
@@ -76,6 +76,6 @@
 <script src="assets/js/admin.js?v=20260530-27" defer></script>
 <script src="assets/js/carrinho.js?v=20260530-27" defer></script>
 <script src="assets/js/imagem-modal.js?v=20260530-27" defer></script>
-<script src="assets/js/roleta-v27-somente-supabase.js?v=20260530-27" defer></script>
+<script src="assets/js/roleta-v28-salvamento-testado.js?v=20260530-28" defer></script>
 <script src="assets/js/app.js?v=20260530-27" defer></script>
 </body></html>

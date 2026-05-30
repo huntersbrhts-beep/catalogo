@@ -1,7 +1,7 @@
-VERSAO V27
+VERSAO V28
 
 1. Apague no GitHub qualquer arquivo antigo de roleta em assets/js.
 2. Suba este ZIP extraido, com index.html na raiz.
 3. Rode supabase-sql.txt no Supabase.
-4. Abra o site com ?v=20260530-27.
+4. Abra o site com ?v=20260530-28.
 5. No DevTools > Application > Local Storage, a chave config_roleta deve sumir. Se ela voltar, o GitHub ainda está servindo index antigo.
