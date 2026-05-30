@@ -1,7 +1,17 @@
-VERSAO V28
+DU LANCHES - V6
 
-1. Apague no GitHub qualquer arquivo antigo de roleta em assets/js.
-2. Suba este ZIP extraido, com index.html na raiz.
-3. Rode supabase-sql.txt no Supabase.
-4. Abra o site com ?v=20260530-28.
-5. No DevTools > Application > Local Storage, a chave config_roleta deve sumir. Se ela voltar, o GitHub ainda está servindo index antigo.
+Alterações desta versão:
+- WhatsApp atualizado para 31984656166.
+- ADM agora altera prêmios e limite total da roleta.
+- ADM agora altera plano de fundo por cor/gradiente ou imagem.
+- ADM agora altera redes sociais exibidas no rodapé.
+- Cache atualizado para GitHub Pages.
+
+Como subir no GitHub Pages:
+1. Extraia o ZIP.
+2. Envie o index.html e a pasta assets na raiz do repositório.
+3. Não envie a pasta inteira como subpasta.
+4. Depois de publicar, use Ctrl + F5 no navegador.
+
+Atenção:
+As configurações visuais, redes sociais, cupons e roleta ficam salvas no navegador pelo localStorage, seguindo o padrão das versões anteriores.

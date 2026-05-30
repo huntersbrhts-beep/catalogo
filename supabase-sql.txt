@@ -1,94 +1,70 @@
--- DU LANCHES - V28 ROLETA SOMENTE TABELA SUPABASE
--- Rode este arquivo no Supabase SQL Editor.
--- A roleta NÃO usa mais config_roleta. Agora usa roleta_premios e roleta_config.
+-- DU LANCHES - SQL COMPLETO ATUALIZADO
+-- Rode este arquivo no Supabase: SQL Editor > New query > Run
 
-create extension if not exists pgcrypto;
+-- 1) Colunas extras na tabela produtos
+alter table produtos add column if not exists estoque integer;
+alter table produtos add column if not exists ativo boolean default true;
+alter table produtos add column if not exists tamanhos jsonb;
 
-create table if not exists public.roleta_config (
-  id integer primary key default 1,
-  limite integer not null default 0,
-  updated_at timestamptz not null default now(),
-  constraint roleta_config_id_um check (id = 1)
-);
-
-create table if not exists public.roleta_premios (
+-- 2) Tabela de pedidos
+create table if not exists pedidos (
   id uuid primary key default gen_random_uuid(),
-  texto text not null,
-  tipo text not null default 'nenhum' check (tipo in ('percentual','valor','nenhum')),
-  valor numeric not null default 0,
-  ordem integer not null default 1,
-  ativo boolean not null default true,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  created_at timestamptz default now(),
+  cliente_nome text,
+  telefone text,
+  tipo_pedido text,
+  bairro text,
+  endereco text,
+  itens jsonb,
+  subtotal numeric default 0,
+  taxa_entrega numeric default 0,
+  desconto numeric default 0,
+  total_final numeric default 0,
+  status text default 'novo'
 );
 
-alter table public.roleta_config enable row level security;
-alter table public.roleta_premios enable row level security;
+-- 3) Tabela de configurações da loja
+-- Aqui salvam: cupons, limite da roleta, prêmios da roleta, frete por bairro,
+-- banner, horário, redes sociais, aparência e ordem das categorias.
+create table if not exists loja_config (
+  chave text primary key,
+  valor jsonb not null,
+  updated_at timestamptz default now()
+);
 
-drop policy if exists "roleta_config_read_all" on public.roleta_config;
-drop policy if exists "roleta_config_write_authenticated" on public.roleta_config;
-drop policy if exists "roleta_premios_read_all" on public.roleta_premios;
-drop policy if exists "roleta_premios_insert_authenticated" on public.roleta_premios;
-drop policy if exists "roleta_premios_update_authenticated" on public.roleta_premios;
-drop policy if exists "roleta_premios_delete_authenticated" on public.roleta_premios;
+-- 4) Configurações iniciais
+insert into loja_config (chave, valor) values
+('config_loja', '{"banner":"","abre":"18:00","fecha":"23:59","forcar":"auto"}'::jsonb),
+('taxas_entrega', '{}'::jsonb),
+('cupons_desconto', '[]'::jsonb),
+('ordem_categorias', '[]'::jsonb),
+('uso_cupons_desconto', '{}'::jsonb),
+('redes_sociais', '{"instagram":"","facebook":"","whatsapp":"31984656166"}'::jsonb),
+('aparencia_loja', '{"corFundo":"","imagemFundo":"","usarImagem":false}'::jsonb),
+('config_roleta', '{"limite":30,"premios":[{"texto":"5% OFF","tipo":"percentual","valor":5},{"texto":"10% OFF","tipo":"percentual","valor":10},{"texto":"R$ 5 OFF","tipo":"valor","valor":5},{"texto":"15% OFF","tipo":"percentual","valor":15},{"texto":"R$ 10 OFF","tipo":"valor","valor":10},{"texto":"SEM CUPOM","tipo":"nenhum","valor":0}]}'::jsonb)
+on conflict (chave) do nothing;
 
-create policy "roleta_config_read_all"
-on public.roleta_config
-for select
-to anon, authenticated
-using (true);
+-- 5) Políticas simples para projeto público GitHub Pages
+alter table pedidos enable row level security;
+alter table loja_config enable row level security;
 
-create policy "roleta_config_write_authenticated"
-on public.roleta_config
-for all
-to authenticated
-using (true)
-with check (true);
+drop policy if exists "pedidos_insert_publico" on pedidos;
+create policy "pedidos_insert_publico" on pedidos for insert with check (true);
 
-create policy "roleta_premios_read_all"
-on public.roleta_premios
-for select
-to anon, authenticated
-using (true);
+drop policy if exists "pedidos_select_publico" on pedidos;
+create policy "pedidos_select_publico" on pedidos for select using (true);
 
-create policy "roleta_premios_insert_authenticated"
-on public.roleta_premios
-for insert
-to authenticated
-with check (true);
+drop policy if exists "pedidos_update_publico" on pedidos;
+create policy "pedidos_update_publico" on pedidos for update using (true) with check (true);
 
-create policy "roleta_premios_update_authenticated"
-on public.roleta_premios
-for update
-to authenticated
-using (true)
-with check (true);
+drop policy if exists "loja_config_select_publico" on loja_config;
+create policy "loja_config_select_publico" on loja_config for select using (true);
 
-create policy "roleta_premios_delete_authenticated"
-on public.roleta_premios
-for delete
-to authenticated
-using (true);
+drop policy if exists "loja_config_insert_publico" on loja_config;
+create policy "loja_config_insert_publico" on loja_config for insert with check (true);
 
-insert into public.roleta_config (id, limite, updated_at)
-values (1, 30, now())
-on conflict (id) do nothing;
+drop policy if exists "loja_config_update_publico" on loja_config;
+create policy "loja_config_update_publico" on loja_config for update using (true) with check (true);
 
--- Só cria exemplos se a tabela estiver vazia. Depois você altera pelo ADM.
-insert into public.roleta_premios (texto, tipo, valor, ordem, ativo)
-select * from (values
-  ('5% OFF','percentual',5,1,true),
-  ('10% OFF','percentual',10,2,true),
-  ('R$ 5 OFF','valor',5,3,true),
-  ('SEM CUPOM','nenhum',0,4,true)
-) as v(texto,tipo,valor,ordem,ativo)
-where not exists (select 1 from public.roleta_premios);
-
--- Teste: precisa retornar os prêmios da roleta.
-select texto, tipo, valor, ordem, ativo from public.roleta_premios order by ordem;
-select * from public.roleta_config where id = 1;
-
-
--- V28: conferência rápida
-select 'roleta_config' as tabela, count(*) from public.roleta_config;
-select 'roleta_premios' as tabela, count(*) from public.roleta_premios;
+-- 6) Storage: confira se o bucket imagens-produtos existe e está público.
+-- Se ainda não existir, crie em Storage > New bucket > imagens-produtos > Public bucket.
