@@ -116,3 +116,86 @@ async function limparCacheLocalAdmin(){
   if(typeof atualizarRoletaDepoisDoAdm==='function') atualizarRoletaDepoisDoAdm();
   alert('Cache local limpo. Recarregue o site no celular ou abra novamente.');
 }
+
+// ===== V13: correção definitiva da roleta entre ADM e celular =====
+async function salvarConfigRoletaRemotaObrigatoria(cfg){
+  salvarJsonLocal('config_roleta', cfg);
+  if(typeof salvarConfiguracaoBanco !== 'function') return { error: { message:'Função de configuração não carregou.' } };
+  const { error } = await salvarConfiguracaoBanco('config_roleta', cfg);
+  if(error){
+    return { error };
+  }
+  return { error:null };
+}
+
+async function salvarTodosPremiosRoletaAdmin(){
+  const limite=parseInt(document.getElementById('roleta-limite-admin')?.value||'0')||0;
+  const premios=[];
+  document.querySelectorAll('[data-premio-roleta-index]').forEach(row=>{
+    const idx=row.getAttribute('data-premio-roleta-index');
+    const texto=document.getElementById('premio-edit-texto-'+idx)?.value.trim()||'';
+    const tipo=document.getElementById('premio-edit-tipo-'+idx)?.value||'nenhum';
+    const valor=numero(document.getElementById('premio-edit-valor-'+idx)?.value||0);
+    if(texto) premios.push({texto,tipo,valor:tipo==='nenhum'?0:valor});
+  });
+  const cfg={limite,premios};
+  const { error } = await salvarConfigRoletaRemotaObrigatoria(cfg);
+  if(error){
+    alert('Não consegui salvar a roleta no Supabase. Rode o supabase-sql.txt e tente novamente. Erro: '+error.message);
+    return;
+  }
+  if(typeof carregarConfigRoletaAtualizada==='function') await carregarConfigRoletaAtualizada();
+  if(typeof atualizarRoletaDepoisDoAdm==='function') atualizarRoletaDepoisDoAdm();
+  renderizarRoletaAdmin();
+  alert('Prêmios salvos no Supabase. O celular agora vai carregar estes valores.');
+}
+function salvarRoletaConfigAdmin(){salvarTodosPremiosRoletaAdmin();}
+
+async function salvarPremioRoletaAdmin(){
+  const texto=document.getElementById('premio-texto')?.value.trim();
+  const tipo=document.getElementById('premio-tipo')?.value;
+  const valor=numero(document.getElementById('premio-valor')?.value||0);
+  if(!texto){alert('Informe o nome do prêmio.');return;}
+  if(tipo!=='nenhum'&&!valor){alert('Informe o valor do prêmio.');return;}
+  const cfg=getConfigRoleta();
+  cfg.limite=Number(document.getElementById('roleta-limite-admin')?.value || cfg.limite || 0);
+  cfg.premios=Array.isArray(cfg.premios)?cfg.premios:[];
+  if(cfg.premios.length>=8){alert('Limite de 8 prêmios na roleta.');return;}
+  cfg.premios.push({texto,tipo,valor:tipo==='nenhum'?0:valor});
+  const { error } = await salvarConfigRoletaRemotaObrigatoria(cfg);
+  if(error){
+    alert('Não consegui salvar a roleta no Supabase. Rode o supabase-sql.txt e tente novamente. Erro: '+error.message);
+    return;
+  }
+  document.getElementById('premio-texto').value='';
+  document.getElementById('premio-valor').value='';
+  if(typeof carregarConfigRoletaAtualizada==='function') await carregarConfigRoletaAtualizada();
+  if(typeof atualizarRoletaDepoisDoAdm==='function') atualizarRoletaDepoisDoAdm();
+  renderizarRoletaAdmin();
+}
+
+async function removerPremioRoletaAdmin(i){
+  const cfg=getConfigRoleta();
+  cfg.premios=(cfg.premios||[]).filter((_,idx)=>idx!==i);
+  const { error } = await salvarConfigRoletaRemotaObrigatoria(cfg);
+  if(error){alert('Erro ao salvar no Supabase: '+error.message); return;}
+  if(typeof carregarConfigRoletaAtualizada==='function') await carregarConfigRoletaAtualizada();
+  if(typeof atualizarRoletaDepoisDoAdm==='function') atualizarRoletaDepoisDoAdm();
+  renderizarRoletaAdmin();
+}
+
+async function renderizarRoletaAdmin(){
+  if(typeof carregarConfigRoletaAtualizada==='function') await carregarConfigRoletaAtualizada();
+  const cfg=getConfigRoleta();
+  const limiteEl=document.getElementById('roleta-limite-admin');
+  if(limiteEl)limiteEl.value=cfg.limite||0;
+  const box=document.getElementById('lista-premios-roleta');
+  if(!box)return;
+  const usados=usoCupomCodigo('ROLETA');
+  const premios=Array.isArray(cfg.premios)?cfg.premios:[];
+  box.innerHTML=`<div class="text-sm text-gray-400 mb-3">Usados: ${usados}/${cfg.limite||'sem limite'} • Estes dados são salvos no Supabase para aparecer no celular.</div>`+
+    (premios.length?premios.map((p,i)=>`<div class="admin-card space-y-2" data-premio-roleta-index="${i}"><div class="grid grid-cols-1 md:grid-cols-4 gap-2"><input id="premio-edit-texto-${i}" value="${escaparHtml(p.texto||'')}" class="p-3 rounded-xl" placeholder="Nome"><select id="premio-edit-tipo-${i}" class="p-3 rounded-xl"><option value="percentual" ${p.tipo==='percentual'?'selected':''}>%</option><option value="valor" ${p.tipo==='valor'?'selected':''}>R$</option><option value="nenhum" ${p.tipo==='nenhum'?'selected':''}>Sem desconto</option></select><input id="premio-edit-valor-${i}" type="number" step="0.01" value="${Number(p.valor||0)}" class="p-3 rounded-xl" placeholder="Valor"><button onclick="removerPremioRoletaAdmin(${i})" class="bg-red-600 hover:bg-red-700 text-white rounded-xl">Excluir</button></div></div>`).join(''):'<p class="text-gray-500">Nenhum prêmio cadastrado.</p>')+
+    '<div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-3"><button onclick="salvarTodosPremiosRoletaAdmin()" class="w-full btn-primary p-3 rounded-xl">Salvar tudo no Supabase</button><button onclick="limparCacheLocalAdmin()" class="w-full bg-gray-700 p-3 rounded-xl">Limpar cache local</button></div>'; 
+  if(typeof atualizarBotaoRoleta==='function')atualizarBotaoRoleta();
+  if(typeof renderizarFatiasRoleta==='function')renderizarFatiasRoleta();
+}

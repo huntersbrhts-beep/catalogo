@@ -25,3 +25,9 @@ IMPORTANTE V12:
 2. Rode novamente o supabase-sql.txt no Supabase.
 3. Entre no ADM, abra Configurações > Prêmios da roleta e clique em Salvar tudo.
 4. No celular, abra o site com ?v=12 no final da URL uma vez, exemplo: https://seusite.github.io/repositorio/?v=12
+
+V13 - Roleta:
+- A roleta agora busca os prêmios no Supabase toda vez que abre/gira.
+- Para o celular receber os prêmios do ADM, é obrigatório rodar o supabase-sql.txt no Supabase.
+- Depois de salvar no ADM, use o botão "Salvar tudo no Supabase".
+- No celular, abra a URL com ?v=20260530-13 uma vez para forçar cache novo.
