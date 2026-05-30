@@ -1,20 +1,13 @@
-VERSÃO V16 - CORREÇÃO DEFINITIVA DA ROLETA
+VERSÃO V17 - ROLETA CORRIGIDA
 
-1. Suba TODOS os arquivos no GitHub, principalmente:
-   assets/js/roleta-fix-definitivo.js
-   index.html
+1) Suba TODOS os arquivos no GitHub.
+2) Rode o arquivo supabase-sql.txt no Supabase SQL Editor.
+3) Abra o site com ?v=20260530-17 no final da URL.
+4) Entre no ADM > Configurações > Prêmios da roleta.
+5) Adicione/edite prêmios e clique em "Salvar tudo no Supabase".
+6) A fonte precisa aparecer como: Fonte: Supabase.
 
-2. Rode o supabase-sql.txt no Supabase.
-
-3. Entre no ADM > Configurações > Prêmios da roleta.
-   Adicione/edite os prêmios e clique em:
-   Salvar tudo definitivamente no Supabase
-
-4. No quadro da roleta no ADM precisa aparecer:
-   Fonte: Supabase v16
-   Chave: roleta_premios_site_v16
-
-5. No celular abra o site com ?v=20260530-16 no final da URL.
-
-Esta versão não usa mais valores padrão escondidos para girar a roleta.
-Se não houver prêmios salvos no Supabase, a roleta mostra erro/sem prêmios.
+Correção principal:
+- A roleta agora usa APENAS a tabela configuracoes, chave config_roleta.
+- Não usa mais localStorage para decidir os prêmios.
+- Se o Supabase falhar, mostra erro real e não mostra falso sucesso.

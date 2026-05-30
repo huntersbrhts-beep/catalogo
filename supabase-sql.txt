@@ -99,3 +99,25 @@ delete from configuracoes where chave = 'roleta_premios_site_v16';
 -- insert into configuracoes (chave, valor, updated_at)
 -- select 'roleta_premios_site_v16', valor, now() from configuracoes where chave='config_roleta'
 -- on conflict (chave) do update set valor=excluded.valor, updated_at=now();
+
+-- ===== V17 ROLETA DEFINITIVA =====
+-- Rode este bloco no Supabase SQL Editor.
+-- Ele libera leitura/salvamento da roleta na tabela configuracoes pela chave config_roleta.
+create table if not exists configuracoes (
+  chave text primary key,
+  valor jsonb not null default '{}'::jsonb,
+  updated_at timestamptz default now()
+);
+
+alter table configuracoes enable row level security;
+
+drop policy if exists "Publico le e salva configuracoes" on configuracoes;
+create policy "Publico le e salva configuracoes" on configuracoes
+for all to anon, authenticated
+using (true)
+with check (true);
+
+-- Garante que existe pelo menos uma roleta inicial se ainda não houver nada.
+insert into configuracoes (chave, valor, updated_at) values
+('config_roleta', '{"limite":30,"premios":[{"texto":"5% OFF","tipo":"percentual","valor":5},{"texto":"10% OFF","tipo":"percentual","valor":10},{"texto":"R$ 5 OFF","tipo":"valor","valor":5},{"texto":"SEM CUPOM","tipo":"nenhum","valor":0}],"_versao":"v17-inicial"}'::jsonb, now())
+on conflict (chave) do nothing;

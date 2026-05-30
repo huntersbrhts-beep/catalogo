@@ -35,9 +35,19 @@ async function carregarConfiguracoesBanco(){
   });
 }
 async function salvarConfigCompartilhada(chave, valor){
-  salvarJsonLocal(chave, valor);
+  // V17: para a roleta, não mascarar erro com localStorage.
+  // Outras configs continuam salvando localmente como apoio visual.
+  if(chave !== 'config_roleta') salvarJsonLocal(chave, valor);
   try{
-    const { error } = await salvarConfiguracaoBanco(chave, valor);
-    if(error) console.warn('Não salvou configuração no Supabase:', chave, error.message);
-  }catch(e){ console.warn('Erro ao salvar configuração:', chave, e.message); }
+    const resp = await salvarConfiguracaoBanco(chave, valor);
+    if(resp.error){
+      console.error('Não salvou configuração no Supabase:', chave, resp.error.message);
+      return { data:null, error:resp.error };
+    }
+    if(chave !== 'config_roleta') salvarJsonLocal(chave, valor);
+    return resp;
+  }catch(e){
+    console.error('Erro ao salvar configuração:', chave, e.message);
+    return { data:null, error:{ message:e.message || String(e) } };
+  }
 }
