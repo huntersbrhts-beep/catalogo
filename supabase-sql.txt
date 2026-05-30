@@ -31,3 +31,27 @@ create policy "Admin lê pedidos" on pedidos for select to authenticated using (
 
 drop policy if exists "Admin atualiza pedidos" on pedidos;
 create policy "Admin atualiza pedidos" on pedidos for update to authenticated using (true) with check (true);
+
+
+-- ===== V12: configurações compartilhadas entre computador e celular =====
+-- Necessário para a roleta do celular carregar os prêmios que o ADM salvou.
+create table if not exists configuracoes (
+  chave text primary key,
+  valor jsonb not null default '{}'::jsonb,
+  updated_at timestamptz default now()
+);
+
+alter table configuracoes enable row level security;
+
+drop policy if exists "Todos leem configuracoes" on configuracoes;
+create policy "Todos leem configuracoes" on configuracoes for select to anon, authenticated using (true);
+
+drop policy if exists "Admin salva configuracoes" on configuracoes;
+create policy "Admin salva configuracoes" on configuracoes for insert to authenticated with check (true);
+
+drop policy if exists "Admin atualiza configuracoes" on configuracoes;
+create policy "Admin atualiza configuracoes" on configuracoes for update to authenticated using (true) with check (true);
+
+insert into configuracoes (chave, valor) values
+('config_roleta', '{"limite":30,"premios":[{"texto":"5% OFF","tipo":"percentual","valor":5},{"texto":"10% OFF","tipo":"percentual","valor":10},{"texto":"R$ 5 OFF","tipo":"valor","valor":5},{"texto":"SEM CUPOM","tipo":"nenhum","valor":0}]}'::jsonb)
+on conflict (chave) do nothing;

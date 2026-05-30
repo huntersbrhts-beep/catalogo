@@ -41,7 +41,8 @@ function atualizarBotaoRoleta() {
     btnGirar.textContent = roletaEsgotada ? 'Cupons esgotados' : (roletaJaGirou ? 'Roleta já usada' : 'Girar agora');
   }
 }
-function abrirRoleta() {
+async function abrirRoleta() {
+  if(typeof recarregarConfigRoletaCompartilhada==='function') await recarregarConfigRoletaCompartilhada();
   const modal=document.getElementById('modal-roleta-cupom');
   const resultado=document.getElementById('resultado-roleta');
   if(!modal)return;
@@ -61,8 +62,11 @@ function renderizarFatiasRoleta(forcar=false){
   labels.innerHTML=premios.map((p,i)=>`<span style="transform:rotate(${i*passo+passo/2}deg) translateY(-105px) rotate(-${i*passo+passo/2}deg)">${escaparHtml(p.texto)}</span>`).join('');
   labels.dataset.ok='1';
 }
-function girarRoleta(){
+async function girarRoleta(){
   if(roletaGirando)return;
+  if(typeof recarregarConfigRoletaCompartilhada==='function') await recarregarConfigRoletaCompartilhada();
+  limparVisualRoleta();
+  renderizarFatiasRoleta(true);
   const wheel=document.getElementById('roleta-wheel');
   const resultado=document.getElementById('resultado-roleta');
   if(!wheel||!resultado)return;
@@ -70,7 +74,7 @@ function girarRoleta(){
   if(!cupomTemLimiteDisponivel({codigo:'ROLETA',limite:obterLimiteRoleta()})){resultado.textContent='Os cupons da roleta acabaram.'; atualizarBotaoRoleta(); return;}
   const premios=obterPremiosRoleta();
   renderizarFatiasRoleta(true);
-  if(!premios.length){resultado.textContent='Cadastre prêmios no ADM.'; return;}
+  if(!premios.length){resultado.textContent='Nenhum prêmio configurado. Salve os prêmios no ADM e rode o SQL v12 para aparecer no celular.'; return;}
   roletaGirando=true;
   atualizarBotaoRoleta();
   resultado.textContent='Girando...';

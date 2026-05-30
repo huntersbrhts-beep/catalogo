@@ -26,15 +26,15 @@ function salvarBannerAdmin(){const cfg=getConfigLoja(); cfg.banner=document.getE
 async function salvarAparenciaAdmin(){const cor=document.getElementById('config-cor-fundo')?.value||''; const usarImagem=document.getElementById('config-usar-imagem')?.value==='true'; const arquivo=document.getElementById('config-imagem-fundo')?.files?.[0]; const aparencia=getAparenciaLoja(); aparencia.corFundo=cor; aparencia.usarImagem=usarImagem; if(arquivo){aparencia.imagemFundo=await arquivoParaDataUrl(arquivo);} salvarJsonLocal('aparencia_loja',aparencia); aplicarAparenciaLoja(); alert('Plano de fundo salvo.');}
 function limparImagemFundoAdmin(){const aparencia=getAparenciaLoja(); aparencia.imagemFundo=''; aparencia.usarImagem=false; salvarJsonLocal('aparencia_loja',aparencia); renderizarConfigAdmin(); aplicarAparenciaLoja();}
 function salvarRedesAdmin(){const redes={instagram:document.getElementById('rede-instagram')?.value.trim()||'',facebook:document.getElementById('rede-facebook')?.value.trim()||'',whatsapp:document.getElementById('rede-whatsapp')?.value.trim()||'31984656166'}; salvarJsonLocal('redes_sociais',redes); renderizarRodapeRedes(); alert('Redes sociais salvas.');}
-function salvarRoletaConfigAdmin(){const cfg=getConfigRoleta(); cfg.limite=parseInt(document.getElementById('roleta-limite-admin')?.value||'0')||0; salvarJsonLocal('config_roleta',cfg); if(typeof atualizarBotaoRoleta==='function')atualizarBotaoRoleta(); renderizarRoletaAdmin(); alert('Limite da roleta salvo.');}
-function salvarPremioRoletaAdmin(){const texto=document.getElementById('premio-texto')?.value.trim(); const tipo=document.getElementById('premio-tipo')?.value; const valor=numero(document.getElementById('premio-valor')?.value||0); if(!texto){alert('Informe o nome do prêmio.');return;} if(tipo!=='nenhum'&&!valor){alert('Informe o valor do prêmio.');return;} const cfg=getConfigRoleta(); cfg.premios=cfg.premios||[]; if(cfg.premios.length>=8){alert('Limite de 8 prêmios na roleta.');return;} cfg.premios.push({texto,tipo,valor}); salvarJsonLocal('config_roleta',cfg); document.getElementById('premio-texto').value=''; document.getElementById('premio-valor').value=''; renderizarRoletaAdmin();}
-function removerPremioRoletaAdmin(i){const cfg=getConfigRoleta(); cfg.premios=(cfg.premios||[]).filter((_,idx)=>idx!==i); salvarJsonLocal('config_roleta',cfg); renderizarRoletaAdmin();}
+async function salvarRoletaConfigAdmin(){ await salvarTodosPremiosRoletaAdmin(); }
+async function salvarPremioRoletaAdmin(){const texto=document.getElementById('premio-texto')?.value.trim(); const tipo=document.getElementById('premio-tipo')?.value; const valor=numero(document.getElementById('premio-valor')?.value||0); if(!texto){alert('Informe o nome do prêmio.');return;} if(tipo!=='nenhum'&&!valor){alert('Informe o valor do prêmio.');return;} const cfg=getConfigRoleta(); cfg.premios=cfg.premios||[]; if(cfg.premios.length>=8){alert('Limite de 8 prêmios na roleta.');return;} cfg.premios.push({texto,tipo,valor}); salvarJsonLocal('config_roleta',cfg); document.getElementById('premio-texto').value=''; document.getElementById('premio-valor').value=''; renderizarRoletaAdmin();}
+async function removerPremioRoletaAdmin(i){const cfg=getConfigRoleta(); cfg.premios=(cfg.premios||[]).filter((_,idx)=>idx!==i); salvarJsonLocal('config_roleta',cfg); renderizarRoletaAdmin();}
 function renderizarRoletaAdmin(){const cfg=getConfigRoleta(); const limiteEl=document.getElementById('roleta-limite-admin'); if(limiteEl)limiteEl.value=cfg.limite||0; const box=document.getElementById('lista-premios-roleta'); if(!box)return; const usados=usoCupomCodigo('ROLETA'); box.innerHTML=`<p class="text-sm text-gray-400 mb-2">Usados: ${usados}/${cfg.limite||'sem limite'}</p>`+((cfg.premios||[]).length?cfg.premios.map((p,i)=>`<div class="admin-card flex justify-between gap-3"><span>${escaparHtml(p.texto)} - ${p.tipo==='percentual'?p.valor+'%':p.tipo==='valor'?formatarMoeda(p.valor):'sem desconto'}</span><button onclick="removerPremioRoletaAdmin(${i})" class="text-red-400">Excluir</button></div>`).join(''):'<p class="text-gray-500">Nenhum prêmio cadastrado.</p>'); if(typeof renderizarFatiasRoleta==='function'){const labels=document.getElementById('roleta-labels'); if(labels)labels.dataset.ok=''; renderizarFatiasRoleta(true);}}
 function renderizarConfigAdmin(){const cfg=getConfigLoja(); document.getElementById('config-banner').value=cfg.banner||''; document.getElementById('hora-abre').value=cfg.abre||'18:00'; document.getElementById('hora-fecha').value=cfg.fecha||'23:59'; document.getElementById('loja-forcar').value=cfg.forcar||'auto'; const taxas=getTaxas(); document.getElementById('lista-taxas').innerHTML=Object.keys(taxas).length?Object.entries(taxas).map(([b,v])=>`<div class="admin-card flex justify-between"><span>${b}: ${formatarMoeda(v)}</span><button onclick="removerTaxa('${b}')" class="text-red-400">Excluir</button></div>`).join(''):'<p class="text-gray-500">Nenhuma taxa cadastrada.</p>'; const a=getAparenciaLoja(); const cor=document.getElementById('config-cor-fundo'); if(cor)cor.value=a.corFundo||''; const usar=document.getElementById('config-usar-imagem'); if(usar)usar.value=a.usarImagem?'true':'false'; const redes=getRedesSociais(); if(document.getElementById('rede-instagram'))document.getElementById('rede-instagram').value=redes.instagram||''; if(document.getElementById('rede-facebook'))document.getElementById('rede-facebook').value=redes.facebook||''; if(document.getElementById('rede-whatsapp'))document.getElementById('rede-whatsapp').value=redes.whatsapp||'31984656166'; renderizarRoletaAdmin(); renderizarCategoriasAdmin(); aplicarAparenciaLoja(); renderizarRodapeRedes();}
 
 
 // ===== Correções V11: roleta realmente salva/atualiza e fidelidade visível =====
-function salvarTodosPremiosRoletaAdmin(){
+async function salvarTodosPremiosRoletaAdmin(){
   const limite=parseInt(document.getElementById('roleta-limite-admin')?.value||'0')||0;
   const premios=[];
   document.querySelectorAll('[data-premio-roleta-index]').forEach(row=>{
@@ -44,13 +44,14 @@ function salvarTodosPremiosRoletaAdmin(){
     const valor=numero(document.getElementById('premio-edit-valor-'+idx)?.value||0);
     if(texto) premios.push({texto,tipo,valor:tipo==='nenhum'?0:valor});
   });
-  salvarJsonLocal('config_roleta',{limite,premios});
+  await salvarConfigCompartilhada('config_roleta',{limite,premios});
+  await recarregarConfigRoletaCompartilhada();
   if(typeof atualizarRoletaDepoisDoAdm==='function')atualizarRoletaDepoisDoAdm();
   renderizarRoletaAdmin();
   alert('Prêmios da roleta salvos e atualizados.');
 }
 function salvarRoletaConfigAdmin(){salvarTodosPremiosRoletaAdmin();}
-function salvarPremioRoletaAdmin(){
+async function salvarPremioRoletaAdmin(){
   const texto=document.getElementById('premio-texto')?.value.trim();
   const tipo=document.getElementById('premio-tipo')?.value;
   const valor=numero(document.getElementById('premio-valor')?.value||0);
@@ -60,16 +61,18 @@ function salvarPremioRoletaAdmin(){
   cfg.premios=Array.isArray(cfg.premios)?cfg.premios:[];
   if(cfg.premios.length>=8){alert('Limite de 8 prêmios na roleta.');return;}
   cfg.premios.push({texto,tipo,valor:tipo==='nenhum'?0:valor});
-  salvarJsonLocal('config_roleta',cfg);
+  await salvarConfigCompartilhada('config_roleta',cfg);
+  await recarregarConfigRoletaCompartilhada();
   document.getElementById('premio-texto').value='';
   document.getElementById('premio-valor').value='';
   if(typeof atualizarRoletaDepoisDoAdm==='function')atualizarRoletaDepoisDoAdm();
   renderizarRoletaAdmin();
 }
-function removerPremioRoletaAdmin(i){
+async function removerPremioRoletaAdmin(i){
   const cfg=getConfigRoleta();
   cfg.premios=(cfg.premios||[]).filter((_,idx)=>idx!==i);
-  salvarJsonLocal('config_roleta',cfg);
+  await salvarConfigCompartilhada('config_roleta',cfg);
+  await recarregarConfigRoletaCompartilhada();
   if(typeof atualizarRoletaDepoisDoAdm==='function')atualizarRoletaDepoisDoAdm();
   renderizarRoletaAdmin();
 }
@@ -83,7 +86,7 @@ function renderizarRoletaAdmin(){
   const premios=Array.isArray(cfg.premios)?cfg.premios:[];
   box.innerHTML=`<div class="text-sm text-gray-400 mb-3">Usados: ${usados}/${cfg.limite||'sem limite'} • Edite abaixo e clique em <b>Salvar tudo</b>.</div>`+
     (premios.length?premios.map((p,i)=>`<div class="admin-card space-y-2" data-premio-roleta-index="${i}"><div class="grid grid-cols-1 md:grid-cols-4 gap-2"><input id="premio-edit-texto-${i}" value="${escaparHtml(p.texto||'')}" class="p-3 rounded-xl" placeholder="Nome"><select id="premio-edit-tipo-${i}" class="p-3 rounded-xl"><option value="percentual" ${p.tipo==='percentual'?'selected':''}>%</option><option value="valor" ${p.tipo==='valor'?'selected':''}>R$</option><option value="nenhum" ${p.tipo==='nenhum'?'selected':''}>Sem desconto</option></select><input id="premio-edit-valor-${i}" type="number" step="0.01" value="${Number(p.valor||0)}" class="p-3 rounded-xl" placeholder="Valor"><button onclick="removerPremioRoletaAdmin(${i})" class="bg-red-600 hover:bg-red-700 text-white rounded-xl">Excluir</button></div></div>`).join(''):'<p class="text-gray-500">Nenhum prêmio cadastrado.</p>')+
-    '<button onclick="salvarTodosPremiosRoletaAdmin()" class="w-full btn-primary p-3 rounded-xl mt-3">Salvar tudo</button>';
+    '<div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-3"><button onclick="salvarTodosPremiosRoletaAdmin()" class="w-full btn-primary p-3 rounded-xl">Salvar tudo</button><button onclick="limparCacheLocalAdmin()" class="w-full bg-gray-700 p-3 rounded-xl">Limpar cache local</button></div>'; 
   if(typeof atualizarBotaoRoleta==='function')atualizarBotaoRoleta();
   if(typeof renderizarFatiasRoleta==='function')renderizarFatiasRoleta(true);
 }
@@ -93,4 +96,23 @@ function renderizarFidelidadeAdmin(){
   const dados=lerJsonLocal('historico_clientes',{});
   const linhas=Object.entries(dados).sort((a,b)=>(b[1].pedidos||0)-(a[1].pedidos||0));
   box.innerHTML=linhas.length?linhas.map(([tel,h])=>`<div class="admin-card flex justify-between gap-3"><div><b>${escaparHtml(tel)}</b><p class="text-sm text-gray-400">${h.pedidos||0} pedido(s) • Total ${formatarMoeda(h.total||0)}</p></div><span class="text-green-400 font-bold">${(h.pedidos||0)>=10?'10%':(h.pedidos||0)>=5?'5%':'sem desconto'}</span></div>`).join(''):'<p class="text-gray-500">Nenhum telefone salvo ainda. Os telefones entram aqui após enviar pedido.</p>';
+}
+
+
+// ===== V12: roleta compartilhada entre computador e celular =====
+async function recarregarConfigRoletaCompartilhada(){
+  try{
+    const { data, error } = await buscarConfiguracaoBanco('config_roleta');
+    if(!error && data && data.valor){
+      localStorage.setItem('config_roleta', JSON.stringify(data.valor));
+    }
+  }catch(e){}
+}
+async function limparCacheLocalAdmin(){
+  const manterProdutos = true;
+  ['config_roleta','redes_sociais','aparencia_loja','config_loja','taxas_entrega','cupons_desconto','ordem_categorias'].forEach(k=>localStorage.removeItem(k));
+  if(typeof carregarConfiguracoesBanco==='function') await carregarConfiguracoesBanco();
+  renderizarConfigAdmin();
+  if(typeof atualizarRoletaDepoisDoAdm==='function') atualizarRoletaDepoisDoAdm();
+  alert('Cache local limpo. Recarregue o site no celular ou abra novamente.');
 }

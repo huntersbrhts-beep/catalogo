@@ -18,3 +18,10 @@ Correções V11:
 Após subir no GitHub Pages:
 1. Espere o deploy terminar em Actions/Pages.
 2. Abra em aba anônima ou use Ctrl + Shift + R.
+
+
+IMPORTANTE V12:
+1. Suba todos os arquivos no GitHub.
+2. Rode novamente o supabase-sql.txt no Supabase.
+3. Entre no ADM, abra Configurações > Prêmios da roleta e clique em Salvar tudo.
+4. No celular, abra o site com ?v=12 no final da URL uma vez, exemplo: https://seusite.github.io/repositorio/?v=12
