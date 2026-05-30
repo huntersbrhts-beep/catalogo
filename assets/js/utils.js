@@ -2,7 +2,7 @@ function escaparHtml(valor){return String(valor ?? '').replace(/&/g,'&amp;').rep
 function formatarMoeda(valor){return `R$ ${Number(valor || 0).toFixed(2)}`;}
 function normalizarCategoria(nome){return String(nome||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');}
 function mudarAba(nome){document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));document.getElementById('aba-'+nome)?.classList.add('active');}
-const CHAVES_CONFIG_SUPABASE=['config_roleta','taxas_entrega','cupons_desconto','config_loja','redes_sociais','aparencia_loja','ordem_categorias','uso_cupons_desconto','programa_fidelidade'];
+const CHAVES_CONFIG_SUPABASE=['config_roleta','taxas_entrega','cupons_desconto','config_loja','redes_sociais','aparencia_loja','ordem_categorias','uso_cupons_desconto','programa_fidelidade','config_destaque'];
 function limparConfigLocal(){
   try{
     CHAVES_CONFIG_SUPABASE.forEach(chave=>localStorage.removeItem(chave));
@@ -31,6 +31,7 @@ const CONFIG_PADRAO={
   redes_sociais:{instagram:'',facebook:'',whatsapp:'31984656166'},
   aparencia_loja:{corFundo:'',imagemFundo:'',usarImagem:false},
   programa_fidelidade:{ativo:true,metaPedidos:5,tipoPremio:'desconto',valorPremio:10,textoPremio:'10% de desconto ao completar 5 pedidos'},
+  config_destaque:{ativo:false,mostrarPopup:true,titulo:'🔥 Oferta do dia',texto:'Aproveite esta promoção especial por tempo limitado.',produtoId:'',precoAntigo:'',precoPromocional:'',tempoMinutos:120,imagemUrl:''},
   config_roleta:{limite:30,premios:[{texto:'5% OFF',tipo:'percentual',valor:5},{texto:'10% OFF',tipo:'percentual',valor:10},{texto:'R$ 5 OFF',tipo:'valor',valor:5},{texto:'15% OFF',tipo:'percentual',valor:15},{texto:'R$ 10 OFF',tipo:'valor',valor:10},{texto:'SEM CUPOM',tipo:'nenhum',valor:0}]}
 };
 window.configSistema={...CONFIG_PADRAO};
@@ -85,6 +86,7 @@ function getRedesSociais(){return getConfigSistema('redes_sociais');}
 function getAparenciaLoja(){return getConfigSistema('aparencia_loja');}
 function getConfigRoleta(){return getConfigSistema('config_roleta');}
 function getProgramaFidelidade(){return getConfigSistema('programa_fidelidade');}
+function getConfigDestaque(){return getConfigSistema('config_destaque');}
 function lojaEstaAberta(){const c=getConfigLoja(); if(c.forcar==='aberta')return true; if(c.forcar==='fechada')return false; const a=minutosDeHora(c.abre), f=minutosDeHora(c.fecha), n=hojeMinutos(); return a<=f ? n>=a && n<=f : n>=a || n<=f;}
 function atualizarStatusLoja(){const el=document.getElementById('status-loja'); if(!el)return; const aberta=lojaEstaAberta(); el.textContent=aberta?'🟢 Loja aberta':'🔴 Loja fechada'; el.className='inline-block px-4 py-2 rounded-full text-sm font-bold mb-4 '+(aberta?'bg-green-500/20 text-green-400':'bg-red-500/20 text-red-400'); const b=document.getElementById('banner-promocional'); const cfg=getConfigLoja(); if(b){b.innerHTML=escaparHtml(cfg.banner||''); b.classList.toggle('hidden',!cfg.banner);}}
 function aplicarAparenciaLoja(){const a=getAparenciaLoja(); if(a.usarImagem&&a.imagemFundo){document.body.style.background=`linear-gradient(rgba(15,15,16,.82),rgba(15,15,16,.92)), url('${a.imagemFundo}') center/cover fixed no-repeat`; }else if(a.corFundo){document.body.style.background=a.corFundo;}else{document.body.style.background='linear-gradient(180deg,#0f0f10 0%,#1a1a1d 100%)';}}

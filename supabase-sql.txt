@@ -77,3 +77,11 @@ alter table pedidos add column if not exists resumo_cliente text;
 insert into loja_config (chave, valor) values
 ('programa_fidelidade', '{"ativo":true,"metaPedidos":5,"tipoPremio":"desconto","valorPremio":10,"textoPremio":"10% de desconto ao completar 5 pedidos"}'::jsonb)
 on conflict (chave) do nothing;
+
+-- 8) V12 - Segurança da fidelidade e produto em destaque
+alter table pedidos add column if not exists fidelidade_creditada boolean default false;
+alter table pedidos add column if not exists fidelidade_usada boolean default false;
+
+insert into loja_config (chave, valor) values
+('config_destaque', '{"ativo":false,"mostrarPopup":true,"titulo":"🔥 Oferta do dia","texto":"Aproveite esta promoção especial por tempo limitado.","produtoId":"","precoAntigo":"","precoPromocional":"","tempoMinutos":120,"imagemUrl":""}'::jsonb)
+on conflict (chave) do nothing;

@@ -62,6 +62,7 @@ function renderizarConfigAdmin(){
   if(document.getElementById('fid-texto'))document.getElementById('fid-texto').value=fid.textoPremio||'10% de desconto ao completar 5 pedidos';
 
   renderizarRoletaAdmin();
+  if(typeof renderizarDestaqueAdmin==='function')renderizarDestaqueAdmin();
   renderizarCategoriasAdmin();
   aplicarAparenciaLoja();
   renderizarRodapeRedes();
@@ -87,5 +88,24 @@ async function carregarPedidosAdmin(){
   if(error){box.innerHTML='<p class="text-red-400">Tabela pedidos ainda não criada ou faltam colunas. Rode o supabase-sql.txt atualizado.</p>';return;}
   listaPedidos=data||[];
   if(!listaPedidos.length){box.innerHTML='<p class="text-gray-500">Nenhum pedido salvo ainda.</p>';return;}
-  box.innerHTML=listaPedidos.map(p=>`<div class="admin-card"><div class="flex justify-between gap-3"><div><b>Pedido ${escaparHtml(p.numero_pedido||String(p.id||'').slice(0,8))} - ${escaparHtml(p.cliente_nome)}</b><p class="text-sm text-gray-400">${escaparHtml(p.telefone)} • ${escaparHtml(p.tipo_pedido)} • ${escaparHtml(p.forma_pagamento||'sem pagamento')} • ${new Date(p.created_at).toLocaleString('pt-BR')}</p><p class="text-orange-400 font-bold">${formatarMoeda(p.total_final)}</p></div><select onchange="alterarStatusPedido('${p.id}',this.value)" class="p-2 rounded-xl"><option ${p.status==='novo'?'selected':''} value="novo">Novo</option><option ${p.status==='preparo'?'selected':''} value="preparo">Preparo</option><option ${p.status==='finalizado'?'selected':''} value="finalizado">Finalizado</option><option ${p.status==='cancelado'?'selected':''} value="cancelado">Cancelado</option></select></div><pre class="text-xs whitespace-pre-wrap mt-3 text-gray-300">${escaparHtml(p.resumo_cliente||JSON.stringify(p.itens,null,2))}</pre></div>`).join('');
+  const labels={pendente_whatsapp:'Pendente WhatsApp',confirmado:'Confirmado',preparo:'Preparo',finalizado:'Finalizado',cancelado:'Cancelado',novo:'Novo'};
+  box.innerHTML=listaPedidos.map(p=>`<div class="admin-card"><div class="flex justify-between gap-3"><div><b>Pedido ${escaparHtml(p.numero_pedido||String(p.id||'').slice(0,8))} - ${escaparHtml(p.cliente_nome)}</b><p class="text-sm text-gray-400">${escaparHtml(p.telefone)} • ${escaparHtml(p.tipo_pedido)} • ${escaparHtml(p.forma_pagamento||'sem pagamento')} • ${new Date(p.created_at).toLocaleString('pt-BR')}</p><p class="text-orange-400 font-bold">${formatarMoeda(p.total_final)}</p><p class="text-xs ${p.fidelidade_creditada?'text-green-400':'text-yellow-400'}">Fidelidade: ${p.fidelidade_creditada?'creditada':'aguardando confirmação'}</p></div><select onchange="alterarStatusPedido('${p.id}',this.value)" class="p-2 rounded-xl"><option ${p.status==='pendente_whatsapp'?'selected':''} value="pendente_whatsapp">Pendente WhatsApp</option><option ${p.status==='confirmado'?'selected':''} value="confirmado">Confirmado</option><option ${p.status==='preparo'?'selected':''} value="preparo">Preparo</option><option ${p.status==='finalizado'?'selected':''} value="finalizado">Finalizado</option><option ${p.status==='cancelado'?'selected':''} value="cancelado">Cancelado</option></select></div><div class="flex flex-wrap gap-2 mt-3"><button onclick="confirmarPedidoFidelidade('${p.id}')" class="btn-primary px-3 py-2 rounded-xl">Confirmar e creditar fidelidade</button></div><pre class="text-xs whitespace-pre-wrap mt-3 text-gray-300">${escaparHtml(p.resumo_cliente||JSON.stringify(p.itens,null,2))}</pre></div>`).join('');
+}
+
+async function alterarStatusPedido(id,status){
+  const {error}=await atualizarStatusPedidoBanco(id,status);
+  if(error){alert(error.message);return;}
+  if(['confirmado','finalizado'].includes(status)){
+    await creditarFidelidadePedidoBanco(id);
+  }
+  carregarPedidosAdmin();
+}
+
+async function confirmarPedidoFidelidade(id){
+  const {error}=await atualizarStatusPedidoBanco(id,'confirmado');
+  if(error){alert(error.message);return;}
+  const resp=await creditarFidelidadePedidoBanco(id);
+  if(resp.error){alert('Pedido confirmado, mas não creditou fidelidade: '+resp.error.message);return;}
+  alert('Pedido confirmado e fidelidade creditada com segurança.');
+  carregarPedidosAdmin();
 }

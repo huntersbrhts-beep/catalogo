@@ -56,14 +56,14 @@ async function atualizarFidelidadeCliente(){
   try{
     const {data,error}=await buscarPedidosPorTelefone(telefone);
     if(error)throw error;
-    const pedidos=(data||[]).filter(p=>p.status!=='cancelado');
+    const pedidos=(data||[]).filter(p=>p.fidelidade_creditada===true);
     const totalPedidos=pedidos.length;
     const meta=Number(cfg.metaPedidos||5);
     const progresso=meta?totalPedidos%meta:0;
     const premioDisponivel=meta>0 && totalPedidos>0 && totalPedidos%meta===0;
     window.fidelidadeClienteAtual={telefone,totalPedidos,progresso,meta,premioDisponivel,config:cfg};
     const estrelas='★'.repeat(Math.min(progresso,meta))+'☆'.repeat(Math.max(0,meta-progresso));
-    box.innerHTML=`<div class="font-bold text-green-400">Programa de fidelidade</div><div>${estrelas}</div><div class="text-sm text-gray-300">${totalPedidos} pedido(s) encontrados neste celular. ${premioDisponivel?'🎁 Prêmio disponível neste pedido!':`Faltam ${Math.max(0,meta-progresso)} pedido(s) para o prêmio.`}</div><div class="text-xs text-gray-400">Prêmio: ${escaparHtml(cfg.textoPremio||'desconto de fidelidade')}</div>`;
+    box.innerHTML=`<div class="font-bold text-green-400">Programa de fidelidade</div><div>${estrelas}</div><div class="text-sm text-gray-300">${totalPedidos} ponto(s) confirmado(s) neste celular. ${premioDisponivel?'🎁 Prêmio disponível neste pedido!':`Faltam ${Math.max(0,meta-progresso)} ponto(s) confirmado(s) para o prêmio.`}</div><div class="text-xs text-gray-400">Prêmio: ${escaparHtml(cfg.textoPremio||'desconto de fidelidade')}</div>`;
     atualizarCarrinho();
   }catch(e){console.warn('Erro ao buscar fidelidade:',e); box.innerHTML='<span class="text-red-400">Não foi possível consultar a fidelidade agora.</span>';}
 }
@@ -82,7 +82,7 @@ Obrigado pela preferência, ${nome}! 🍔
   if(totais.descontoVip)txt+=`Fidelidade: -${formatarMoeda(totais.descontoVip)}\n`;
   txt+=`Total: ${formatarMoeda(totais.totalFinal)}\nForma de pagamento: ${formaPagamento}\n`;
   txt+=tipoPedido==='entrega'?`Entrega: ${bairro} - ${endereco}\n`:'Retirada no balcão\n';
-  txt+='\nAgradecemos seu pedido! Em breve vamos confirmar pelo WhatsApp. 🙌';
+  txt+='\nAgradecemos seu pedido! Em breve vamos confirmar pelo WhatsApp. Sua fidelidade será creditada após confirmação do pedido. 🙌';
   return txt;
 }
 
@@ -101,11 +101,11 @@ async function enviarWhatsApp(){
   const totais=calcularTotais(); const numeroPedido=gerarNumeroPedido();
   let msg=`🍔 *NOVO PEDIDO - DU LANCHES* 🍔\n\n🧾 Pedido: *${numeroPedido}*\n👤 ${nome}\n📞 ${telefone}\n🛒 ${tipoPedido}\n💳 ${formaPagamento}\n`; if(tipoPedido==='entrega')msg+=`🏘️ ${bairro}\n📍 ${endereco}\n`; msg+='\n----------------\n\n';
   carrinhoCompras.forEach(i=>{msg+=`${i.quantidade}x ${i.nome}${i.tamanho?' '+i.tamanho:''}\n${formatarMoeda(Number(i.preco)*i.quantidade)}\n\n`;});
-  msg+=`Subtotal: ${formatarMoeda(totais.subtotal)}\n`; if(totais.taxaEntrega)msg+=`Entrega: ${formatarMoeda(totais.taxaEntrega)}\n`; if(totais.descontoCupom)msg+=`Cupom: -${formatarMoeda(totais.descontoCupom)}${(document.getElementById('cupom-cliente')?.value||'').trim().toUpperCase()==='ROLETA'?' (Roleta)':''}\n`; if(totais.descontoVip)msg+=`Fidelidade: -${formatarMoeda(totais.descontoVip)}\n`; msg+=`🧾 TOTAL: ${formatarMoeda(totais.totalFinal)}`;
+  msg+=`Subtotal: ${formatarMoeda(totais.subtotal)}\n`; if(totais.taxaEntrega)msg+=`Entrega: ${formatarMoeda(totais.taxaEntrega)}\n`; if(totais.descontoCupom)msg+=`Cupom: -${formatarMoeda(totais.descontoCupom)}${(document.getElementById('cupom-cliente')?.value||'').trim().toUpperCase()==='ROLETA'?' (Roleta)':''}\n`; if(totais.descontoVip)msg+=`Fidelidade: -${formatarMoeda(totais.descontoVip)}\n`; msg+=`🧾 TOTAL: ${formatarMoeda(totais.totalFinal)}\n\n⚠️ Fidelidade será creditada somente após confirmação do pedido pelo ADM.`;
   const itensPedido=carrinhoCompras.map(i=>({id:i.id,nome:i.nome,tamanho:i.tamanho,preco:i.preco,quantidade:i.quantidade}));
   const resumoCliente=montarResumoCliente(numeroPedido,nome,telefone,tipoPedido,bairro,endereco,formaPagamento,totais);
-  const pedido={numero_pedido:numeroPedido,cliente_nome:nome,telefone:telefoneLimpo(telefone),tipo_pedido:tipoPedido,bairro,endereco,forma_pagamento:formaPagamento,itens:itensPedido,subtotal:totais.subtotal,taxa_entrega:totais.taxaEntrega,desconto:totais.descontoCupom+totais.descontoVip,total_final:totais.totalFinal,status:'novo',resumo_cliente:resumoCliente};
-  try{await inserirPedidoBanco(pedido);}catch(e){alert('Pedido não foi salvo no Supabase: '+(e.message||e)); return;}
+  const pedido={numero_pedido:numeroPedido,cliente_nome:nome,telefone:telefoneLimpo(telefone),tipo_pedido:tipoPedido,bairro,endereco,forma_pagamento:formaPagamento,itens:itensPedido,subtotal:totais.subtotal,taxa_entrega:totais.taxaEntrega,desconto:totais.descontoCupom+totais.descontoVip,total_final:totais.totalFinal,status:'pendente_whatsapp',resumo_cliente:resumoCliente,fidelidade_creditada:false,fidelidade_usada:!!totais.descontoVip};
+  let pedidoSalvo=null; try{const resp=await inserirPedidoBanco(pedido); if(resp.error)throw resp.error; pedidoSalvo=resp.data;}catch(e){alert('Pedido não foi salvo no Supabase: '+(e.message||e)); return;}
   const cupomUsado=(document.getElementById('cupom-cliente')?.value||'').trim().toUpperCase(); if(totais.cupomValido&&cupomUsado)await registrarUsoCupom(cupomUsado);
   const numeroWpp='55'+String(getRedesSociais().whatsapp||WHATSAPP_NUMERO).replace(/\D/g,'').replace(/^55/,''); window.open(`https://api.whatsapp.com/send?phone=${numeroWpp}&text=${encodeURIComponent(msg)}`,'_blank');
   exibirResumoCliente(resumoCliente);

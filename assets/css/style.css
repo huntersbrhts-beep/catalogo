@@ -255,3 +255,12 @@ z-index:1;
     transform-origin:center center;
   }
 }
+
+/* V12 - Produto em destaque */
+.destaque-card{
+  background:linear-gradient(135deg,rgba(255,122,0,.18),rgba(255,255,255,.04));
+  box-shadow:0 18px 45px rgba(0,0,0,.35);
+  animation:pulseDestaque 2.8s ease-in-out infinite;
+}
+@keyframes pulseDestaque{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+#modal-destaque .btn-primary{box-shadow:0 10px 30px rgba(255,122,0,.35)}
