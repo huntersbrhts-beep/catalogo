@@ -10,7 +10,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="assets/css/style.css?v=20260530-25">
+<link rel="stylesheet" href="assets/css/style.css?v=20260530-26">
 </head>
 <body class="font-sans flex flex-col min-h-screen">
 <header class="sticky top-0 z-40"><div class="container mx-auto px-4 py-4 flex justify-between items-center"><div><h1 class="text-3xl font-black tracking-wide cursor-pointer" onclick="mudarAba('catalogo')"><span class="text-orange-500">DU</span> LANCHES</h1><p class="text-xs text-gray-400 tracking-[4px] uppercase">Pedido Online</p></div><div class="flex items-center gap-3"><button onclick="mudarAba('admin')" class="glass px-4 py-2 rounded-xl text-sm font-semibold hover:scale-105 transition"><i class="fas fa-lock mr-2"></i> Admin</button><button onclick="toggleCarrinho()" class="relative btn-primary p-3 rounded-2xl shadow-lg"><i class="fas fa-shopping-bag text-xl"></i><span id="cart-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold hidden">0</span></button></div></div></header>
@@ -43,19 +43,19 @@
       <div class="roleta-ponteiro"></div>
       <div id="roleta-wheel" class="roleta-wheel"><div id="roleta-labels" class="roleta-labels"></div></div>
     </div>
-    <button id="btn-girar-roleta" onclick="girarRoletaV25()" class="w-full btn-primary py-3 rounded-xl mt-5">Girar agora</button>
+    <button id="btn-girar-roleta" onclick="girarRoletaV26()" class="w-full btn-primary py-3 rounded-xl mt-5">Girar agora</button>
     <div id="resultado-roleta" class="text-center font-bold text-orange-300 mt-4 min-h-[28px]"></div>
   </div>
 </div>
 <footer class="container mx-auto px-4 py-8 text-center text-sm text-gray-400"><div class="font-bold text-white mb-1"><span class="text-orange-500">DU</span> LANCHES</div><div class="mb-3">Desde 2019</div><div id="rodape-redes" class="flex flex-wrap justify-center gap-3"></div></footer>
-<script src="assets/js/config.js?v=20260530-25" defer></script>
-<script src="assets/js/state.js?v=20260530-25" defer></script>
-<script src="assets/js/utils.js?v=20260530-25" defer></script>
-<script src="assets/js/supabase-service.js?v=20260530-25" defer></script>
-<script src="assets/js/catalogo.js?v=20260530-25" defer></script>
-<script src="assets/js/admin.js?v=20260530-25" defer></script>
-<script src="assets/js/carrinho.js?v=20260530-25" defer></script>
-<script src="assets/js/imagem-modal.js?v=20260530-25" defer></script>
-<script src="assets/js/roleta-v25-somente-tabela.js?v=20260530-25" defer></script>
-<script src="assets/js/app.js?v=20260530-25" defer></script>
+<script src="assets/js/config.js?v=20260530-26" defer></script>
+<script src="assets/js/state.js?v=20260530-26" defer></script>
+<script src="assets/js/utils.js?v=20260530-26" defer></script>
+<script src="assets/js/supabase-service.js?v=20260530-26" defer></script>
+<script src="assets/js/catalogo.js?v=20260530-26" defer></script>
+<script src="assets/js/admin.js?v=20260530-26" defer></script>
+<script src="assets/js/carrinho.js?v=20260530-26" defer></script>
+<script src="assets/js/imagem-modal.js?v=20260530-26" defer></script>
+<script src="assets/js/roleta-v26-somente-supabase.js?v=20260530-26" defer></script>
+<script src="assets/js/app.js?v=20260530-26" defer></script>
 </body></html>

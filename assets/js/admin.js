@@ -42,5 +42,5 @@ async function limparCacheLocalAdmin(){
   alert('Cache local da roleta limpo neste aparelho. A roleta agora lê somente do Supabase.');
 }
 
-/* V22: Todas as funções da roleta foram removidas deste arquivo.
+/* V26: Todas as funções antigas da roleta foram removidas deste arquivo.
    A roleta oficial fica somente em assets/js/roleta-v22-supabase-unica.js */

@@ -1,12 +1,14 @@
+// V26: limpeza automática de chaves antigas da roleta.
+try{ localStorage.removeItem('config_roleta'); sessionStorage.removeItem('config_roleta'); }catch(e){}
 function escaparHtml(valor){return String(valor ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');}
 function formatarMoeda(valor){return `R$ ${Number(valor || 0).toFixed(2)}`;}
 function normalizarCategoria(nome){return String(nome||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');}
 function mudarAba(nome){document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));document.getElementById('aba-'+nome)?.classList.add('active');}
 function lerJsonLocal(chave,padrao){try{return JSON.parse(localStorage.getItem(chave)) ?? padrao;}catch(e){return padrao;}}
 function salvarJsonLocal(chave,valor){
-  if(chave === 'config_roleta'){
-    console.warn('config_roleta NÃO é salva localmente. Use Supabase.');
-    try{ localStorage.removeItem('config_roleta'); }catch(e){}
+  if(String(chave) === 'config_roleta'){
+    console.warn('BLOQUEADO: config_roleta não é salva localmente. A roleta usa somente Supabase.');
+    try{ localStorage.removeItem('config_roleta'); sessionStorage.removeItem('config_roleta'); }catch(e){}
     return false;
   }
   localStorage.setItem(chave,JSON.stringify(valor));

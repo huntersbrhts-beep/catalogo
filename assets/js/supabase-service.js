@@ -35,16 +35,19 @@ async function carregarConfiguracoesBanco(){
   });
 }
 async function salvarConfigCompartilhada(chave, valor){
-  // V19: config_roleta NUNCA salva no localStorage.
-  if(chave !== 'config_roleta') salvarJsonLocal(chave, valor);
+  // V26: config_roleta nunca deve ser gravada localmente nem na tabela configuracoes.
+  if(chave === 'config_roleta'){
+    try{ localStorage.removeItem('config_roleta'); sessionStorage.removeItem('config_roleta'); }catch(e){}
+    return { data:null, error:{ message:'config_roleta foi desativado. Use a tabela roleta_premios.' } };
+  }
+  salvarJsonLocal(chave, valor);
   try{
     const resp = await salvarConfiguracaoBanco(chave, valor);
     if(resp.error){
       console.error('Não salvou configuração no Supabase:', chave, resp.error.message);
       return { data:null, error:resp.error };
     }
-    if(chave !== 'config_roleta') salvarJsonLocal(chave, valor);
-    else { try{ localStorage.removeItem('config_roleta'); }catch(e){} }
+    salvarJsonLocal(chave, valor);
     return resp;
   }catch(e){
     console.error('Erro ao salvar configuração:', chave, e.message);
