@@ -1,23 +1,20 @@
-DU LANCHES - V7 CORREÇÕES
+DU LANCHES - V11 CORRIGIDA
 
-Alterações desta versão:
-- ADM agora permite excluir categoria do catálogo.
-- Carrinho pergunta forma de pagamento.
-- Campo de troco aparece quando pagamento é Dinheiro.
-- Telefone é salvo no histórico local para programa de fidelidade.
-- Fidelidade mostra brinde a partir de 3 pedidos e desconto a partir de 5/10 pedidos.
-- Produtos podem ser marcados como Disponível ou Indisponível no ADM.
-- Rodapé mostra redes sociais configuráveis e texto "Desde 2019".
-- Prêmios da roleta agora podem ser editados, salvos e excluídos no ADM.
-- Removida a mensagem de versão do topo do site.
-- Cache atualizado para GitHub Pages.
+Suba o conteúdo deste ZIP na raiz do GitHub Pages:
+- index.html
+- assets/
+- supabase-sql.txt
 
-Como subir no GitHub Pages:
-1. Extraia o ZIP.
-2. Envie o index.html e a pasta assets na raiz do repositório.
-3. Não envie a pasta inteira como subpasta.
-4. Depois de publicar, use Ctrl + F5 no navegador.
+Correções V11:
+- Cache versionado para v11.
+- Roleta carrega os prêmios salvos pelo ADM no momento de girar.
+- ADM ganhou botão Salvar tudo nos prêmios da roleta.
+- Alterar/excluir/adicionar prêmio atualiza a roleta na hora.
+- Carrinho abre WhatsApp usando wa.me imediatamente, evitando bloqueio por espera do Supabase.
+- Forma de pagamento incluída no pedido.
+- Fidelidade por telefone aparece ao digitar telefone no carrinho.
+- Histórico usa telefone só com números para evitar duplicidade.
 
-Atenção:
-As configurações visuais, redes sociais, cupons, roleta e fidelidade continuam salvas no navegador pelo localStorage, seguindo o padrão das versões anteriores.
-Se você alterar no ADM usando um navegador, a alteração aparece nesse mesmo navegador. Para salvar essas configurações para todos os aparelhos, o próximo passo é criar uma tabela de configurações no Supabase.
+Após subir no GitHub Pages:
+1. Espere o deploy terminar em Actions/Pages.
+2. Abra em aba anônima ou use Ctrl + Shift + R.
