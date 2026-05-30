@@ -1,10 +1,15 @@
-DU LANCHES - V6
+DU LANCHES - V7 CORREÇÕES
 
 Alterações desta versão:
-- WhatsApp atualizado para 31984656166.
-- ADM agora altera prêmios e limite total da roleta.
-- ADM agora altera plano de fundo por cor/gradiente ou imagem.
-- ADM agora altera redes sociais exibidas no rodapé.
+- ADM agora permite excluir categoria do catálogo.
+- Carrinho pergunta forma de pagamento.
+- Campo de troco aparece quando pagamento é Dinheiro.
+- Telefone é salvo no histórico local para programa de fidelidade.
+- Fidelidade mostra brinde a partir de 3 pedidos e desconto a partir de 5/10 pedidos.
+- Produtos podem ser marcados como Disponível ou Indisponível no ADM.
+- Rodapé mostra redes sociais configuráveis e texto "Desde 2019".
+- Prêmios da roleta agora podem ser editados, salvos e excluídos no ADM.
+- Removida a mensagem de versão do topo do site.
 - Cache atualizado para GitHub Pages.
 
 Como subir no GitHub Pages:
@@ -14,4 +19,5 @@ Como subir no GitHub Pages:
 4. Depois de publicar, use Ctrl + F5 no navegador.
 
 Atenção:
-As configurações visuais, redes sociais, cupons e roleta ficam salvas no navegador pelo localStorage, seguindo o padrão das versões anteriores.
+As configurações visuais, redes sociais, cupons, roleta e fidelidade continuam salvas no navegador pelo localStorage, seguindo o padrão das versões anteriores.
+Se você alterar no ADM usando um navegador, a alteração aparece nesse mesmo navegador. Para salvar essas configurações para todos os aparelhos, o próximo passo é criar uma tabela de configurações no Supabase.
