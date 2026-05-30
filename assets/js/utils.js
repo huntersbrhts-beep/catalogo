@@ -14,9 +14,9 @@ function limparConfigLocal(){
 }
 function atualizarVersaoRodape(){
   const el=document.getElementById('site-version');
-  if(el) el.textContent=`Du Lanches • Versão ${window.DU_LANCHES_VERSION||'V10.0'} • Build ${window.DU_LANCHES_BUILD||'2026-05-30'}`;
+  if(el) el.textContent=`Du Lanches • Versão ${window.DU_LANCHES_VERSION||'V11.0'} • Build ${window.DU_LANCHES_BUILD||'2026-05-30'}`;
   const adm=document.getElementById('admin-version');
-  if(adm) adm.textContent=`Versão ${window.DU_LANCHES_VERSION||'V10.0'} • Build ${window.DU_LANCHES_BUILD||'2026-05-30'}`;
+  if(adm) adm.textContent=`Versão ${window.DU_LANCHES_VERSION||'V11.0'} • Build ${window.DU_LANCHES_BUILD||'2026-05-30'}`;
 }
 function numero(v){const n=parseFloat(v);return isNaN(n)?0:n;}
 function hojeMinutos(){const d=new Date();return d.getHours()*60+d.getMinutes();}
@@ -88,3 +88,32 @@ function atualizarStatusLoja(){const el=document.getElementById('status-loja'); 
 function aplicarAparenciaLoja(){const a=getAparenciaLoja(); if(a.usarImagem&&a.imagemFundo){document.body.style.background=`linear-gradient(rgba(15,15,16,.82),rgba(15,15,16,.92)), url('${a.imagemFundo}') center/cover fixed no-repeat`; }else if(a.corFundo){document.body.style.background=a.corFundo;}else{document.body.style.background='linear-gradient(180deg,#0f0f10 0%,#1a1a1d 100%)';}}
 function renderizarRodapeRedes(){const el=document.getElementById('rodape-redes'); if(!el)return; const r=getRedesSociais(); const links=[]; if(r.instagram)links.push(`<a href="${escaparHtml(r.instagram)}" target="_blank" class="hover:text-orange-400"><i class="fab fa-instagram mr-1"></i>Instagram</a>`); if(r.facebook)links.push(`<a href="${escaparHtml(r.facebook)}" target="_blank" class="hover:text-orange-400"><i class="fab fa-facebook mr-1"></i>Facebook</a>`); if(r.whatsapp)links.push(`<a href="https://wa.me/55${String(r.whatsapp).replace(/\D/g,'')}" target="_blank" class="hover:text-green-400"><i class="fab fa-whatsapp mr-1"></i>WhatsApp</a>`); el.innerHTML=links.length?links.join('<span class="text-gray-600">•</span>'):'<span class="text-gray-500">Redes sociais em breve</span>';}
 function arquivoParaDataUrl(arquivo){return new Promise((resolve,reject)=>{const fr=new FileReader(); fr.onload=()=>resolve(fr.result); fr.onerror=reject; fr.readAsDataURL(arquivo);});}
+
+
+/* V11: funções utilitárias locais que a V10 chamava mas não existiam.
+   Mantém histórico simples do cliente sem permitir “salvamento falso” das configurações,
+   que continuam bloqueadas e confirmadas diretamente no Supabase. */
+function lerJsonLocal(chave, valorPadrao = null){
+  try{
+    const valor = localStorage.getItem(chave);
+    if(valor === null || valor === undefined || valor === '') return valorPadrao;
+    return JSON.parse(valor);
+  }catch(e){
+    console.warn('Falha ao ler JSON local:', chave, e);
+    return valorPadrao;
+  }
+}
+function salvarJsonLocal(chave, valor){
+  try{
+    if(typeof CHAVES_CONFIG_SUPABASE !== 'undefined' && CHAVES_CONFIG_SUPABASE.includes(chave)){
+      console.error('Bloqueado: configurações devem salvar somente no Supabase:', chave);
+      return false;
+    }
+    localStorage.setItem(chave, JSON.stringify(valor));
+    return true;
+  }catch(e){
+    console.warn('Falha ao salvar JSON local:', chave, e);
+    return false;
+  }
+}
+function telefoneChave(valor){return String(valor||'').replace(/\D/g,'');}

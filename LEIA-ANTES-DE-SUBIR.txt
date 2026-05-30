@@ -1,7 +1,7 @@
-VERSÃO V10.0
+VERSÃO V11.0
 
 Esta versão exibe o número no rodapé e dentro do painel ADM.
-Se o rodapé não mostrar V10.0, o GitHub Pages ainda está servindo arquivo antigo ou o arquivo foi enviado na pasta errada.
+Se o rodapé não mostrar V11.0, o GitHub Pages ainda está servindo arquivo antigo ou o arquivo foi enviado na pasta errada.
 
 DU LANCHES - V9 SUPABASE REAL
 
@@ -26,3 +26,10 @@ IMPORTANTE:
 - Suba o index.html e a pasta assets na RAIZ do repositório.
 - Depois abra o site e aperte CTRL + F5.
 - No DevTools > Aplicativo > Armazenamento local, as chaves config_roleta e taxas_entrega devem sumir.
+
+
+V11 corrigida:
+- Corrigido erro lerJsonLocal/salvarJsonLocal não definido.
+- Painel ADM mantém configurações no Supabase, com confirmação de leitura após salvar.
+- Atualizado cache dos arquivos para ?v=20260530-supa-real-v11.
+- SQL reforçado com políticas da tabela produtos para inserir, editar e excluir pelo painel.
