@@ -11,10 +11,18 @@ async function atualizarStatusPedidoBanco(id,status){return await _supabase.from
 // ===== Configurações compartilhadas no Supabase =====
 // Isso evita que celular fique com roleta antiga salva apenas no cache/localStorage.
 async function buscarConfiguracaoBanco(chave){
-  return await _supabase.from('configuracoes').select('valor').eq('chave', chave).maybeSingle();
+  return await _supabase
+    .from('configuracoes')
+    .select('valor,updated_at')
+    .eq('chave', chave)
+    .maybeSingle();
 }
 async function salvarConfiguracaoBanco(chave, valor){
-  return await _supabase.from('configuracoes').upsert([{ chave, valor }], { onConflict: 'chave' });
+  return await _supabase
+    .from('configuracoes')
+    .upsert([{ chave, valor, updated_at: new Date().toISOString() }], { onConflict: 'chave' })
+    .select('chave,valor,updated_at')
+    .single();
 }
 async function carregarConfiguracoesBanco(){
   const chaves=['config_roleta','redes_sociais','aparencia_loja','config_loja','taxas_entrega','cupons_desconto','ordem_categorias'];

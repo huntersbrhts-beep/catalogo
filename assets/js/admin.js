@@ -241,9 +241,19 @@ async function salvarRoletaAdminV14(cfg){
   if(typeof salvarConfiguracaoBanco !== 'function'){
     return { error: { message: 'Função salvarConfiguracaoBanco não carregou.' } };
   }
-  const { error } = await salvarConfiguracaoBanco('config_roleta', normalizada);
-  if(!error && typeof carregarConfigRoletaAtualizada === 'function') await carregarConfigRoletaAtualizada();
-  return { error };
+  const { data, error } = await salvarConfiguracaoBanco('config_roleta', normalizada);
+  if(error) return { error };
+
+  // Confere imediatamente se o Supabase devolveu exatamente os prêmios salvos.
+  if(typeof buscarConfiguracaoBanco === 'function'){
+    const leitura = await buscarConfiguracaoBanco('config_roleta');
+    if(leitura.error) return { error: leitura.error };
+    const cfgLida = normalizarConfigRoletaAdminV14(leitura.data?.valor || {});
+    salvarJsonLocal('config_roleta', cfgLida);
+    if(typeof salvarConfigRoletaMemoria === 'function') salvarConfigRoletaMemoria({...cfgLida, fonte:'Supabase', updated_at:leitura.data?.updated_at});
+  }
+  if(typeof carregarConfigRoletaAtualizada === 'function') await carregarConfigRoletaAtualizada();
+  return { error:null, data };
 }
 
 async function salvarTodosPremiosRoletaAdmin(){
@@ -264,7 +274,7 @@ async function salvarTodosPremiosRoletaAdmin(){
   }
   await renderizarRoletaAdmin();
   if(typeof atualizarRoletaDepoisDoAdm === 'function') await atualizarRoletaDepoisDoAdm();
-  alert('Roleta salva no Supabase com sucesso. Abra no celular e teste novamente.');
+  alert('Roleta salva no Supabase com sucesso: '+premios.length+' prêmio(s). Abra no celular e teste novamente.');
 }
 
 async function salvarRoletaConfigAdmin(){

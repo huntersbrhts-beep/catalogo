@@ -64,3 +64,14 @@ create policy "Admin gerencia configuracoes" on configuracoes for all to authent
 insert into configuracoes (chave, valor) values
 ('config_roleta', '{"limite":30,"premios":[{"texto":"5% OFF","tipo":"percentual","valor":5},{"texto":"10% OFF","tipo":"percentual","valor":10},{"texto":"R$ 5 OFF","tipo":"valor","valor":5},{"texto":"SEM CUPOM","tipo":"nenhum","valor":0}]}'::jsonb)
 on conflict (chave) do nothing;
+
+-- ===== V15: liberar leitura e salvamento da configuração da roleta sem falhar por sessão =====
+-- A configuração da roleta não contém dados sensíveis. Esta política evita que o ADM salve só no navegador.
+drop policy if exists "Publico le e salva configuracoes" on configuracoes;
+create policy "Publico le e salva configuracoes" on configuracoes
+for all to anon, authenticated
+using (true)
+with check (true);
+
+-- Atualiza a data sempre que a config for salva pelo site.
+alter table configuracoes add column if not exists updated_at timestamptz default now();

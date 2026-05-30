@@ -1,8 +1,8 @@
-/* Roleta v14 - fonte única Supabase + fallback local somente quando o banco falhar */
+/* Roleta v15 - sem valores fixos: sempre lê config_roleta do Supabase */
 let descontoRoleta = null;
 let roletaGirando = false;
 let roletaJaGirou = false;
-let roletaConfigAtual = { limite: 0, premios: [], fonte: 'inicial' };
+let roletaConfigAtual = { limite: 0, premios: [], fonte: 'não carregada', updated_at: null };
 
 function normalizarPremioRoleta(p){
   const texto = String(p?.texto || p?.nome || p?.codigo || '').trim();
@@ -13,42 +13,35 @@ function normalizarPremioRoleta(p){
   return { texto, tipo, valor: tipo === 'nenhum' ? 0 : valor };
 }
 
-function normalizarConfigRoleta(cfg, fonte){
+function normalizarConfigRoleta(cfg, fonte, updated_at){
   const premios = Array.isArray(cfg?.premios) ? cfg.premios.map(normalizarPremioRoleta).filter(Boolean).slice(0, 8) : [];
-  return { limite: Number(cfg?.limite || 0), premios, fonte: fonte || 'local' };
+  return { limite: Number(cfg?.limite || 0), premios, fonte: fonte || 'Supabase', updated_at: updated_at || null };
 }
 
 function salvarConfigRoletaMemoria(cfg){
-  roletaConfigAtual = normalizarConfigRoleta(cfg, cfg?.fonte || 'memoria');
-  try { localStorage.setItem('config_roleta', JSON.stringify({ limite: roletaConfigAtual.limite, premios: roletaConfigAtual.premios })); } catch(e) {}
+  roletaConfigAtual = normalizarConfigRoleta(cfg, cfg?.fonte || 'memória', cfg?.updated_at || null);
+  try { localStorage.setItem('config_roleta_ultima_supabase', JSON.stringify(roletaConfigAtual)); } catch(e) {}
   return roletaConfigAtual;
-}
-
-function getConfigRoletaLocalSeguro(){
-  try { return normalizarConfigRoleta(JSON.parse(localStorage.getItem('config_roleta') || '{}'), 'localStorage'); }
-  catch(e) { return { limite:0, premios:[], fonte:'localStorage-vazio' }; }
 }
 
 async function carregarConfigRoletaAtualizada(){
-  // Sempre tenta o Supabase primeiro. Isso é o que faz o celular pegar o que o ADM salvou.
-  if(typeof buscarConfiguracaoBanco === 'function'){
-    try{
-      const { data, error } = await buscarConfiguracaoBanco('config_roleta');
-      if(error) throw error;
-      if(data && data.valor){
-        return salvarConfigRoletaMemoria({ ...data.valor, fonte: 'Supabase' });
-      }
-      roletaConfigAtual = { limite:0, premios:[], fonte:'Supabase sem config_roleta' };
-      return roletaConfigAtual;
-    }catch(e){
-      console.warn('Falha ao carregar roleta do Supabase:', e?.message || e);
-      const local = getConfigRoletaLocalSeguro();
-      roletaConfigAtual = { ...local, fonte: 'localStorage após falha Supabase' };
+  if(typeof buscarConfiguracaoBanco !== 'function'){
+    roletaConfigAtual = { limite:0, premios:[], fonte:'erro: supabase-service.js não carregou', updated_at:null };
+    return roletaConfigAtual;
+  }
+  try{
+    const { data, error } = await buscarConfiguracaoBanco('config_roleta');
+    if(error) throw error;
+    if(!data || !data.valor){
+      roletaConfigAtual = { limite:0, premios:[], fonte:'Supabase sem config_roleta', updated_at:null };
       return roletaConfigAtual;
     }
+    return salvarConfigRoletaMemoria({ ...data.valor, fonte:'Supabase', updated_at:data.updated_at || null });
+  }catch(e){
+    console.error('Roleta não conseguiu ler Supabase:', e);
+    roletaConfigAtual = { limite:0, premios:[], fonte:'ERRO Supabase: '+(e?.message || e), updated_at:null };
+    return roletaConfigAtual;
   }
-  roletaConfigAtual = getConfigRoletaLocalSeguro();
-  return roletaConfigAtual;
 }
 
 function obterPremiosRoleta(){ return Array.isArray(roletaConfigAtual.premios) ? roletaConfigAtual.premios : []; }
@@ -61,21 +54,37 @@ function limparVisualRoleta(){
   if(wheel) wheel.style.transform='rotate(0deg)';
 }
 
+function aplicarCoresRoleta(){
+  const wheel=document.getElementById('roleta-wheel');
+  if(!wheel) return;
+  const premios=obterPremiosRoleta();
+  if(!premios.length){
+    wheel.style.background='conic-gradient(#333 0deg 360deg)';
+    return;
+  }
+  const cores=['#ff7a00','#1f1f22','#ff9d00','#2a2a2d','#e86800','#111','#b45309','#3f3f46'];
+  const passo=360/premios.length;
+  const partes=premios.map((_,i)=>`${cores[i%cores.length]} ${i*passo}deg ${(i+1)*passo}deg`);
+  wheel.style.background=`conic-gradient(${partes.join(',')})`;
+}
+
 function atualizarBotaoRoleta() {
   const btnCarrinho = document.getElementById('btn-abrir-roleta');
   const btnGirar = document.getElementById('btn-girar-roleta');
+  const premios = obterPremiosRoleta();
+  const roletaSemPremios = premios.length === 0;
   const roletaEsgotada = !cupomTemLimiteDisponivel({ codigo: 'ROLETA', limite: obterLimiteRoleta() });
   if (btnCarrinho) {
-    btnCarrinho.disabled = roletaJaGirou || roletaEsgotada;
-    btnCarrinho.classList.toggle('opacity-60', roletaJaGirou || roletaEsgotada);
-    btnCarrinho.classList.toggle('cursor-not-allowed', roletaJaGirou || roletaEsgotada);
-    btnCarrinho.innerHTML = roletaEsgotada ? '<i class="fas fa-ban mr-2"></i> Cupons da roleta esgotados' : (roletaJaGirou ? '<i class="fas fa-lock mr-2"></i> Roleta já utilizada neste pedido' : '<i class="fas fa-gift mr-2"></i> Girar roleta de desconto');
+    btnCarrinho.disabled = roletaJaGirou || roletaEsgotada || roletaSemPremios;
+    btnCarrinho.classList.toggle('opacity-60', roletaJaGirou || roletaEsgotada || roletaSemPremios);
+    btnCarrinho.classList.toggle('cursor-not-allowed', roletaJaGirou || roletaEsgotada || roletaSemPremios);
+    btnCarrinho.innerHTML = roletaSemPremios ? '<i class="fas fa-triangle-exclamation mr-2"></i> Roleta sem prêmios' : (roletaEsgotada ? '<i class="fas fa-ban mr-2"></i> Cupons da roleta esgotados' : (roletaJaGirou ? '<i class="fas fa-lock mr-2"></i> Roleta já utilizada neste pedido' : '<i class="fas fa-gift mr-2"></i> Girar roleta de desconto'));
   }
   if (btnGirar) {
-    btnGirar.disabled = roletaJaGirou || roletaGirando || roletaEsgotada;
-    btnGirar.classList.toggle('opacity-60', roletaJaGirou || roletaGirando || roletaEsgotada);
-    btnGirar.classList.toggle('cursor-not-allowed', roletaJaGirou || roletaGirando || roletaEsgotada);
-    btnGirar.textContent = roletaEsgotada ? 'Cupons esgotados' : (roletaJaGirou ? 'Roleta já usada' : 'Girar agora');
+    btnGirar.disabled = roletaJaGirou || roletaGirando || roletaEsgotada || roletaSemPremios;
+    btnGirar.classList.toggle('opacity-60', roletaJaGirou || roletaGirando || roletaEsgotada || roletaSemPremios);
+    btnGirar.classList.toggle('cursor-not-allowed', roletaJaGirou || roletaGirando || roletaEsgotada || roletaSemPremios);
+    btnGirar.textContent = roletaSemPremios ? 'Sem prêmios' : (roletaEsgotada ? 'Cupons esgotados' : (roletaJaGirou ? 'Roleta já usada' : 'Girar agora'));
   }
 }
 
@@ -84,6 +93,7 @@ function renderizarFatiasRoleta(){
   if(!labels) return;
   const premios=obterPremiosRoleta();
   labels.removeAttribute('data-ok');
+  aplicarCoresRoleta();
   if(!premios.length){
     labels.innerHTML='<span style="transform:translateY(-105px)">Sem prêmios</span>';
     return;
@@ -96,6 +106,10 @@ function renderizarFatiasRoleta(){
   labels.dataset.ok=String(premios.length);
 }
 
+function textoFonteRoleta(cfg){
+  return `${cfg.premios.length} prêmio(s) carregado(s) de ${cfg.fonte}${cfg.updated_at ? ' • '+new Date(cfg.updated_at).toLocaleString('pt-BR') : ''}.`;
+}
+
 async function abrirRoleta() {
   const modal=document.getElementById('modal-roleta-cupom');
   const resultado=document.getElementById('resultado-roleta');
@@ -104,7 +118,7 @@ async function abrirRoleta() {
   limparVisualRoleta();
   renderizarFatiasRoleta();
   if(resultado && !roletaJaGirou){
-    resultado.textContent = cfg.premios.length ? `${cfg.premios.length} prêmio(s) carregado(s) do ${cfg.fonte}.` : `Nenhum prêmio encontrado no ${cfg.fonte}. Salve no ADM.`;
+    resultado.textContent = cfg.premios.length ? textoFonteRoleta(cfg) : `Nenhum prêmio encontrado. Fonte: ${cfg.fonte}. Salve no ADM.`;
   }
   if(resultado && roletaJaGirou){
     resultado.textContent=descontoRoleta&&descontoRoleta.tipo!=='nenhum'?`Cupom já liberado: ${descontoRoleta.texto}`:'Você já girou a roleta neste pedido.';
@@ -134,11 +148,11 @@ async function girarRoleta(){
   if(!cupomTemLimiteDisponivel({codigo:'ROLETA',limite:obterLimiteRoleta()})){resultado.textContent='Os cupons da roleta acabaram.'; atualizarBotaoRoleta(); return;}
 
   const premios=obterPremiosRoleta();
-  if(!premios.length){resultado.textContent=`Nenhum prêmio configurado no ${cfg.fonte}. Salve no ADM e confira o SQL.`; return;}
+  if(!premios.length){resultado.textContent=`Nenhum prêmio configurado. Fonte: ${cfg.fonte}.`; atualizarBotaoRoleta(); return;}
 
   roletaGirando=true;
   atualizarBotaoRoleta();
-  resultado.textContent=`Girando com ${premios.length} prêmio(s) do ${cfg.fonte}...`;
+  resultado.textContent=`Girando com ${premios.length} prêmio(s) de ${cfg.fonte}...`;
 
   const index=Math.floor(Math.random()*premios.length);
   const passo=360/premios.length;
@@ -176,7 +190,7 @@ async function atualizarRoletaDepoisDoAdm(){
   const input=document.getElementById('cupom-cliente'); if(input&&input.value.trim().toUpperCase()==='ROLETA')input.value='';
   await carregarConfigRoletaAtualizada();
   limparVisualRoleta(); renderizarFatiasRoleta(); atualizarBotaoRoleta();
-  const resultado=document.getElementById('resultado-roleta'); if(resultado)resultado.textContent=`Prêmios atualizados do ${roletaConfigAtual.fonte}.`;
+  const resultado=document.getElementById('resultado-roleta'); if(resultado)resultado.textContent=textoFonteRoleta(roletaConfigAtual);
   if(typeof atualizarCarrinho==='function')atualizarCarrinho();
 }
 
