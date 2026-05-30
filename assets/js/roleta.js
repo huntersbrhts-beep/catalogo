@@ -88,7 +88,7 @@ function renderizarFatiasRoleta(forcar=false){
     labels.innerHTML='<span>Sem prêmios</span>';
     return;
   }
-  const passo=360/premiosAtualizados.length;
+  const passo=360/premios.length;
   labels.innerHTML=premios.map((p,i)=>`<span style="transform:rotate(${i*passo+passo/2}deg) translateY(-105px) rotate(-${i*passo+passo/2}deg)">${escaparHtml(p.texto)}</span>`).join('');
 }
 
@@ -97,34 +97,43 @@ function girarRoleta(){
   const wheel=document.getElementById('roleta-wheel');
   const resultado=document.getElementById('resultado-roleta');
   if(!wheel||!resultado)return;
-  renderizarFatiasRoleta(true);
-  if(roletaJaGirou){resultado.textContent='A roleta só pode ser girada uma vez por pedido.'; atualizarBotaoRoleta(); return;}
-  if(!cupomTemLimiteDisponivel({codigo:'ROLETA',limite:obterLimiteRoleta()})){resultado.textContent='Os cupons da roleta acabaram.'; atualizarBotaoRoleta(); return;}
+
+  // Sempre lê os prêmios salvos pelo ADM no momento do clique.
+  // Isso evita a roleta usar lista antiga que ficou carregada em tela/cache.
   const premios=obterPremiosRoleta();
+  assinaturaPremiosRoleta='';
+  renderizarFatiasRoleta(true);
+
+  if(roletaJaGirou){resultado.textContent='A roleta só pode ser girada uma vez por pedido.'; atualizarBotaoRoleta(); return;}
   if(!premios.length){resultado.textContent='Cadastre prêmios no ADM.'; atualizarBotaoRoleta(); return;}
+  if(!cupomTemLimiteDisponivel({codigo:'ROLETA',limite:obterLimiteRoleta()})){resultado.textContent='Os cupons da roleta acabaram.'; atualizarBotaoRoleta(); return;}
+
   roletaGirando=true;
   roletaJaGirou=true;
   atualizarBotaoRoleta();
   resultado.textContent='Girando...';
-  // Lê a lista atualizada no momento exato do giro
-  const premiosAtualizados=obterPremiosRoleta();
-  const index=Math.floor(Math.random()*premiosAtualizados.length);
-  const passo=360/premiosAtualizados.length;
+
+  const index=Math.floor(Math.random()*premios.length);
+  const passo=360/premios.length;
   const voltas=5+Math.floor(Math.random()*3);
   const anguloFinal=(voltas*360)+(360-(index*passo+passo/2));
   wheel.style.transform=`rotate(${anguloFinal}deg)`;
+
   setTimeout(()=>{
-    const premio=obterPremiosRoleta()[index] || premiosAtualizados[index] || premios[index];
+    const premiosAtuais=obterPremiosRoleta();
+    const premio=premiosAtuais[index] || premios[index];
     roletaGirando=false;
-    if(premio.tipo==='nenhum'){
+
+    if(!premio || premio.tipo==='nenhum'){
       descontoRoleta=null;
-      resultado.textContent='Quase! A roleta já foi usada neste pedido.';
+      resultado.textContent=premio ? `Resultado: ${premio.texto}` : 'Quase! Tente no próximo pedido.';
     }else{
       descontoRoleta={...premio,codigo:'ROLETA'};
       resultado.textContent=`Cupom liberado: ${premio.texto}`;
       const input=document.getElementById('cupom-cliente');
       if(input)input.value='ROLETA';
     }
+
     atualizarBotaoRoleta();
     atualizarCarrinho();
   },3200);
