@@ -25,6 +25,11 @@ function obterLimiteRoleta(){ return Number(getConfigRoleta().limite || 0); }
 
 function invalidarRoletaVisual(){
   assinaturaPremiosRoleta = '';
+  descontoRoleta = null;
+  roletaGirando = false;
+  roletaJaGirou = false;
+  const inputCupom=document.getElementById('cupom-cliente');
+  if(inputCupom && inputCupom.value.trim().toUpperCase()==='ROLETA') inputCupom.value='';
   const labels = document.getElementById('roleta-labels');
   if(labels){ labels.dataset.ok=''; labels.innerHTML=''; }
   const wheel = document.getElementById('roleta-wheel');
@@ -83,7 +88,7 @@ function renderizarFatiasRoleta(forcar=false){
     labels.innerHTML='<span>Sem prêmios</span>';
     return;
   }
-  const passo=360/premios.length;
+  const passo=360/premiosAtualizados.length;
   labels.innerHTML=premios.map((p,i)=>`<span style="transform:rotate(${i*passo+passo/2}deg) translateY(-105px) rotate(-${i*passo+passo/2}deg)">${escaparHtml(p.texto)}</span>`).join('');
 }
 
@@ -101,13 +106,15 @@ function girarRoleta(){
   roletaJaGirou=true;
   atualizarBotaoRoleta();
   resultado.textContent='Girando...';
-  const index=Math.floor(Math.random()*premios.length);
-  const passo=360/premios.length;
+  // Lê a lista atualizada no momento exato do giro
+  const premiosAtualizados=obterPremiosRoleta();
+  const index=Math.floor(Math.random()*premiosAtualizados.length);
+  const passo=360/premiosAtualizados.length;
   const voltas=5+Math.floor(Math.random()*3);
   const anguloFinal=(voltas*360)+(360-(index*passo+passo/2));
   wheel.style.transform=`rotate(${anguloFinal}deg)`;
   setTimeout(()=>{
-    const premio=obterPremiosRoleta()[index] || premios[index];
+    const premio=obterPremiosRoleta()[index] || premiosAtualizados[index] || premios[index];
     roletaGirando=false;
     if(premio.tipo==='nenhum'){
       descontoRoleta=null;
