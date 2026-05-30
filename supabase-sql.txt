@@ -1,197 +1,89 @@
--- ===== V21 ROLETA: CORREÇÃO DEFINITIVA =====
--- Rode este bloco no Supabase SQL Editor.
--- A tabela configuracoes guarda dados públicos do site, então a leitura/gravação é liberada para o site.
+-- DU LANCHES - V23 ROLETA EM TABELA PRÓPRIA
+-- Rode este arquivo no Supabase SQL Editor.
+-- A roleta NÃO usa mais config_roleta. Agora usa roleta_premios e roleta_config.
 
-create table if not exists public.configuracoes (
-  chave text primary key,
-  valor jsonb not null default '{}'::jsonb,
-  updated_at timestamptz default now()
+create extension if not exists pgcrypto;
+
+create table if not exists public.roleta_config (
+  id integer primary key default 1,
+  limite integer not null default 0,
+  updated_at timestamptz not null default now(),
+  constraint roleta_config_id_um check (id = 1)
 );
 
-alter table public.configuracoes disable row level security;
-grant usage on schema public to anon, authenticated;
-grant select, insert, update, delete on public.configuracoes to anon, authenticated;
-
-insert into public.configuracoes (chave, valor, updated_at) values
-('config_roleta', '{"limite":30,"premios":[{"texto":"5% OFF","tipo":"percentual","valor":5},{"texto":"10% OFF","tipo":"percentual","valor":10},{"texto":"R$ 5 OFF","tipo":"valor","valor":5},{"texto":"SEM CUPOM","tipo":"nenhum","valor":0}],"_versao":"v21-inicial"}'::jsonb, now())
-on conflict (chave) do nothing;
-
--- Conferir exatamente o que o site vai ler:
-select chave, valor, updated_at from public.configuracoes where chave = 'config_roleta';
-
-
-
--- Rode estes comandos no Supabase SQL Editor antes de usar todas as novas funções.
--- Eles não apagam seus produtos existentes.
-
-alter table produtos add column if not exists estoque integer;
-alter table produtos add column if not exists ativo boolean default true;
-alter table produtos add column if not exists tamanhos jsonb;
-
-create table if not exists pedidos (
+create table if not exists public.roleta_premios (
   id uuid primary key default gen_random_uuid(),
-  created_at timestamptz default now(),
-  cliente_nome text,
-  telefone text,
-  tipo_pedido text,
-  bairro text,
-  endereco text,
-  itens jsonb,
-  subtotal numeric,
-  taxa_entrega numeric,
-  desconto numeric,
-  total_final numeric,
-  status text default 'novo'
+  texto text not null,
+  tipo text not null default 'nenhum' check (tipo in ('percentual','valor','nenhum')),
+  valor numeric not null default 0,
+  ordem integer not null default 1,
+  ativo boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
 );
 
-alter table pedidos enable row level security;
+alter table public.roleta_config enable row level security;
+alter table public.roleta_premios enable row level security;
 
-drop policy if exists "Permitir inserir pedidos anon" on pedidos;
-create policy "Permitir inserir pedidos anon" on pedidos for insert to anon with check (true);
+drop policy if exists "roleta_config_read_all" on public.roleta_config;
+drop policy if exists "roleta_config_write_authenticated" on public.roleta_config;
+drop policy if exists "roleta_premios_read_all" on public.roleta_premios;
+drop policy if exists "roleta_premios_insert_authenticated" on public.roleta_premios;
+drop policy if exists "roleta_premios_update_authenticated" on public.roleta_premios;
+drop policy if exists "roleta_premios_delete_authenticated" on public.roleta_premios;
 
-drop policy if exists "Admin lê pedidos" on pedidos;
-create policy "Admin lê pedidos" on pedidos for select to authenticated using (true);
+create policy "roleta_config_read_all"
+on public.roleta_config
+for select
+to anon, authenticated
+using (true);
 
-drop policy if exists "Admin atualiza pedidos" on pedidos;
-create policy "Admin atualiza pedidos" on pedidos for update to authenticated using (true) with check (true);
-
-
--- ===== V12: configurações compartilhadas entre computador e celular =====
--- Necessário para a roleta do celular carregar os prêmios que o ADM salvou.
-create table if not exists configuracoes (
-  chave text primary key,
-  valor jsonb not null default '{}'::jsonb,
-  updated_at timestamptz default now()
-);
-
-alter table configuracoes enable row level security;
-
-drop policy if exists "Todos leem configuracoes" on configuracoes;
-create policy "Todos leem configuracoes" on configuracoes for select to anon, authenticated using (true);
-
-drop policy if exists "Admin salva configuracoes" on configuracoes;
-create policy "Admin salva configuracoes" on configuracoes for insert to authenticated with check (true);
-
-drop policy if exists "Admin atualiza configuracoes" on configuracoes;
-create policy "Admin atualiza configuracoes" on configuracoes for update to authenticated using (true) with check (true);
-
-insert into configuracoes (chave, valor) values
-('config_roleta', '{"limite":30,"premios":[{"texto":"5% OFF","tipo":"percentual","valor":5},{"texto":"10% OFF","tipo":"percentual","valor":10},{"texto":"R$ 5 OFF","tipo":"valor","valor":5},{"texto":"SEM CUPOM","tipo":"nenhum","valor":0}]}'::jsonb)
-on conflict (chave) do nothing;
-
--- ===== V14: política mais simples para o ADM conseguir salvar a roleta =====
-drop policy if exists "Admin gerencia configuracoes" on configuracoes;
-create policy "Admin gerencia configuracoes" on configuracoes for all to authenticated using (true) with check (true);
-
--- Garante que a linha da roleta existe. Depois edite pelo ADM.
-insert into configuracoes (chave, valor) values
-('config_roleta', '{"limite":30,"premios":[{"texto":"5% OFF","tipo":"percentual","valor":5},{"texto":"10% OFF","tipo":"percentual","valor":10},{"texto":"R$ 5 OFF","tipo":"valor","valor":5},{"texto":"SEM CUPOM","tipo":"nenhum","valor":0}]}'::jsonb)
-on conflict (chave) do nothing;
-
--- ===== V15: liberar leitura e salvamento da configuração da roleta sem falhar por sessão =====
--- A configuração da roleta não contém dados sensíveis. Esta política evita que o ADM salve só no navegador.
-drop policy if exists "Publico le e salva configuracoes" on configuracoes;
-create policy "Publico le e salva configuracoes" on configuracoes
-for all to anon, authenticated
+create policy "roleta_config_write_authenticated"
+on public.roleta_config
+for all
+to authenticated
 using (true)
 with check (true);
 
--- Atualiza a data sempre que a config for salva pelo site.
-alter table configuracoes add column if not exists updated_at timestamptz default now();
+create policy "roleta_premios_read_all"
+on public.roleta_premios
+for select
+to anon, authenticated
+using (true);
 
--- ===== V16 DEFINITIVO ROLETA =====
--- Esta versão usa a chave roleta_premios_site_v16 e não depende mais de cache/localStorage.
-create table if not exists configuracoes (
-  chave text primary key,
-  valor jsonb not null default '{}'::jsonb,
-  updated_at timestamptz default now()
-);
+create policy "roleta_premios_insert_authenticated"
+on public.roleta_premios
+for insert
+to authenticated
+with check (true);
 
-alter table configuracoes enable row level security;
-
-drop policy if exists "Publico le e salva configuracoes" on configuracoes;
-create policy "Publico le e salva configuracoes" on configuracoes
-for all to anon, authenticated
+create policy "roleta_premios_update_authenticated"
+on public.roleta_premios
+for update
+to authenticated
 using (true)
 with check (true);
 
--- Remove configuração de teste/padrão da chave nova. Depois salve pelo ADM.
-delete from configuracoes where chave = 'roleta_premios_site_v16';
+create policy "roleta_premios_delete_authenticated"
+on public.roleta_premios
+for delete
+to authenticated
+using (true);
 
--- Se quiser copiar a roleta antiga para a chave nova, rode depois de confirmar que config_roleta está certa:
--- insert into configuracoes (chave, valor, updated_at)
--- select 'roleta_premios_site_v16', valor, now() from configuracoes where chave='config_roleta'
--- on conflict (chave) do update set valor=excluded.valor, updated_at=now();
+insert into public.roleta_config (id, limite, updated_at)
+values (1, 30, now())
+on conflict (id) do nothing;
 
--- ===== V17 ROLETA DEFINITIVA =====
--- Rode este bloco no Supabase SQL Editor.
--- Ele libera leitura/salvamento da roleta na tabela configuracoes pela chave config_roleta.
-create table if not exists configuracoes (
-  chave text primary key,
-  valor jsonb not null default '{}'::jsonb,
-  updated_at timestamptz default now()
-);
+-- Só cria exemplos se a tabela estiver vazia. Depois você altera pelo ADM.
+insert into public.roleta_premios (texto, tipo, valor, ordem, ativo)
+select * from (values
+  ('5% OFF','percentual',5,1,true),
+  ('10% OFF','percentual',10,2,true),
+  ('R$ 5 OFF','valor',5,3,true),
+  ('SEM CUPOM','nenhum',0,4,true)
+) as v(texto,tipo,valor,ordem,ativo)
+where not exists (select 1 from public.roleta_premios);
 
-alter table configuracoes enable row level security;
-
-drop policy if exists "Publico le e salva configuracoes" on configuracoes;
-create policy "Publico le e salva configuracoes" on configuracoes
-for all to anon, authenticated
-using (true)
-with check (true);
-
--- Garante que existe pelo menos uma roleta inicial se ainda não houver nada.
-insert into configuracoes (chave, valor, updated_at) values
-('config_roleta', '{"limite":30,"premios":[{"texto":"5% OFF","tipo":"percentual","valor":5},{"texto":"10% OFF","tipo":"percentual","valor":10},{"texto":"R$ 5 OFF","tipo":"valor","valor":5},{"texto":"SEM CUPOM","tipo":"nenhum","valor":0}],"_versao":"v17-inicial"}'::jsonb, now())
-on conflict (chave) do nothing;
-
--- V18 ROLETА: garante que a chave usada pela roleta existe
-insert into configuracoes (chave, valor, updated_at) values
-('config_roleta', '{"limite":0,"premios":[{"texto":"10% OFF","tipo":"percentual","valor":10}],"_versao":"v18"}'::jsonb, now())
-on conflict (chave) do nothing;
-
-
--- ===== V19 ROLETA SOMENTE SUPABASE =====
--- Rode este bloco no Supabase SQL Editor.
-create table if not exists configuracoes (
-  chave text primary key,
-  valor jsonb not null default '{}'::jsonb,
-  updated_at timestamptz default now()
-);
-
-alter table configuracoes enable row level security;
-
-drop policy if exists "Publico le e salva configuracoes" on configuracoes;
-create policy "Publico le e salva configuracoes" on configuracoes
-for all to anon, authenticated
-using (true)
-with check (true);
-
--- Não sobrescreve seus prêmios se já existem.
-insert into configuracoes (chave, valor, updated_at) values
-('config_roleta', '{"limite":0,"premios":[{"texto":"CONFIGURE NO ADM","tipo":"nenhum","valor":0}],"_versao":"v19-inicial"}'::jsonb, now())
-on conflict (chave) do nothing;
-
--- ===== V20 ROLETA DEFINITIVA SOMENTE SUPABASE =====
--- Rode este bloco no Supabase SQL Editor.
-create table if not exists configuracoes (
-  chave text primary key,
-  valor jsonb not null default '{}'::jsonb,
-  updated_at timestamptz default now()
-);
-
-alter table configuracoes enable row level security;
-
-drop policy if exists "Publico le e salva configuracoes" on configuracoes;
-create policy "Publico le e salva configuracoes" on configuracoes
-for all to anon, authenticated
-using (true)
-with check (true);
-
--- Garante que a linha existe, sem sobrescrever os prêmios que você já salvou.
-insert into configuracoes (chave, valor, updated_at) values
-('config_roleta', '{"limite":0,"premios":[{"texto":"CONFIGURAR NO ADM","tipo":"nenhum","valor":0}],"_versao":"v20-inicial"}'::jsonb, now())
-on conflict (chave) do nothing;
-
--- Para conferir o que realmente está salvo no Supabase:
-select chave, valor, updated_at from configuracoes where chave = 'config_roleta';
+-- Teste: precisa retornar os prêmios da roleta.
+select texto, tipo, valor, ordem, ativo from public.roleta_premios order by ordem;
+select * from public.roleta_config where id = 1;
