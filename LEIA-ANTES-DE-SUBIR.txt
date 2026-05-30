@@ -1,3 +1,8 @@
+VERSÃO V10.0
+
+Esta versão exibe o número no rodapé e dentro do painel ADM.
+Se o rodapé não mostrar V10.0, o GitHub Pages ainda está servindo arquivo antigo ou o arquivo foi enviado na pasta errada.
+
 DU LANCHES - V9 SUPABASE REAL
 
 Correção definitiva do salvamento falso em localStorage:
