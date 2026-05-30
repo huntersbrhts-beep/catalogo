@@ -1,4 +1,4 @@
--- DU LANCHES - SQL COMPLETO ATUALIZADO V11
+-- DU LANCHES - SQL COMPLETO ATUALIZADO
 -- Rode este arquivo no Supabase: SQL Editor > New query > Run
 
 -- 1) Colunas extras na tabela produtos
@@ -69,19 +69,11 @@ create policy "loja_config_update_publico" on loja_config for update using (true
 -- 6) Storage: confira se o bucket imagens-produtos existe e está público.
 -- Se ainda não existir, crie em Storage > New bucket > imagens-produtos > Public bucket.
 
+-- 7) V11 - Pagamento, fidelidade e resumo do cliente
+alter table pedidos add column if not exists numero_pedido text;
+alter table pedidos add column if not exists forma_pagamento text;
+alter table pedidos add column if not exists resumo_cliente text;
 
--- 7) Políticas para produtos no painel ADM funcionar no GitHub Pages
--- Se a tabela produtos estiver com RLS ativo, essas políticas liberam leitura/gravação.
-alter table produtos enable row level security;
-
-drop policy if exists "produtos_select_publico" on produtos;
-create policy "produtos_select_publico" on produtos for select using (true);
-
-drop policy if exists "produtos_insert_publico" on produtos;
-create policy "produtos_insert_publico" on produtos for insert with check (true);
-
-drop policy if exists "produtos_update_publico" on produtos;
-create policy "produtos_update_publico" on produtos for update using (true) with check (true);
-
-drop policy if exists "produtos_delete_publico" on produtos;
-create policy "produtos_delete_publico" on produtos for delete using (true);
+insert into loja_config (chave, valor) values
+('programa_fidelidade', '{"ativo":true,"metaPedidos":5,"tipoPremio":"desconto","valorPremio":10,"textoPremio":"10% de desconto ao completar 5 pedidos"}'::jsonb)
+on conflict (chave) do nothing;
