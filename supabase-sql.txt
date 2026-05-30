@@ -55,3 +55,12 @@ create policy "Admin atualiza configuracoes" on configuracoes for update to auth
 insert into configuracoes (chave, valor) values
 ('config_roleta', '{"limite":30,"premios":[{"texto":"5% OFF","tipo":"percentual","valor":5},{"texto":"10% OFF","tipo":"percentual","valor":10},{"texto":"R$ 5 OFF","tipo":"valor","valor":5},{"texto":"SEM CUPOM","tipo":"nenhum","valor":0}]}'::jsonb)
 on conflict (chave) do nothing;
+
+-- ===== V14: política mais simples para o ADM conseguir salvar a roleta =====
+drop policy if exists "Admin gerencia configuracoes" on configuracoes;
+create policy "Admin gerencia configuracoes" on configuracoes for all to authenticated using (true) with check (true);
+
+-- Garante que a linha da roleta existe. Depois edite pelo ADM.
+insert into configuracoes (chave, valor) values
+('config_roleta', '{"limite":30,"premios":[{"texto":"5% OFF","tipo":"percentual","valor":5},{"texto":"10% OFF","tipo":"percentual","valor":10},{"texto":"R$ 5 OFF","tipo":"valor","valor":5},{"texto":"SEM CUPOM","tipo":"nenhum","valor":0}]}'::jsonb)
+on conflict (chave) do nothing;

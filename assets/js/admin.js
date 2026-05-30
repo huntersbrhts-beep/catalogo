@@ -199,3 +199,127 @@ async function renderizarRoletaAdmin(){
   if(typeof atualizarBotaoRoleta==='function')atualizarBotaoRoleta();
   if(typeof renderizarFatiasRoleta==='function')renderizarFatiasRoleta();
 }
+
+// ===== V14 DEFINITIVO: ADM salva e lê roleta somente pela configuração compartilhada =====
+function normalizarPremioRoletaAdminV14(p){
+  const texto = String(p?.texto || '').trim();
+  const tipo = ['percentual','valor','nenhum'].includes(String(p?.tipo || '').toLowerCase()) ? String(p.tipo).toLowerCase() : 'nenhum';
+  const valor = tipo === 'nenhum' ? 0 : numero(p?.valor || 0);
+  if(!texto) return null;
+  return { texto, tipo, valor };
+}
+
+function normalizarConfigRoletaAdminV14(cfg){
+  return {
+    limite: Number(cfg?.limite || 0),
+    premios: Array.isArray(cfg?.premios) ? cfg.premios.map(normalizarPremioRoletaAdminV14).filter(Boolean).slice(0,8) : []
+  };
+}
+
+async function buscarRoletaAdminV14(){
+  try{
+    if(typeof buscarConfiguracaoBanco === 'function'){
+      const { data, error } = await buscarConfiguracaoBanco('config_roleta');
+      if(error) throw error;
+      if(data && data.valor){
+        const cfg = normalizarConfigRoletaAdminV14(data.valor);
+        salvarJsonLocal('config_roleta', cfg);
+        if(typeof salvarConfigRoletaMemoria === 'function') salvarConfigRoletaMemoria({...cfg, fonte:'Supabase'});
+        return { cfg, fonte:'Supabase', error:null };
+      }
+    }
+  }catch(e){
+    return { cfg: normalizarConfigRoletaAdminV14(getConfigRoleta()), fonte:'localStorage', error:e };
+  }
+  return { cfg: normalizarConfigRoletaAdminV14(getConfigRoleta()), fonte:'localStorage', error:null };
+}
+
+async function salvarRoletaAdminV14(cfg){
+  const normalizada = normalizarConfigRoletaAdminV14(cfg);
+  salvarJsonLocal('config_roleta', normalizada);
+  if(typeof salvarConfigRoletaMemoria === 'function') salvarConfigRoletaMemoria({...normalizada, fonte:'Supabase'});
+  if(typeof salvarConfiguracaoBanco !== 'function'){
+    return { error: { message: 'Função salvarConfiguracaoBanco não carregou.' } };
+  }
+  const { error } = await salvarConfiguracaoBanco('config_roleta', normalizada);
+  if(!error && typeof carregarConfigRoletaAtualizada === 'function') await carregarConfigRoletaAtualizada();
+  return { error };
+}
+
+async function salvarTodosPremiosRoletaAdmin(){
+  const limite = parseInt(document.getElementById('roleta-limite-admin')?.value || '0') || 0;
+  const premios = [];
+  document.querySelectorAll('[data-premio-roleta-index]').forEach(row=>{
+    const idx = row.getAttribute('data-premio-roleta-index');
+    const texto = document.getElementById('premio-edit-texto-'+idx)?.value.trim() || '';
+    const tipo = document.getElementById('premio-edit-tipo-'+idx)?.value || 'nenhum';
+    const valor = numero(document.getElementById('premio-edit-valor-'+idx)?.value || 0);
+    const premio = normalizarPremioRoletaAdminV14({texto,tipo,valor});
+    if(premio) premios.push(premio);
+  });
+  const { error } = await salvarRoletaAdminV14({ limite, premios });
+  if(error){
+    alert('A roleta NÃO foi salva no Supabase. Rode o supabase-sql.txt atualizado e tente novamente. Erro: '+error.message);
+    return;
+  }
+  await renderizarRoletaAdmin();
+  if(typeof atualizarRoletaDepoisDoAdm === 'function') await atualizarRoletaDepoisDoAdm();
+  alert('Roleta salva no Supabase com sucesso. Abra no celular e teste novamente.');
+}
+
+async function salvarRoletaConfigAdmin(){
+  await salvarTodosPremiosRoletaAdmin();
+}
+
+async function salvarPremioRoletaAdmin(){
+  const texto = document.getElementById('premio-texto')?.value.trim();
+  const tipo = document.getElementById('premio-tipo')?.value || 'nenhum';
+  const valor = numero(document.getElementById('premio-valor')?.value || 0);
+  const premio = normalizarPremioRoletaAdminV14({ texto, tipo, valor });
+  if(!premio){ alert('Informe o nome do prêmio.'); return; }
+  if(premio.tipo !== 'nenhum' && !premio.valor){ alert('Informe o valor do prêmio.'); return; }
+  const { cfg } = await buscarRoletaAdminV14();
+  cfg.limite = parseInt(document.getElementById('roleta-limite-admin')?.value || cfg.limite || '0') || 0;
+  cfg.premios = Array.isArray(cfg.premios) ? cfg.premios : [];
+  if(cfg.premios.length >= 8){ alert('Limite de 8 prêmios na roleta.'); return; }
+  cfg.premios.push(premio);
+  const { error } = await salvarRoletaAdminV14(cfg);
+  if(error){
+    alert('A roleta NÃO foi salva no Supabase. Rode o supabase-sql.txt atualizado e tente novamente. Erro: '+error.message);
+    return;
+  }
+  const t=document.getElementById('premio-texto'); if(t)t.value='';
+  const v=document.getElementById('premio-valor'); if(v)v.value='';
+  await renderizarRoletaAdmin();
+  if(typeof atualizarRoletaDepoisDoAdm === 'function') await atualizarRoletaDepoisDoAdm();
+}
+
+async function removerPremioRoletaAdmin(i){
+  const { cfg } = await buscarRoletaAdminV14();
+  cfg.premios = (cfg.premios || []).filter((_,idx)=>idx!==i);
+  const { error } = await salvarRoletaAdminV14(cfg);
+  if(error){ alert('Não consegui remover no Supabase: '+error.message); return; }
+  await renderizarRoletaAdmin();
+  if(typeof atualizarRoletaDepoisDoAdm === 'function') await atualizarRoletaDepoisDoAdm();
+}
+
+async function renderizarRoletaAdmin(){
+  const { cfg, fonte, error } = await buscarRoletaAdminV14();
+  const limiteEl = document.getElementById('roleta-limite-admin');
+  if(limiteEl) limiteEl.value = cfg.limite || 0;
+  const box = document.getElementById('lista-premios-roleta');
+  if(!box) return;
+  const usados = usoCupomCodigo('ROLETA');
+  const premios = Array.isArray(cfg.premios) ? cfg.premios : [];
+  box.innerHTML =
+    `<div class="bg-blue-500/10 border border-blue-500/30 text-blue-200 p-3 rounded-xl text-sm mb-3">Fonte da roleta: <b>${escaparHtml(fonte)}</b>${error ? '<br>Erro: '+escaparHtml(error.message || error) : ''}</div>`+
+    `<p class="text-sm text-gray-400 mb-2">Usados: ${usados}/${cfg.limite || 'sem limite'} • Prêmios: ${premios.length}</p>`+
+    (premios.length ? premios.map((p,i)=>`<div class="admin-card space-y-2" data-premio-roleta-index="${i}"><div class="grid grid-cols-1 md:grid-cols-4 gap-2"><input id="premio-edit-texto-${i}" value="${escaparHtml(p.texto||'')}" class="p-3 rounded-xl" placeholder="Nome"><select id="premio-edit-tipo-${i}" class="p-3 rounded-xl"><option value="percentual" ${p.tipo==='percentual'?'selected':''}>%</option><option value="valor" ${p.tipo==='valor'?'selected':''}>R$</option><option value="nenhum" ${p.tipo==='nenhum'?'selected':''}>Sem desconto</option></select><input id="premio-edit-valor-${i}" type="number" step="0.01" value="${Number(p.valor||0)}" class="p-3 rounded-xl" placeholder="Valor"><button onclick="removerPremioRoletaAdmin(${i})" class="bg-red-600 hover:bg-red-700 text-white rounded-xl">Excluir</button></div></div>`).join('') : '<p class="text-gray-500">Nenhum prêmio cadastrado.</p>')+
+    '<button onclick="salvarTodosPremiosRoletaAdmin()" class="w-full btn-primary p-3 rounded-xl mt-3">Salvar tudo no Supabase</button>';
+}
+
+window.salvarTodosPremiosRoletaAdmin = salvarTodosPremiosRoletaAdmin;
+window.salvarRoletaConfigAdmin = salvarRoletaConfigAdmin;
+window.salvarPremioRoletaAdmin = salvarPremioRoletaAdmin;
+window.removerPremioRoletaAdmin = removerPremioRoletaAdmin;
+window.renderizarRoletaAdmin = renderizarRoletaAdmin;
