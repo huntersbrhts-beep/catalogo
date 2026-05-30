@@ -1,13 +1,23 @@
-DU LANCHES - V8 SUPABASE REAL
+DU LANCHES - V9 SUPABASE REAL
 
-Correção desta versão:
-- configurações do ADM não são mais salvas em localStorage
-- config_roleta, taxas_entrega, cupons, redes e aparência são buscados da tabela loja_config no Supabase
-- ao abrir o site, as chaves antigas do localStorage são apagadas automaticamente
+Correção definitiva do salvamento falso em localStorage:
+
+1. Configurações bloqueadas no navegador:
+   - config_roleta
+   - taxas_entrega
+   - cupons_desconto
+   - config_loja
+   - redes_sociais
+   - aparencia_loja
+   - ordem_categorias
+   - uso_cupons_desconto
+
+2. Agora essas chaves são removidas logo ao abrir o site.
+3. Qualquer tentativa de salvar essas chaves no localStorage é bloqueada.
+4. O index.html usa cache bust v9 para forçar o GitHub a carregar os arquivos novos.
+5. O token sb-...auth-token pode continuar aparecendo. Ele é normal do login do Supabase.
 
 IMPORTANTE:
-1) Rode o arquivo supabase-sql.txt no Supabase.
-2) Suba index.html e a pasta assets na raiz do GitHub.
-3) Abra o site com Ctrl + F5.
-4) No DevTools > Application > Local Storage, pode continuar aparecendo sb-...auth-token. Isso é normal do login Supabase.
-5) Não devem mais aparecer: config_roleta, taxas_entrega, cupons_desconto, redes_sociais, aparencia_loja, config_loja.
+- Suba o index.html e a pasta assets na RAIZ do repositório.
+- Depois abra o site e aperte CTRL + F5.
+- No DevTools > Aplicativo > Armazenamento local, as chaves config_roleta e taxas_entrega devem sumir.
