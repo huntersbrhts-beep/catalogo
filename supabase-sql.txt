@@ -121,3 +121,8 @@ with check (true);
 insert into configuracoes (chave, valor, updated_at) values
 ('config_roleta', '{"limite":30,"premios":[{"texto":"5% OFF","tipo":"percentual","valor":5},{"texto":"10% OFF","tipo":"percentual","valor":10},{"texto":"R$ 5 OFF","tipo":"valor","valor":5},{"texto":"SEM CUPOM","tipo":"nenhum","valor":0}],"_versao":"v17-inicial"}'::jsonb, now())
 on conflict (chave) do nothing;
+
+-- V18 ROLETА: garante que a chave usada pela roleta existe
+insert into configuracoes (chave, valor, updated_at) values
+('config_roleta', '{"limite":0,"premios":[{"texto":"10% OFF","tipo":"percentual","valor":10}],"_versao":"v18"}'::jsonb, now())
+on conflict (chave) do nothing;
