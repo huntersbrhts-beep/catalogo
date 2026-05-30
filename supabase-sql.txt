@@ -1,3 +1,26 @@
+-- ===== V21 ROLETA: CORREÇÃO DEFINITIVA =====
+-- Rode este bloco no Supabase SQL Editor.
+-- A tabela configuracoes guarda dados públicos do site, então a leitura/gravação é liberada para o site.
+
+create table if not exists public.configuracoes (
+  chave text primary key,
+  valor jsonb not null default '{}'::jsonb,
+  updated_at timestamptz default now()
+);
+
+alter table public.configuracoes disable row level security;
+grant usage on schema public to anon, authenticated;
+grant select, insert, update, delete on public.configuracoes to anon, authenticated;
+
+insert into public.configuracoes (chave, valor, updated_at) values
+('config_roleta', '{"limite":30,"premios":[{"texto":"5% OFF","tipo":"percentual","valor":5},{"texto":"10% OFF","tipo":"percentual","valor":10},{"texto":"R$ 5 OFF","tipo":"valor","valor":5},{"texto":"SEM CUPOM","tipo":"nenhum","valor":0}],"_versao":"v21-inicial"}'::jsonb, now())
+on conflict (chave) do nothing;
+
+-- Conferir exatamente o que o site vai ler:
+select chave, valor, updated_at from public.configuracoes where chave = 'config_roleta';
+
+
+
 -- Rode estes comandos no Supabase SQL Editor antes de usar todas as novas funções.
 -- Eles não apagam seus produtos existentes.
 

@@ -1,18 +1,10 @@
-VERSÃO V20 - ROLETA SOMENTE SUPABASE
+VERSÃO V21 - ROLETA CORRIGIDA E TESTADA
 
-O que mudou:
-- Removidos os scripts antigos da roleta do index.html.
-- A roleta agora usa apenas assets/js/roleta-v20-supabase-final.js.
-- config_roleta está bloqueado no localStorage/sessionStorage.
-- O ADM mostra: Roleta V20 - SOMENTE SUPABASE.
-- Se o Supabase falhar, aparece erro real. Não existe mais sucesso falso.
+1. Suba index.html e assets/ no GitHub.
+2. Rode o bloco V21 do supabase-sql.txt no Supabase.
+3. Abra o site com ?v=20260530-21.
+4. No ADM precisa aparecer: Roleta V21 - SOMENTE SUPABASE.
+5. Clique em Testar leitura Supabase.
+6. Se salvar, a mensagem correta é: SALVO NO SUPABASE COM SUCESSO.
 
-Passos obrigatórios:
-1. Suba TODOS os arquivos no GitHub, substituindo os antigos.
-2. Rode o bloco V20 do supabase-sql.txt no SQL Editor do Supabase.
-3. Abra o site com ?v=20260530-20.
-4. No ADM, confira se aparece "Roleta V20 - SOMENTE SUPABASE".
-5. Adicione/edite os prêmios e clique em SALVAR TUDO NO SUPABASE.
-6. Clique em Testar leitura Supabase.
-
-Se aparecer qualquer texto V18 ou V19, o GitHub/celular ainda está abrindo arquivo antigo.
+Nesta versão, os scripts antigos da roleta foram removidos do index e os caminhos antigos do admin.js foram neutralizados.
