@@ -1,18 +1,9 @@
-VERSÃO V23 - ROLETA EM TABELA SUPABASE
+DU LANCHES V25 - ROLETA SOMENTE SUPABASE
 
-Correção aplicada:
-- A roleta não usa mais config_roleta.
-- A roleta não usa mais localStorage.
-- Agora os prêmios ficam na tabela roleta_premios.
-- O limite fica na tabela roleta_config.
+1. Suba o CONTEÚDO do ZIP na raiz do GitHub Pages.
+2. Em assets/js deixe somente o arquivo roleta-v25-somente-tabela.js. Apague roleta.js e roleta-v*.js antigos do repositório.
+3. Rode o supabase-sql.txt no Supabase.
+4. Abra o site com ?v=20260530-25.
+5. No ADM precisa aparecer: Roleta V25 - SOMENTE TABELA SUPABASE.
 
-Obrigatório:
-1. Suba todos os arquivos no GitHub.
-2. Rode o arquivo supabase-sql.txt no Supabase SQL Editor.
-3. Abra o site com ?v=20260530-23 no final da URL.
-4. Entre no ADM > Configurações.
-5. Precisa aparecer: Roleta V23 - TABELA SUPABASE.
-6. Edite os prêmios e clique em SALVAR TUDO NA TABELA SUPABASE.
-7. Clique em Testar leitura Supabase.
-
-Se der erro, copie exatamente a mensagem que aparecer no alerta.
+Observação: este arquivo da roleta não usa localStorage. O site ainda pode usar localStorage para fidelidade, cupons locais e aparência, mas a roleta não.
