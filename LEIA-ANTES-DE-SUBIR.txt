@@ -1,13 +1,10 @@
-VERSÃO V17 - ROLETA CORRIGIDA
+VERSÃO V19 - ROLETA SOMENTE SUPABASE
 
-1) Suba TODOS os arquivos no GitHub.
-2) Rode o arquivo supabase-sql.txt no Supabase SQL Editor.
-3) Abra o site com ?v=20260530-17 no final da URL.
-4) Entre no ADM > Configurações > Prêmios da roleta.
-5) Adicione/edite prêmios e clique em "Salvar tudo no Supabase".
-6) A fonte precisa aparecer como: Fonte: Supabase.
+1. Suba index.html e a pasta assets na raiz do GitHub.
+2. Rode o supabase-sql.txt no Supabase.
+3. Abra o site com ?v=20260530-19.
+4. No ADM, em Configurações > Prêmios da roleta, deve aparecer: Roleta V19 - SOMENTE SUPABASE.
+5. Clique em Limpar config_roleta local uma vez no celular, se necessário.
+6. Salve os prêmios. A mensagem correta deve conter: Salvo no SUPABASE.
 
-Correção principal:
-- A roleta agora usa APENAS a tabela configuracoes, chave config_roleta.
-- Não usa mais localStorage para decidir os prêmios.
-- Se o Supabase falhar, mostra erro real e não mostra falso sucesso.
+Se aparecer qualquer mensagem falando apenas "Prêmios atualizados" ou "modo padrão", o navegador ainda está carregando versão antiga.

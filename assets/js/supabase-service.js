@@ -25,18 +25,17 @@ async function salvarConfiguracaoBanco(chave, valor){
     .single();
 }
 async function carregarConfiguracoesBanco(){
-  const chaves=['config_roleta','redes_sociais','aparencia_loja','config_loja','taxas_entrega','cupons_desconto','ordem_categorias'];
+  const chaves=['redes_sociais','aparencia_loja','config_loja','taxas_entrega','cupons_desconto','ordem_categorias']; // config_roleta fica somente no Supabase
   const { data, error } = await _supabase.from('configuracoes').select('chave,valor').in('chave', chaves);
   if(error){ console.warn('Configurações Supabase não carregadas. Rode o SQL v12.', error.message); return; }
   (data||[]).forEach(item=>{
     if(item && item.chave){
-      try{ localStorage.setItem(item.chave, JSON.stringify(item.valor ?? {})); }catch(e){}
+      if(item.chave !== 'config_roleta'){ try{ localStorage.setItem(item.chave, JSON.stringify(item.valor ?? {})); }catch(e){} }
     }
   });
 }
 async function salvarConfigCompartilhada(chave, valor){
-  // V17: para a roleta, não mascarar erro com localStorage.
-  // Outras configs continuam salvando localmente como apoio visual.
+  // V19: config_roleta NUNCA salva no localStorage.
   if(chave !== 'config_roleta') salvarJsonLocal(chave, valor);
   try{
     const resp = await salvarConfiguracaoBanco(chave, valor);
@@ -45,6 +44,7 @@ async function salvarConfigCompartilhada(chave, valor){
       return { data:null, error:resp.error };
     }
     if(chave !== 'config_roleta') salvarJsonLocal(chave, valor);
+    else { try{ localStorage.removeItem('config_roleta'); }catch(e){} }
     return resp;
   }catch(e){
     console.error('Erro ao salvar configuração:', chave, e.message);

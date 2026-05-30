@@ -126,3 +126,25 @@ on conflict (chave) do nothing;
 insert into configuracoes (chave, valor, updated_at) values
 ('config_roleta', '{"limite":0,"premios":[{"texto":"10% OFF","tipo":"percentual","valor":10}],"_versao":"v18"}'::jsonb, now())
 on conflict (chave) do nothing;
+
+
+-- ===== V19 ROLETA SOMENTE SUPABASE =====
+-- Rode este bloco no Supabase SQL Editor.
+create table if not exists configuracoes (
+  chave text primary key,
+  valor jsonb not null default '{}'::jsonb,
+  updated_at timestamptz default now()
+);
+
+alter table configuracoes enable row level security;
+
+drop policy if exists "Publico le e salva configuracoes" on configuracoes;
+create policy "Publico le e salva configuracoes" on configuracoes
+for all to anon, authenticated
+using (true)
+with check (true);
+
+-- Não sobrescreve seus prêmios se já existem.
+insert into configuracoes (chave, valor, updated_at) values
+('config_roleta', '{"limite":0,"premios":[{"texto":"CONFIGURE NO ADM","tipo":"nenhum","valor":0}],"_versao":"v19-inicial"}'::jsonb, now())
+on conflict (chave) do nothing;
