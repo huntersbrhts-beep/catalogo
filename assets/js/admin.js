@@ -30,18 +30,43 @@ async function salvarRoletaConfigAdmin(){const cfg=getConfigRoleta(); cfg.limite
 async function salvarPremioRoletaAdmin(){const texto=document.getElementById('premio-texto')?.value.trim(); const tipo=document.getElementById('premio-tipo')?.value; const valor=numero(document.getElementById('premio-valor')?.value||0); if(!texto){alert('Informe o nome do prêmio.');return;} if(tipo!=='nenhum'&&!valor){alert('Informe o valor do prêmio.');return;} const cfg=getConfigRoleta(); cfg.premios=cfg.premios||[]; if(cfg.premios.length>=8){alert('Limite de 8 prêmios na roleta.');return;} cfg.premios.push({texto,tipo,valor}); try{await salvarConfigSupabase('config_roleta',cfg);}catch(e){return;} document.getElementById('premio-texto').value=''; document.getElementById('premio-valor').value=''; renderizarRoletaAdmin(); alert('Prêmio salvo no Supabase.');}
 async function removerPremioRoletaAdmin(i){const cfg=getConfigRoleta(); cfg.premios=(cfg.premios||[]).filter((_,idx)=>idx!==i); try{await salvarConfigSupabase('config_roleta',cfg);}catch(e){return;} renderizarRoletaAdmin();}
 function renderizarRoletaAdmin(){const cfg=getConfigRoleta(); const limiteEl=document.getElementById('roleta-limite-admin'); if(limiteEl)limiteEl.value=cfg.limite||0; const box=document.getElementById('lista-premios-roleta'); if(!box)return; const usados=usoCupomCodigo('ROLETA'); box.innerHTML=`<p class="text-sm text-gray-400 mb-2">Usados: ${usados}/${cfg.limite||'sem limite'}</p>`+((cfg.premios||[]).length?cfg.premios.map((p,i)=>`<div class="admin-card flex justify-between gap-3"><span>${escaparHtml(p.texto)} - ${p.tipo==='percentual'?p.valor+'%':p.tipo==='valor'?formatarMoeda(p.valor):'sem desconto'}</span><button onclick="removerPremioRoletaAdmin(${i})" class="text-red-400">Excluir</button></div>`).join(''):'<p class="text-gray-500">Nenhum prêmio cadastrado.</p>'); if(typeof renderizarFatiasRoleta==='function'){const labels=document.getElementById('roleta-labels'); if(labels)labels.dataset.ok=''; renderizarFatiasRoleta(true);}}
-function renderizarConfigAdmin(){const cfg=getConfigLoja(); document.getElementById('config-banner').value=cfg.banner||''; document.getElementById('hora-abre').value=cfg.abre||'18:00'; document.getElementById('hora-fecha').value=cfg.fecha||'23:59'; document.getElementById('loja-forcar').value=cfg.forcar||'auto'; const taxas=getTaxas(); document.getElementById('lista-taxas').innerHTML=Object.keys(taxas).length?Object.entries(taxas).map(([b,v])=>`<div class="admin-card flex justify-between"><span>${b}: ${formatarMoeda(v)}</span><button onclick="removerTaxa('${b}')" class="text-red-400">Excluir</button></div>`).join(''):'<p class="text-gray-500">Nenhuma taxa cadastrada.</p>'; const a=getAparenciaLoja(); const cor=document.getElementById('config-cor-fundo'); if(cor)cor.value=a.corFundo||''; const usar=document.getElementById('config-usar-imagem'); if(usar)usar.value=a.usarImagem?'true':'false'; const redes=getRedesSociais(); if(document.getElementById('rede-instagram'))document.getElementById('rede-instagram').value=redes.instagram||''; if(document.getElementById('rede-facebook'))document.getElementById('rede-facebook').value=redes.facebook||''; if(document.getElementById('rede-whatsapp'))document.getElementById('rede-whatsapp').value=redes.whatsapp||'31984656166'; renderizarRoletaAdmin(); renderizarCategoriasAdmin(); aplicarAparenciaLoja(); renderizarRodapeRedes();}
-
-const __renderizarConfigAdminBaseV11 = renderizarConfigAdmin;
 function renderizarConfigAdmin(){
-  __renderizarConfigAdminBaseV11();
+  const cfg=getConfigLoja();
+  const banner=document.getElementById('config-banner'); if(banner)banner.value=cfg.banner||'';
+  const abre=document.getElementById('hora-abre'); if(abre)abre.value=cfg.abre||'18:00';
+  const fecha=document.getElementById('hora-fecha'); if(fecha)fecha.value=cfg.fecha||'23:59';
+  const forcar=document.getElementById('loja-forcar'); if(forcar)forcar.value=cfg.forcar||'auto';
+
+  const listaTaxas=document.getElementById('lista-taxas');
+  if(listaTaxas){
+    const taxas=getTaxas();
+    listaTaxas.innerHTML=Object.keys(taxas).length
+      ? Object.entries(taxas).map(([b,v])=>`<div class="admin-card flex justify-between"><span>${escaparHtml(b)}: ${formatarMoeda(v)}</span><button onclick="removerTaxa('${escaparHtml(b)}')" class="text-red-400">Excluir</button></div>`).join('')
+      : '<p class="text-gray-500">Nenhuma taxa cadastrada.</p>';
+  }
+
+  const a=getAparenciaLoja();
+  const cor=document.getElementById('config-cor-fundo'); if(cor)cor.value=a.corFundo||'';
+  const usar=document.getElementById('config-usar-imagem'); if(usar)usar.value=a.usarImagem?'true':'false';
+
+  const redes=getRedesSociais();
+  if(document.getElementById('rede-instagram'))document.getElementById('rede-instagram').value=redes.instagram||'';
+  if(document.getElementById('rede-facebook'))document.getElementById('rede-facebook').value=redes.facebook||'';
+  if(document.getElementById('rede-whatsapp'))document.getElementById('rede-whatsapp').value=redes.whatsapp||'31984656166';
+
   const fid=getProgramaFidelidade();
   if(document.getElementById('fid-ativo'))document.getElementById('fid-ativo').value=String(fid.ativo!==false);
   if(document.getElementById('fid-meta'))document.getElementById('fid-meta').value=fid.metaPedidos||5;
   if(document.getElementById('fid-tipo'))document.getElementById('fid-tipo').value=fid.tipoPremio||'desconto';
   if(document.getElementById('fid-valor'))document.getElementById('fid-valor').value=fid.valorPremio||10;
   if(document.getElementById('fid-texto'))document.getElementById('fid-texto').value=fid.textoPremio||'10% de desconto ao completar 5 pedidos';
+
+  renderizarRoletaAdmin();
+  renderizarCategoriasAdmin();
+  aplicarAparenciaLoja();
+  renderizarRodapeRedes();
 }
+
 async function salvarFidelidadeAdmin(){
   const cfg={
     ativo:document.getElementById('fid-ativo')?.value==='true',
